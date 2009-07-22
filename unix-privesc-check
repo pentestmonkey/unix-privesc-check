@@ -76,8 +76,9 @@
 #   - my_echo 2 "This is less important and should only be printed in verbose mode"
 # - We check some files / dirs multiple times.  Slow.  Can we implement a cache?
 # - grep for PRIVATE KEY to find private ssh and ssl keys.  Where to grep?
+# - check SGID programs
 
-VERSION="1.3"
+VERSION="1.4"
 HOME_DIR_FILES=".netrc .ssh/id_rsa .ssh/id_dsa .rhosts .shosts .my.cnf .ssh/authorized_keys .bash_history .sh_history .forward"
 CONFIG_FILES="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.con /etc/xinetd.d/* /etc/contab /etc/fstab /etc/profile /etc/sudoers"
 PGDIRS="/usr/local/pgsql/data ~postgres/postgresql/data ~postgres/data ~pgsql/data ~pgsql/pgsql/data /var/lib/postgresql/data /etc/postgresql/8.2/main /var/lib/pgsql/data"
@@ -142,14 +143,14 @@ fi
 # Parse any full paths from $1 (config files, progs, dirs).
 # Check the permissions on each of these.
 check_called_programs () {
-	CPP_MESSAGE_STACK=$1
+	CCP_MESSAGE_STACK=$1
 	CCP_FILE=$2
 	CCP_USER=$3
 	CCP_PATH=$4 # optional
 
 	# Check the perms of the supplied file regardless
 	# The caller doesn't want to have to call check_perms as well as check_called_programs
-	check_perms "$CPP_MESSAGE_STACK" "$CCP_FILE" "$CCP_USER" "$CCP_PATH"
+	check_perms "$CCP_MESSAGE_STACK" "$CCP_FILE" "$CCP_USER" "$CCP_PATH"
 
 	# Skip the slow check if we're in quick mode
 	if [ "$MODE" = "standard" ]; then
@@ -166,20 +167,75 @@ check_called_programs () {
 		CALLED_FILES=`grep -v '^#' "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`
 		for CALLED_FILE in $CALLED_FILES; do
 			# echo "$CCP_FILE contains a reference to $CALLED_FILE.  Checking perms."
-			check_perms "$CPP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+			check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
 		done
 	else
 		# Process dynamically linked binaries
 		if [ ! -z "$IS_DYNBIN" ]; then
+		
 			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' '`
 			for CALLED_FILE in $CALLED_FILES; do
-				check_perms "$CPP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
 			done
 	
 			# Strings binary to look for hard-coded config files 
 			# or other programs that might be called.
 			for CALLED_FILE in `strings "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`; do
-				check_perms "$CPP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+			done
+		fi
+	fi
+}
+
+# Parse any full paths from $1 (config files, progs, dirs).
+# Check the permissions on each of these.
+check_called_programs_suid () {
+	CCP_FILE=$1
+	CCP_PATH=$2 # optional
+
+	get_owner $CCP_FILE; CCP_USER=$GET_OWNER_RETURN
+	CCP_MESSAGE_STACK="$CCP_FILE is SUID $CCP_USER."
+	LS=`ls -l $CCP_FILE`
+	echo "Checking SUID-$CCP_USER program $CCP_FILE: $LS"
+
+	# Don't check perms of executable itself
+	# check_perms "$CCP_MESSAGE_STACK" "$CCP_FILE" "$CCP_USER" "$CCP_PATH"
+
+	# Check if file is text or not
+	IS_TEXT=`file "$CCP_FILE" | grep -i text`
+	IS_DYNBIN=`file "$CCP_FILE" | grep -i 'dynamically linked'`
+
+	# Process shell scripts (would also work on config files that reference other files)
+	if [ ! -z "$IS_TEXT" ]; then
+		# Skip the slow check if we're in quick mode
+		if [ "$MODE" = "standard" ]; then
+			return 0;
+		fi
+
+		# Parse full paths from file - ignoring commented lines
+		CALLED_FILES=`grep -v '^#' "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`
+		for CALLED_FILE in $CALLED_FILES; do
+			# echo "$CCP_FILE contains a reference to $CALLED_FILE.  Checking perms."
+			check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+		done
+	else
+		# Process dynamically linked binaries
+		if [ ! -z "$IS_DYNBIN" ]; then
+		
+			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' '`
+			for CALLED_FILE in $CALLED_FILES; do
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+			done
+	
+			# Skip the slow check if we're in quick mode
+			if [ "$MODE" = "standard" ]; then
+				return 0;
+			fi
+
+			# Strings binary to look for hard-coded config files 
+			# or other programs that might be called.
+			for CALLED_FILE in `strings "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`; do
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
 			done
 		fi
 	fi
@@ -192,7 +248,7 @@ check_perms () {
 	CHECK_PERMS_USER=$3
 	CHECK_PERMS_PATH=$4 # optional
 
-	if [ ! -b "$CHECK_PERMS_FILE" ] && [ ! -f "$CHECK_PERMS_FILE" ] && [ ! -d "$CHECK_PERMS_FILE" ]; then
+	if [ ! -f "$CHECK_PERMS_FILE" ] && [ ! -d "$CHECK_PERMS_FILE" ] && [ ! -b "$CHECK_PERMS_FILE" ]; then
 		CHECK_PERMS_FOUND=0
 		if [ ! -z "$CHECK_PERMS_PATH" ]; then 
 			# Look for it in the supplied path
@@ -217,7 +273,7 @@ check_perms () {
 		return 0
 	fi
 
-	echo "Checking if anyone except $CHECK_PERMS_USER can change $CHECK_PERMS_FILE"
+	echo "    Checking if anyone except $CHECK_PERMS_USER can change $CHECK_PERMS_FILE"
 
 	while [ -n "$CHECK_PERMS_FILE" ]; do
 		perms_secure "$CP_MESSAGE_STACK" $CHECK_PERMS_FILE $CHECK_PERMS_USER
@@ -236,7 +292,7 @@ check_read_perms () {
 		return 0
 	fi
 
-	echo "Checking if anyone except $CHECK_PERMS_USER can read file $CHECK_PERMS_FILE"
+	echo "    Checking if anyone except $CHECK_PERMS_USER can read file $CHECK_PERMS_FILE"
 
 	perms_secure_read "$CP_MESSAGE_STACK" "$CHECK_PERMS_FILE" "$CHECK_PERMS_USER"
 }
@@ -266,7 +322,7 @@ perms_secure () {
 	PERMS_SECURE_FILE=$2
 	PERMS_SECURE_USER=$3
 
-	if [ ! -b "$PERMS_SECURE_FILE" ] && [ ! -f "$PERMS_SECURE_FILE" ] && [ ! -d "$PERMS_SECURE_FILE" ]; then
+	if [ ! -d "$PERMS_SECURE_FILE" ] && [ ! -f "$PERMS_SECURE_FILE" ] && [ ! -b "$PERMS_SECURE_FILE" ]; then
 		# echo "ERROR: No such file or directory: $PERMS_SECURE_FILE.  Skipping."
 		return 0
 	fi
@@ -352,12 +408,12 @@ world_can_write () {
 	P=`ls -lLd $O_FILE | cut -c 9`
 	S=`ls -lLd $O_FILE | cut -c 10`
 
-	if [ "$P" = "w" ] && [ "$S" = "-" ]; then
-		echo "WARNING: $O_MESSAGE_STACK World write is set for $O_FILE"
-	fi
-
-	if [ "$P" = "w" ] && [ "$S" = "t" ]; then
-		echo "WARNING: $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set)"
+	if [ "$P" = "w" ]; then
+		if [ "$S" = "t" ]; then
+			echo "WARNING: $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set)"
+		else
+			echo "WARNING: $O_MESSAGE_STACK World write is set for $O_FILE"
+		fi
 	fi
 }
 
@@ -635,7 +691,6 @@ if [ "$OS" = "linux" ]; then
 		DEVICE=`echo "$LINE" | awk '{print $1}'`
 		FS=`echo "$LINE" | awk '{print $5}'`
 		if [ "$FS" = "ext2" ] || [ "$FS" = "ext3" ] ||[  "$FS" = "reiserfs" ]; then
-			echo -------------------
 			echo "Checking device $DEVICE"
 			check_perms "$DEVICE is a mounted file system." $DEVICE root
 		fi
@@ -644,7 +699,6 @@ elif [ "$OS" = "bsd" ]; then
 	mount | grep ufs | while read LINE
 	do
 		DEVICE=`echo "$LINE" | awk '{print $1}'`
-		echo -------------------
 		echo "Checking device $DEVICE"
 		check_perms "$DEVICE is a mounted file system." $DEVICE root
 	done
@@ -653,7 +707,6 @@ elif [ "$OS" = "solaris" ]; then
 	do
 		DEVICE=`echo "$LINE" | awk '{print $3}'`
 		if [ ! "$DEVICE" = "swap" ]; then
-			echo -------------------
 			echo "Checking device $DEVICE"
 			check_perms "$DEVICE is a mounted file system." $DEVICE root
 		fi
@@ -664,7 +717,6 @@ elif [ "$OS" = "hpux" ]; then
 		DEVICE=`echo "$LINE" | awk '{print $3}'`
 		C=`echo $DEVICE | cut -c 1`
 		if [ "$C" = "/" ]; then
-			echo -------------------
 			echo "Checking device $DEVICE"
 			check_perms "$DEVICE is a mounted file system." $DEVICE root
 		fi
@@ -691,17 +743,16 @@ if [ -f "/etc/crontab" ] && [ -r "/etc/crontab" ]; then
 	# Process run-parts
 	grep -v '^#' /etc/crontab | grep -v '^[ \t]*$' | grep '[ \t][^ \t][^ \t]*[ \t][ \t]*' | grep run-parts | while read LINE
 	do
-		echo -----------------
 		echo "Processing crontab run-parts entry: $LINE"
 		USER=`echo "$LINE" | awk '{print $6}'`
 		DIR=`echo "$LINE" | sed 's/.*run-parts[^()&|;\/]*\(\/[^ ]*\).*/\1/'`
 		check_perms "$DIR holds cron jobs which are run as $USER." "$DIR" "$USER"
 		if [ -d "$DIR" ]; then
-			echo "Checking directory: $DIR"
+			echo "    Checking directory: $DIR"
 			for FILE in $DIR/*; do
 				FILENAME=`echo "$FILE" | sed 's/.*\///'`
 				if [ "$FILENAME" = "*" ]; then 
-					echo "No files in this directory."
+					echo "    No files in this directory."
 					continue
 				fi
 				check_called_programs "$FILE is run by cron as $USER." "$FILE" "$USER"
@@ -716,7 +767,6 @@ if [ -f "/etc/crontab" ] && [ -r "/etc/crontab" ]; then
 
 	grep -v '^#' /etc/crontab | grep -v '^[ 	]*$' | grep '[ 	][^ 	][^ 	]*[ 	][ 	]*' | while read LINE
 	do 
-		echo -----------------
 		echo "Processing crontab entry: $LINE"
 		USER=`echo "$LINE" | awk '{print $6}'`
 		PROG=`echo "$LINE" | awk '{print $7}'`
@@ -732,7 +782,7 @@ if [ -n "$CRONDIRS" ]; then
 	section "Checking /etc/cron.(hourly|daily|weekly|monthly)"
 	for DIR in hourly daily weekly monthly; do
 		if [ -d "/etc/cron.$DIR" ]; then
-			echo "Checking directory: /etc/cron.$DIR"
+			echo "    Checking directory: /etc/cron.$DIR"
 			for FILE in /etc/cron.$DIR/*; do
 				FILENAME=`echo "$FILE" | sed 's/.*\///'`
 				if [ "$FILENAME" = "*" ]; then 
@@ -753,7 +803,6 @@ if [ -d "/var/spool/cron/crontabs" ]; then
 			echo "No user crontabs found in /var/spool/cron/crontabs.  Skipping checks."
 			continue
 		fi
-		echo -----------------
 		echo "Processing crontab for $USER: $FILE"
 		if [ -r "$FILE" ]; then
 			MYPATH=`grep '^PATH=' "$FILE" | cut -f 2 -d = `
@@ -782,7 +831,6 @@ if [ -d "/var/spool/cron/tabs" ]; then
 			echo "No user crontabs found in /var/spool/cron/crontabs.  Skipping checks."
 			continue
 		fi
-		echo -----------------
 		echo "Processing crontab for $USER: $FILE"
 		if [ -r "$FILE" ]; then
 			MYPATH=`grep '^PATH=' "$FILE" | cut -f 2 -d = `
@@ -816,7 +864,6 @@ if [ -f /etc/inetd.conf ] && [ -r /etc/inetd.conf ]; then
 			# Not calling an external program
 			continue
 		fi
-		echo ----------------------
 		echo Processing inetd line: $LINE
 		if [ -f "$PROG" ]; then
 			check_called_programs "$PROG is run from inetd as $USER." $PROG $USER
@@ -834,7 +881,6 @@ fi
 section "Checking xinetd programs aren't writeable"
 if [ -d /etc/xinetd.d ]; then
 	for FILE in `grep 'disable[ \t]*=[ \t]*no' /etc/xinetd.d/* | cut -f 1 -d :`; do
-		echo -------------------
 		echo Processing xinetd service file: $FILE
 		PROG=`grep '^[ \t]*server[ \t]*=[ \t]*' $FILE | sed 's/.*server.*=[ \t]*//'`
 		USER=`grep '^[ \t]*user[ \t]*=[ \t]*' $FILE | sed 's/.*user.*=[ \t]*//'`
@@ -848,16 +894,15 @@ fi
 section "Checking home directories aren't writable"
 cat /etc/passwd | grep -v '^#' | while read LINE
 do
-	echo -----------
 	echo Processing /etc/passwd line: $LINE
 	USER=`echo $LINE | cut -f 1 -d :`
 	DIR=`echo $LINE | cut -f 6 -d :`
 	SHELL=`echo $LINE | cut -f 7 -d :`
 	if [ "$SHELL" = "/sbin/nologin" ] || [ "$SHELL" = "/bin/false" ]; then
-		echo "Skipping user $USER.  They don't have a shell."
+		echo "    Skipping user $USER.  They don't have a shell."
 	else
 		if [ "$DIR" = "/dev/null" ]; then
-			echo "Skipping /dev/null home directory"
+			echo "    Skipping /dev/null home directory"
 		else
 			check_perms "$DIR is the home directory of $USER." $DIR $USER
 		fi
@@ -877,6 +922,15 @@ do
 		fi
 	done
 done
+
+section "Checking SUID programs"
+if [ "$MODE" = "detailed" ]; then
+	for FILE in `find / -type f -perm -04000 2>/dev/null`; do
+		check_called_programs_suid $FILE 
+	done
+else
+	echo "Skipping checks of SUID programs (it's slow!).  Run again in 'detailed' mode."
+fi
 
 # Check for private SSH keys in home directories
 section "Checking for Private SSH Keys home directories"
@@ -946,7 +1000,6 @@ for DIR in /etc/init.d /etc/rc.d /usr/local/etc/rc.d; do
 	                        echo "No user startup script found in $DIR.  Skipping checks."
 	                        continue
 	                fi
-			echo -------------
 			echo Processing startup script $FILE
 			check_called_programs "$FILE is run by root at startup." $FILE root
 		done
