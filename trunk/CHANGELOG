@@ -1,4 +1,9 @@
 
+2008-11-23 unix-privesc-check v1.4
+
+* Added check of file perms of shared libraries used by SUID programs.
+* Tidied output slightly.
+
 2008-11-09 unix-privesc-check v1.3
 
 * Bug fix: Parts of the script only worked with /bin/bash and not /bin/sh
