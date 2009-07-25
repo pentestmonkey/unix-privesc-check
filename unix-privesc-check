@@ -1,6 +1,7 @@
 #!/bin/sh
 # unix-privesc-check - Checks Unix system for simple privilege escalations
 # Copyright (C) 2008 pentestmonkey@pentestmonkey.net
+# Copyright (C) 2009 timb@nth-dimension.org.uk
 #
 #
 # License
@@ -52,13 +53,19 @@
 # - Check /proc/pid/cmdline for absolute path names.  Check security of these (e.g. /etc/snmp/snmpd.conf)
 # - Check everything in root's path - how to find root's path?
 # - /proc/pid/maps, smaps are readable and lists some shared objects.  We should check these.
+#   - We can also read the maps to discover if process stack is NX
+# - Might be nice to check for stack cookie functions in network processes
+# - Is ASLR enabled on Linux?
+# - How about checking for SELinux
+# - Is firewall DMA enabled?
+# - Loadable kernel modules?
 # - /proc/pid/fd contain symlinks to all open files (but you can't see other people FDs)
 # - check for trust relationships in /etc/hosts.equiv
 # - NFS imports / exports / automounter
 # - Insecure stuff in /etc/fstab (e.g. allowing users to mount file systems)
 # - Inspecting people's PATH.  tricky.  maybe read from /proc/pid/environ, .bashrc, /etc/profile, .bash_profile
 # - Check if /etc/init.d/* scripts are readable.  Advise user to audit them if they are.
-# - .exrc?
+# - .exrc? (partial support added)
 # - X11 trusts, apache passwd files, mysql trusts?
 # - Daemons configured in an insecure way: tftpd, sadmind, rexd
 # - World writable dirs aren't as bad if the sticky bit is set.  Check for this before reporting vulns.
@@ -66,6 +73,7 @@
 # - Do a better job of parsing cron lines - search for full paths
 # - Maybe LDPATHs from /etc/env.d
 # - Check if ldd, ld.so.conf changes have broken this script on non-linux systems.
+#   - ld.so.conf has an equivelent at least on Solaris
 # - Avoid check certain paths e.g. /-/_ clearly isn't a real directory.
 # - create some sort of readable report
 # - indicate when it's likely a result is a false positive and when it's not.
@@ -77,10 +85,12 @@
 # - We check some files / dirs multiple times.  Slow.  Can we implement a cache?
 # - grep for PRIVATE KEY to find private ssh and ssl keys.  Where to grep?
 # - check SGID programs
+# - Get rid of the awk, command-to-parse-output-from | while read parta partb partc is much better
+# - HPUX TCB?
 
-VERSION="1.4"
-HOME_DIR_FILES=".netrc .ssh/id_rsa .ssh/id_dsa .rhosts .shosts .my.cnf .ssh/authorized_keys .bash_history .sh_history .forward"
-CONFIG_FILES="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.con /etc/xinetd.d/* /etc/contab /etc/fstab /etc/profile /etc/sudoers"
+VERSION="1.5"
+HOME_DIR_FILES=".exrc .netrc .ssh/id_rsa .ssh/id_dsa .rhosts .shosts .my.cnf .ssh/authorized_keys .bash_history .sh_history .forward"
+CONFIG_FILES="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.con /etc/xinetd.d/* /etc/contab /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
 PGDIRS="/usr/local/pgsql/data ~postgres/postgresql/data ~postgres/data ~pgsql/data ~pgsql/pgsql/data /var/lib/postgresql/data /etc/postgresql/8.2/main /var/lib/pgsql/data"
 
 get_owner () {
@@ -159,7 +169,11 @@ check_called_programs () {
 
 	# Check if file is text or not
 	IS_TEXT=`file "$CCP_FILE" | grep -i text`
-	IS_DYNBIN=`file "$CCP_FILE" | grep -i 'dynamically linked'`
+	if [ $OS = "aix" ]; then
+		IS_DYNBIN=`file "$CCP_FILE" | grep -i 'object module'`
+	else
+		IS_DYNBIN=`file "$CCP_FILE" | grep -i 'dynamically linked'`
+	fi
 
 	# Process shell scripts (would also work on config files that reference other files)
 	if [ ! -z "$IS_TEXT" ]; then
@@ -173,7 +187,7 @@ check_called_programs () {
 		# Process dynamically linked binaries
 		if [ ! -z "$IS_DYNBIN" ]; then
 		
-			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' '`
+			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' ' | cut -f 1 -d '('`
 			for CALLED_FILE in $CALLED_FILES; do
 				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
 			done
@@ -474,6 +488,9 @@ elif [ -x /usr/sbin/sam -o -x /usr/bin/sam ]; then
 elif [ -f /etc/master.passwd ]; then
 	OS="bsd"
 	SHADOW="/etc/master.passwd"
+elif [ -f /etc/security/user ]; then
+	OS="aix"
+	SHADOW="/etc/security/passwd"
 else
 	OS="linux"
 	SHADOW="/etc/shadow"
@@ -522,24 +539,51 @@ else
 	echo "No +:... line found in /etc/passwd"
 fi
 
-section "Checking nsswitch.conf for addition authentication methods"
-if [ -r "/etc/nsswitch.conf" ]; then
-	NIS=`grep '^passwd' /etc/nsswitch.conf  | grep 'nis'`
-	if [ -n "$NIS" ]; then
-		echo "WARNING: NIS is used for authentication on this system"
-		EXT_AUTH=1
-	fi
-	LDAP=`grep '^passwd' /etc/nsswitch.conf  | grep 'ldap'`
-	if [ -n "$LDAP" ]; then
-		echo "WARNING: LDAP is used for authentication on this system"
-		EXT_AUTH=1
-	fi
-
-	if [ -z "$NIS" ] && [ -z "$LDAP" ]; then
-		echo "Neither LDAP nor NIS are used for authentication"
+section "Checking nsswitch.conf/netsvc.conf for addition authentication methods"
+if [ $OS = 'aix' ]; then
+	if [ -r "/etc/netsvc.conf" ]; then
+		# ldap_nis    Uses LDAP NIS services for resolving names
+		# nis4        Uses NIS services for resolving only IPv4 addresses
+		# nis6        Uses NIS services for resolving only IPv6 addresses
+		# nis+4       Uses NIS plus services for resolving only IPv4 addresses
+		# nis+6       Uses NIS plus services for resolving only IPv6 addresses
+		# ldap4       Uses LDAP services for resolving only IPv4 addresses
+		# ldap6       Uses LDAP services for resolving only IPv6 addresses
+		# ldap_nis4   Uses NIS LDAP services for resolving only IPv4 addresses
+		# ldap_nis6   Uses NIS LDAP services for resolving only IPv6 addresses
+		# ldap        Uses LDAP services for resolving names
+		NIS=`grep '^host' /etc/netsvc.conf | grep 'nis'`
+		if [ -n "$NIS" ]; then
+			echo "WARNING: NIS is used for authentication on this system"
+			EXT_AUTH=1
+		fi
+		LDAP=`grep '^host' /etc/netsvc.conf | grep 'ldap'`
+		if [ -n "$LDAP" ]; then
+			echo "WARNING: LDAP is used for authentication on this system"
+			EXT_AUTH=1
+		fi
+	else
+		echo "ERROR: File /etc/netsvc.conf isn't readable.  Skipping checks."
 	fi
 else
-	echo "ERROR: File /etc/nsswitch.conf isn't readable.  Skipping checks."
+	if [ -r "/etc/nsswitch.conf" ]; then
+		NIS=`grep '^passwd' /etc/nsswitch.conf  | grep 'nis'`
+		if [ -n "$NIS" ]; then
+			echo "WARNING: NIS is used for authentication on this system"
+			EXT_AUTH=1
+		fi
+		LDAP=`grep '^passwd' /etc/nsswitch.conf  | grep 'ldap'`
+		if [ -n "$LDAP" ]; then
+			echo "WARNING: LDAP is used for authentication on this system"
+			EXT_AUTH=1
+		fi
+	
+		if [ -z "$NIS" ] && [ -z "$LDAP" ]; then
+			echo "Neither LDAP nor NIS are used for authentication"
+		fi
+	else
+		echo "ERROR: File /etc/nsswitch.conf isn't readable.  Skipping checks."
+	fi
 fi
 
 # Check important config files aren't writable
@@ -551,13 +595,13 @@ for FILE in $CONFIG_FILES; do
 done
 
 section "Checking if $SHADOW is readable"
-check_read_perms "/etc/shadow holds authentication data" $SHADOW root
+check_read_perms "$SHADOW holds authentication data" $SHADOW root
 
 section "Checking for password hashes in /etc/passwd"
-FLAG=`grep -v '^[^:]*:[x\*]*:' /etc/passwd | grep -v '^#'`
+FLAG=`grep -v '^[^:]*:[!x\*]*:' /etc/passwd | grep -v '^#'`
 if [ -n "$FLAG" ]; then
 	echo "WARNING: There seem to be some password hashes in /etc/passwd"
-	grep -v '^[^:]*:[x\*]*:' /etc/passwd | grep -v '^#'
+	grep -v '^[^:]*:[!x\*]*:' /etc/passwd | grep -v '^#'
 	EXT_AUTH=1
 else
 	echo "No password hashes found in /etc/passwd"
@@ -636,10 +680,12 @@ else
 fi
 
 section "Checking permissions on swap file(s)"
-for SWAP in `swapon -s | grep -v '^Filename' | cut -f 1 -d ' '`; do
-	check_perms "$SWAP is used for swap space." $SWAP root	
-	check_read_perms "$SWAP is used for swap space." $SWAP root	
-done
+if [ "$OS" != "aix" ]; then
+	for SWAP in `swapon -s | grep -v '^Filename' | cut -f 1 -d ' '`; do
+		check_perms "$SWAP is used for swap space." $SWAP root	
+		check_read_perms "$SWAP is used for swap space." $SWAP root	
+	done
+fi
 
 section "Checking programs run from inittab"
 if [ -f "/etc/inittab" ] && [ -r "/etc/inittab" ]; then
@@ -727,6 +773,12 @@ elif [ "$OS" = "hpux" ]; then
 		echo "WARNING: This system is an NFS client.  Check for nosuid and nodev options."
 		mount | grep NFS
 	fi
+elif [ "$OS" = "aix" ]; then
+	mount | grep jfs2 | while read DEVICE LINE
+	do
+		echo "Checking device $DEVICE"
+		check_perms "$DEVICE is a mounted file system." $DEVICE root
+	done
 fi
 
 # Check cron jobs if they're readable
@@ -1014,6 +1066,14 @@ if [ $OS = "solaris" ]; then
 		USER=`echo "$LINE" | awk '{print $1}'`
 		PROG=`echo "$LINE" | awk '{print $2}'`
 		check_called_programs "$PROG is currently running as $USER." "$PROG" "$USER"
+	done
+elif [ $OS = "aix" ]; then
+	# use the output of ps command
+	ps -ef -o user,comm | while read LINE
+	do
+		USER=`echo "$LINE" | awk '{print $1}'`
+		PROG=`echo "$LINE" | awk '{print $2}'`
+		check_called_programs "`which $PROG` is currently running as $USER." "`which $PROG`" "$USER"
 	done
 elif [ $OS = "bsd" ]; then
 	# use the output of ps command
