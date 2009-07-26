@@ -35,9 +35,9 @@
 # Auditing tool to check for weak file permissions and other problems that
 # may allow local attackers to escalate privileges.
 # 
-# It is intended to be run by security auditors and pentetration testers 
+# It is intended to be run by security auditors and penetration testers 
 # against systems they have been engaged to assess, and also by system 
-# admnisitrators who want to check for "obvious" misconfigurations.  It 
+# administrators who want to check for "obvious" misconfigurations.  It 
 # can even be run as a cron job so you can check regularly for misconfigurations 
 # that might be introduced.
 #
@@ -53,9 +53,8 @@
 # - Check /proc/pid/cmdline for absolute path names.  Check security of these (e.g. /etc/snmp/snmpd.conf)
 # - Check everything in root's path - how to find root's path?
 # - /proc/pid/maps, smaps are readable and lists some shared objects.  We should check these.
-#   - We can also read the maps to discover if process stack is NX
 # - Might be nice to check for stack cookie functions in network processes
-# - Is ASLR enabled on Linux?
+# - AIX/Solaris executable stack
 # - How about checking for SELinux
 # - Is firewall DMA enabled?
 # - Loadable kernel modules?
@@ -1099,7 +1098,7 @@ elif [ $OS = "hpux" ]; then
 	done
 elif [ $OS = "linux" ]; then
 	# use the /proc file system
-	for PROCDIR in /proc/[0-9]*; do 
+	for PROCDIR in /proc/[0-9]*; do
 		unset PROGPATH
 		PID=`echo $PROCDIR | cut -f 3 -d /`
 		echo ------------------------
@@ -1143,4 +1142,47 @@ elif [ $OS = "linux" ]; then
 			done
 		fi
 	done
+fi
+
+if [ "$MODE" == "detailed" ]; then
+	section "Checking exploit mitigation"
+	if [ $OS = "linux" ]; then
+		ASLR=`sysctl kernel.randomize_va_space | awk '{print $1}'`
+		if [ "$ASLR" -eq 0 ]; then
+			echo "WARNING: No ASLR"
+		elif [ "$ASLR" -eq 1 ]; then
+			echo "WARNING: Conservative ASLR"
+		fi
+
+		for PROCDIR in /proc/[0-9]*; do
+			unset PROGPATH
+			PID=`echo $PROCDIR | cut -f 3 -d /`
+			echo ------------------------
+			echo "PID:           $PID"
+			if [ -d "$PROCDIR" ]; then
+				if [ -r "$PROCDIR/exe" ]; then
+					PROGPATH=`ls -l "$PROCDIR/exe" 2>&1 | sed 's/ (deleted)//' | awk '{print $NF}'`
+				else
+					if [ -r "$PROCDIR/cmdline" ]; then
+						P=`cat $PROCDIR/cmdline | tr "\0" = | cut -f 1 -d = | grep '^/'`
+						if [ -z "$P" ]; then
+							echo "ERROR: Can't find full path of running program: "`cat $PROCDIR/cmdline`
+						else
+							PROGPATH=$P
+						fi
+					else
+						echo "ERROR: Can't find full path of running program: "`cat $PROCDIR/cmdline`
+						continue
+					fi
+				fi
+			else
+				echo "ERROR: Can't find full path of running process.  Process has gone."
+				continue
+			fi
+			if [ -n "$PROGPATH" ]; then
+				echo "Program path: $PROGPATH"
+				grep stack $PROCDIR/maps
+			fi
+		done
+	fi
 fi
