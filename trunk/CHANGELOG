@@ -1,8 +1,10 @@
-2009-07-26 unix-privesc-check v1.6
+2009-07-26 unix-privesc-check v1.5
 
 Tim Brown <timb@nth-dimension.org.uk>:
 * Initial AIX support added
+* Check for exploit mitigations (Linux only ATM)
 * Brain dumped some more interesting things to check for into TODOs
+* Bug fix: Fixed typos in comments
 
 2008-11-23 unix-privesc-check v1.4
 
@@ -26,7 +28,7 @@ Tim Brown <timb@nth-dimension.org.uk>:
 * Check of file perms on open file handles of running processes
 * Check for running SSH agent.  Lists keys if possible.
 * Check for public and private SSH keys in home directories.
-* Check for running GPG agent.
+* Check for running GPG agent
 * Check for cron jobs in /var/spool/cron/tabs
 * Extra non-priv check for local postgres trusts
 * Bug fix: lanscan now used on HPUX to get interface names
@@ -35,8 +37,8 @@ Tim Brown <timb@nth-dimension.org.uk>:
 
 2008-04-17 unix-privesc-check v1.1
 
-*  Added check for accounts with no password in /etc/passwd
-*  Record some basic info about the host (hostname, uname -a, interface IPs)
+* Added check for accounts with no password in /etc/passwd
+* Record some basic info about the host (hostname, uname -a, interface IPs)
 
 2008-02-01 unix-privesc-check v1.0
 
