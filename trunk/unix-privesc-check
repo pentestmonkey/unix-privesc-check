@@ -53,7 +53,6 @@
 # - Check /proc/pid/cmdline for absolute path names.  Check security of these (e.g. /etc/snmp/snmpd.conf)
 # - Check everything in root's path - how to find root's path?
 # - /proc/pid/maps, smaps are readable and lists some shared objects.  We should check these.
-# - Might be nice to check for stack cookie functions in network processes
 # - AIX/Solaris executable stack
 # - How about checking for SELinux
 # - Is firewall DMA enabled?
@@ -1181,8 +1180,18 @@ if [ "$MODE" == "detailed" ]; then
 			fi
 			if [ -n "$PROGPATH" ]; then
 				echo "Program path: $PROGPATH"
+				echo "NX:"
 				grep stack $PROCDIR/maps
+				echo "SSP:"
+				objdump -D $PROCDIR/exe | grep stack_chk
 			fi
+		done
+		find / -perm -u+s -o -perm -g+s | while read PROGPATH
+		do
+			echo "Program path: $PROGPATH`"
+			echo "SSP:"
+			ls -la $PROGPATH
+			objdump -D $PROGPATH | grep stack_chk
 		done
 	fi
 fi
