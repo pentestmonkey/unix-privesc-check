@@ -1188,7 +1188,7 @@ if [ "$MODE" == "detailed" ]; then
 		done
 		find / -perm -u+s -o -perm -g+s | while read PROGPATH
 		do
-			echo "Program path: $PROGPATH`"
+			echo "Program path: $PROGPATH"
 			echo "SSP:"
 			ls -la $PROGPATH
 			objdump -D $PROGPATH | grep stack_chk
