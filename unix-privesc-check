@@ -1189,7 +1189,7 @@ if [ "$MODE" == "detailed" ]; then
 			if [ -n "$PROGPATH" ]; then
 				echo "Program path: $PROGPATH"
 				echo "NX:"
-				grep stack_chk $PROCDIR/maps
+				grep stack $PROCDIR/maps
 				echo "SSP:"
 				objdump -D $PROCDIR/exe | grep stack_chk
 			fi
