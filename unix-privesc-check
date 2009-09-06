@@ -54,7 +54,6 @@
 # - Check everything in root's path - how to find root's path?
 # - /proc/pid/maps, smaps are readable and lists some shared objects.  We should check these.
 # - AIX/Solaris executable stack
-# - How about checking for SELinux
 # - Is firewall DMA enabled?
 # - Loadable kernel modules?
 # - /proc/pid/fd contain symlinks to all open files (but you can't see other people FDs)
@@ -1153,6 +1152,15 @@ if [ "$MODE" == "detailed" ]; then
 			echo "WARNING: Conservative ASLR"
 		fi
 
+		MMAP=`cat /proc/sys/vm/mmap_min_addr`
+		if [ "$MMAP" -eq 0 -o "$MMAP" = "" ]; then
+			echo "WARNING: mmap allows map to 0
+		fi
+
+		if [ ! -f /selinux/enforce ]; then
+			echo "WARNING: SELinux does not enforce"
+		fi
+
 		for PROCDIR in /proc/[0-9]*; do
 			unset PROGPATH
 			PID=`echo $PROCDIR | cut -f 3 -d /`
@@ -1181,7 +1189,7 @@ if [ "$MODE" == "detailed" ]; then
 			if [ -n "$PROGPATH" ]; then
 				echo "Program path: $PROGPATH"
 				echo "NX:"
-				grep stack $PROCDIR/maps
+				grep stack_chk $PROCDIR/maps
 				echo "SSP:"
 				objdump -D $PROCDIR/exe | grep stack_chk
 			fi

@@ -1,3 +1,10 @@
+2009-09-06 unix-privesc-check trunk
+
+* Added MMAP allows map to 0 exploit mitigation (Linux ATM)
+* Added SELinux exploit mitigation (Linux only)
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2009-07-30 unix-privesc-check v1.5
 
 * Initial AIX support added
