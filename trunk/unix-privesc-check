@@ -53,6 +53,7 @@
 # - Check /proc/pid/cmdline for absolute path names.  Check security of these (e.g. /etc/snmp/snmpd.conf)
 # - Check everything in root's path - how to find root's path?
 # - /proc/pid/maps, smaps are readable and lists some shared objects.  We should check these.
+#   - We should also check whether libraries are in writable address space
 # - AIX/Solaris executable stack
 # - Is firewall DMA enabled?
 # - Loadable kernel modules?
@@ -1142,10 +1143,10 @@ elif [ $OS = "linux" ]; then
 	done
 fi
 
-if [ "$MODE" == "detailed" ]; then
+if [ "$MODE" = "detailed" ]; then
 	section "Checking exploit mitigation"
 	if [ $OS = "linux" ]; then
-		ASLR=`sysctl kernel.randomize_va_space | awk '{print $1}'`
+		ASLR=`sysctl kernel.randomize_va_space | awk '{print $3}'`
 		if [ "$ASLR" -eq 0 ]; then
 			echo "WARNING: No ASLR"
 		elif [ "$ASLR" -eq 1 ]; then
@@ -1154,7 +1155,7 @@ if [ "$MODE" == "detailed" ]; then
 
 		MMAP=`cat /proc/sys/vm/mmap_min_addr`
 		if [ "$MMAP" -eq 0 -o "$MMAP" = "" ]; then
-			echo "WARNING: mmap allows map to 0
+			echo "WARNING: mmap allows map to 0"
 		fi
 
 		if [ ! -f /selinux/enforce ]; then
@@ -1194,8 +1195,7 @@ if [ "$MODE" == "detailed" ]; then
 				objdump -D $PROCDIR/exe | grep stack_chk
 			fi
 		done
-		find / -perm -u+s -o -perm -g+s | while read PROGPATH
-		do
+		find / -perm -u+s -o -perm -g+s | while read PROGPATH; do
 			echo "Program path: $PROGPATH"
 			echo "SSP:"
 			ls -la $PROGPATH
