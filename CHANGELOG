@@ -1,3 +1,8 @@
+2009-09-23 unix-privesc-check v1.6
+
+* Bug Fix: Cron jobs starting with '(' parsed properly
+* Checks perms on java classpath
+
 2009-09-06 unix-privesc-check trunk
 
 * Added MMAP allows map to 0 exploit mitigation (Linux ATM)

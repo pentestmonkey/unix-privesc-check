@@ -819,7 +819,7 @@ if [ -f "/etc/crontab" ] && [ -r "/etc/crontab" ]; then
 	do 
 		echo "Processing crontab entry: $LINE"
 		USER=`echo "$LINE" | awk '{print $6}'`
-		PROG=`echo "$LINE" | awk '{print $7}'`
+		PROG=`echo "$LINE" | sed 's/(//' | awk '{print $7}'``
 		check_called_programs "$PROG is run from crontab as $USER." $PROG $USER $MYPATH
 	done
 else
@@ -862,7 +862,7 @@ if [ -d "/var/spool/cron/crontabs" ]; then
 			grep -v '^#' "$FILE" | grep -v '^[ \t]*$' | grep '[ \t][^ \t][^ \t]*[ \t][ \t]*' | while read LINE
 			do 
 				echo "Processing crontab entry: $LINE"
-				PROG=`echo "$LINE" | awk '{print $6}'`
+				PROG=`echo "$LINE" | sed 's/(//' | awk '{print $6}'`
 				check_called_programs "$PROG is run via cron as $USER." "$PROG" $USER
 			done
 		else
@@ -890,7 +890,7 @@ if [ -d "/var/spool/cron/tabs" ]; then
 			grep -v '^#' "$FILE" | grep -v '^[ \t]*$' | grep '[ \t][^ \t][^ \t]*[ \t][ \t]*' | while read LINE
 			do 
 				echo "Processing crontab entry: $LINE"
-				PROG=`echo "$LINE" | awk '{print $6}'`
+				PROG=`echo "$LINE" | sed 's/(//' | awk '{print $6}'`
 				check_called_programs "$PROG is run from cron as $USER." $PROG $USER $MYPATH
 			done
 		else
@@ -1009,6 +1009,16 @@ for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do
 			echo "WARNING: Public SSH Key Found in $HOMEDIR/.ssh/authorized_keys"
 		fi
 	fi  
+done
+
+section "Checking classpath permissions for Java processes"
+ps -ef | grep -i '\-classpath' | grep -v grep | while read LINE
+do
+	U=`echo $LINE | awk '{print $1}'`
+	CLASSPATH=`echo $LINE | sed 's/.*classpath //' | sed 's/ .*//'`
+	for P in `echo $CLASSPATH | sed 's/:/ /g'`; do
+		check_perms "$P is in the classpath for a java process run by $U." "$P" $U
+	done
 done
 
 # Check for any SSH agents running on the box
