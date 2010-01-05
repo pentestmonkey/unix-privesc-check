@@ -1,6 +1,6 @@
-2009-09-23 unix-privesc-check v1.6
+2009-09-23 unix-privesc-check trunk
 
-* Bug Fix: Cron jobs starting with '(' parsed properly
+* Bug fix: Cron jobs starting with '(' parsed properly
 * Checks perms on java classpath
 
 2009-09-06 unix-privesc-check trunk
@@ -22,13 +22,13 @@
 
 2008-11-23 unix-privesc-check v1.4
 
-* Added check of file perms of shared libraries used by SUID programs.
-* Tidied output slightly.
+* Added check of file perms of shared libraries used by SUID programs
+* Tidied output slightly
 
 2008-11-09 unix-privesc-check v1.3
 
 * Bug fix: Parts of the script only worked with /bin/bash and not /bin/sh
-* Bug fix: Fixed typos in reporting for privescs via cron.
+* Bug fix: Fixed typos in reporting for privescs via cron
 
 2008-07-06 unix-privesc-check v1.2
 
@@ -40,8 +40,8 @@
   should now be on one line so you can grep for 'WARNING' and still
   understand the results
 * Check of file perms on open file handles of running processes
-* Check for running SSH agent.  Lists keys if possible.
-* Check for public and private SSH keys in home directories.
+* Check for running SSH agent.  Lists keys if possible
+* Check for public and private SSH keys in home directories
 * Check for running GPG agent
 * Check for cron jobs in /var/spool/cron/tabs
 * Extra non-priv check for local postgres trusts
