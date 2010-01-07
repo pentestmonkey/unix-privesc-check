@@ -1247,7 +1247,7 @@ if [ "$MODE" = "detailed" ]; then
 				fi
 			fi
 		done
-		find / -perm -u+s -o -perm -g+s | while read PROGPATH; do
+		find / \( -perm -u+s -o -perm -g+s \) -type f | while read PROGPATH; do
 			echo "Program path: $PROGPATH"
 			ls -la $PROGPATH
 			
