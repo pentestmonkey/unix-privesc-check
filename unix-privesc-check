@@ -519,7 +519,7 @@ section "Recording uname"
 uname -a
 
 section "Recording Interface IP addresses"
-if [ $OS = 'hpux' ]; then
+if [ "$OS" = "hpux" ]; then
 	for IFACE in `lanscan | grep x | awk '{print $5}' 2>/dev/null`; do
 		ifconfig $IFACE 2>/dev/null
 	done
@@ -538,7 +538,7 @@ else
 fi
 
 section "Checking nsswitch.conf/netsvc.conf for addition authentication methods"
-if [ $OS = 'aix' ]; then
+if [ "$OS" = "aix" ]; then
 	if [ -r "/etc/netsvc.conf" ]; then
 		# ldap_nis    Uses LDAP NIS services for resolving names
 		# nis4        Uses NIS services for resolving only IPv4 addresses
@@ -594,6 +594,12 @@ done
 
 section "Checking if $SHADOW is readable"
 check_read_perms "$SHADOW holds authentication data" $SHADOW root
+
+section "Checking if $SHADOW is writable"
+check_perms "$SHADOW can be written to" $SHADOW root
+
+section "Checking if /etc/passwd is writable"
+check_perms "/etc/passwd can be written to" /etc/passwd root
 
 section "Checking for password hashes in /etc/passwd"
 FLAG=`grep -v '^[^:]*:[!x\*]*:' /etc/passwd | grep -v '^#'`
@@ -819,7 +825,7 @@ if [ -f "/etc/crontab" ] && [ -r "/etc/crontab" ]; then
 	do 
 		echo "Processing crontab entry: $LINE"
 		USER=`echo "$LINE" | awk '{print $6}'`
-		PROG=`echo "$LINE" | sed 's/(//' | awk '{print $7}'``
+		PROG=`echo "$LINE" | sed 's/(//' | awk '{print $7}'`
 		check_called_programs "$PROG is run from crontab as $USER." $PROG $USER $MYPATH
 	done
 else
@@ -976,7 +982,11 @@ done
 section "Checking SUID programs"
 if [ "$MODE" = "detailed" ]; then
 	for FILE in `find / -type f -perm -04000 2>/dev/null`; do
-		check_called_programs_suid $FILE 
+		check_called_programs_suid $FILE
+		SUIDDCRIPT=`file $FILE | grep script`
+		if [ -n "$SUIDSCRIPT" ]; then
+			echo "WARNING: SetUID shell script, may be vulnerable to race attacks"
+		fi
 	done
 else
 	echo "Skipping checks of SUID programs (it's slow!).  Run again in 'detailed' mode."
@@ -991,9 +1001,9 @@ for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do
 			for KEY in $PRIV_KEYS; do
 				ENC_KEY=`grep -l 'ENCRYPTED' "$KEY" 2>/dev/null`
 				if [ -n "$ENC_KEY" ]; then
-					echo "WARNING: Encrypted Private SSH Key Found in $KEY"
+					echo "WARNING: Encrypted private SSH key found in $KEY"
 				else
-					echo "WARNING: Unencrypted Private SSH Key Found in $KEY"
+					echo "WARNING: Unencrypted private SSH key found in $KEY"
 				fi
 			done
 		fi
@@ -1067,7 +1077,7 @@ for DIR in /etc/init.d /etc/rc.d /usr/local/etc/rc.d; do
 done
 
 section "Checking if running programs are writable"
-if [ $OS = "solaris" ]; then
+if [ "$OS" = "solaris" ]; then
 	# use the output of ps command
 	ps -ef -o user,comm | while read LINE
 	do
@@ -1075,7 +1085,7 @@ if [ $OS = "solaris" ]; then
 		PROG=`echo "$LINE" | awk '{print $2}'`
 		check_called_programs "$PROG is currently running as $USER." "$PROG" "$USER"
 	done
-elif [ $OS = "aix" ]; then
+elif [ "$OS" = "aix" ]; then
 	# use the output of ps command
 	ps -ef -o user,comm | while read LINE
 	do
@@ -1083,7 +1093,7 @@ elif [ $OS = "aix" ]; then
 		PROG=`echo "$LINE" | awk '{print $2}'`
 		check_called_programs "`which $PROG` is currently running as $USER." "`which $PROG`" "$USER"
 	done
-elif [ $OS = "bsd" ]; then
+elif [ "$OS" = "bsd" ]; then
 	# use the output of ps command
 	ps aux | while read LINE
 	do
@@ -1091,7 +1101,7 @@ elif [ $OS = "bsd" ]; then
 		PROG=`echo "$LINE" | awk '{print $11}'`
 		check_called_programs "$PROG is currently running as $USER." "$PROG" "$USER"
 	done
-elif [ $OS = "hpux" ]; then
+elif [ "$OS" = "hpux" ]; then
 	# use the output of ps command
 	ps -ef | while read LINE
 	do
@@ -1105,7 +1115,7 @@ elif [ $OS = "hpux" ]; then
 			check_called_programs "$PROG is currently running as $USER." "$PROG2" "$USER"
 		fi
 	done
-elif [ $OS = "linux" ]; then
+elif [ "$OS" = "linux" ]; then
 	# use the /proc file system
 	for PROCDIR in /proc/[0-9]*; do
 		unset PROGPATH
@@ -1141,7 +1151,7 @@ elif [ $OS = "linux" ]; then
 			check_called_programs "$PROGPATH is currently running as $OWNER." $PROGPATH $OWNER
 		fi
 
-		if [ "$MODE" == "detailed" ]; then
+		if [ "$MODE" = "detailed" ]; then
 			for FILE in $PROCDIR/fd/*; do
 		                F=`echo "$FILE" | sed 's/^.*\///'`
 		                if [ "$F" = "*" ]; then
@@ -1155,7 +1165,34 @@ fi
 
 if [ "$MODE" = "detailed" ]; then
 	section "Checking exploit mitigation"
-	if [ $OS = "linux" ]; then
+	if [ "$OS" = "solaris" ]; then
+		NX=`grep noexec_user_stack /etc/system | grep -v _log | grep 1`
+		if [ -z "$NX" ]; then
+			echo "WARNING: No NX"
+		fi
+
+		NXLOG=`grep noexec_user_stack_log /etc/system | grep 1`
+		if [ -z "$NXLOG" ]; then
+			echo "WARNING: No NX logging"
+		fi
+
+		AUDIT=`grep c2audit:audit_load /etc/system | grep 1`
+		if [ -z "$AUDIT" ]; then
+			echo "WARNING: Auditing not enabled"
+		fi
+	fi
+	if [ "$OS" = "aix" ]; then
+		false
+	fi
+	if [ "$OS" = "hpux" ]; then
+		NX=`kmtune -q executable_stack | grep executable_stack | awk '{print $2}'`
+		if [ "$NX" -eq 1 ]; then
+			echo "WARNING: No NX"
+		elif [ "$NX" -eq 2 ]; then
+			echo "WARNING: NX set to logging only"
+		fi
+	fi
+	if [ "$OS" = "linux" ]; then
 		ASLR=`sysctl kernel.randomize_va_space | awk '{print $3}'`
 		if [ "$ASLR" -eq 0 ]; then
 			echo "WARNING: No ASLR"
@@ -1199,17 +1236,25 @@ if [ "$MODE" = "detailed" ]; then
 			fi
 			if [ -n "$PROGPATH" ]; then
 				echo "Program path: $PROGPATH"
-				echo "NX:"
-				grep stack $PROCDIR/maps
-				echo "SSP:"
-				objdump -D $PROCDIR/exe | grep stack_chk
+				NX=`grep stack $PROCDIR/maps | grep -v "rw-"`
+				if [ -n "$NX" ]; then
+					echo "WARNING: NX not enabled"
+				fi
+				
+				SSP=`objdump -D $PROCDIR/exe | grep stack_chk`
+				if [ -z "$SSP" ]; then
+					echo "WARNING: SSP not enabled"
+				fi
 			fi
 		done
 		find / -perm -u+s -o -perm -g+s | while read PROGPATH; do
 			echo "Program path: $PROGPATH"
-			echo "SSP:"
 			ls -la $PROGPATH
-			objdump -D $PROGPATH | grep stack_chk
+			
+			SSP=`objdump -D $PROGPATH | grep stack_chk`
+			if [ -z "$SSP" ]; then
+				echo "WARNING: SSP not enabled"
+			fi
 		done
 	fi
 fi
