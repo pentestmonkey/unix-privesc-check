@@ -87,7 +87,12 @@
 # - HPUX TCB?
 
 VERSION="1.5"
-SVNVERSION="$Revision$"
+SVNVERSION="$Revision$" # Don't change this line.  Auto-updated.
+SVNVNUM=`echo $SVNVERSION | sed 's/[^0-9]//g'`
+if [ -n $SVNVNUM ]; then
+	VERSION="$VERSION-svn-$SVNVNUM"
+fi
+
 HOME_DIR_FILES=".exrc .netrc .ssh/id_rsa .ssh/id_dsa .rhosts .shosts .my.cnf .ssh/authorized_keys .bash_history .sh_history .forward"
 CONFIG_FILES="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.con /etc/xinetd.d/* /etc/contab /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
 PGDIRS="/usr/local/pgsql/data ~postgres/postgresql/data ~postgres/data ~pgsql/data ~pgsql/pgsql/data /var/lib/postgresql/data /etc/postgresql/8.2/main /var/lib/pgsql/data"
