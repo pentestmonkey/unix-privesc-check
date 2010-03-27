@@ -998,8 +998,18 @@ else
 	echo "Skipping checks of SUID programs (it's slow!).  Run again in 'detailed' mode."
 fi
 
+# Check for cleartext subversion passwords
+section "Checking for cleartext subversion passwords in home directories"
+for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do 
+	if [ -d "$HOMEDIR/.subversion/auth/svn.simple" ]; then 
+		for FILE in $HOMEDIR/.subversion/auth/svn.simple/*; do
+			echo "WARNING: Cleartext subversion passsword file: $FILE"
+		done
+	fi  
+done
+
 # Check for private SSH keys in home directories
-section "Checking for Private SSH Keys home directories"
+section "Checking for Private SSH Keys in home directories"
 for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do 
 	if [ -d "$HOMEDIR/.ssh" ]; then 
 		PRIV_KEYS=`grep -l 'BEGIN [RD]SA PRIVATE KEY' $HOMEDIR/.ssh/* 2>/dev/null`
@@ -1017,7 +1027,7 @@ for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do
 done
 
 # Check for public SSH keys in home directories
-section "Checking for Public SSH Keys home directories"
+section "Checking for Public SSH Keys in home directories"
 for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do 
 	if [ -r "$HOMEDIR/.ssh/authorized_keys" ]; then 
 		KEYS=`grep '^ssh-' $HOMEDIR/.ssh/authorized_keys 2>/dev/null`
