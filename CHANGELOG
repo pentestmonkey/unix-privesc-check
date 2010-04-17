@@ -1,3 +1,10 @@
+2010-04-17 unix-privesc-check trunk
+
+* Bug fix: Now checks HP-UX swap permissions correctly
+* Bug fix: Cleaned up a few typos
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2010-01-06 unix-privesc-check trunk
 
 * Added support for exploit mitigations (HP-UX and Solaris)

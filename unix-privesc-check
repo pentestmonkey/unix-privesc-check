@@ -94,7 +94,7 @@ if [ -n $SVNVNUM ]; then
 fi
 
 HOME_DIR_FILES=".exrc .netrc .ssh/id_rsa .ssh/id_dsa .rhosts .shosts .my.cnf .ssh/authorized_keys .bash_history .sh_history .forward"
-CONFIG_FILES="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.con /etc/xinetd.d/* /etc/contab /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
+CONFIG_FILES="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.conf /etc/xinetd.d/* /etc/crontab /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
 PGDIRS="/usr/local/pgsql/data ~postgres/postgresql/data ~postgres/data ~pgsql/data ~pgsql/pgsql/data /var/lib/postgresql/data /etc/postgresql/8.2/main /var/lib/pgsql/data"
 
 get_owner () {
@@ -690,11 +690,18 @@ else
 fi
 
 section "Checking permissions on swap file(s)"
-if [ "$OS" != "aix" ]; then
-	for SWAP in `swapon -s | grep -v '^Filename' | cut -f 1 -d ' '`; do
-		check_perms "$SWAP is used for swap space." $SWAP root	
-		check_read_perms "$SWAP is used for swap space." $SWAP root	
+if [ "$OS" = "hpux" ]; then
+	for SWAP in `swapinfo| grep -v '^dev' | awk '{print $9}'`; do
+		check_perms "$SWAP is used for swap space." $SWAP root
+		check_read_perms "$SWAP is used for swap space." $SWAP root
 	done
+else
+	if [ "$OS" != "aix" ]; then
+		for SWAP in `swapon -s | grep -v '^Filename' | cut -f 1 -d ' '`; do
+			check_perms "$SWAP is used for swap space." $SWAP root  
+			check_read_perms "$SWAP is used for swap space." $SWAP root     
+		done
+	fi
 fi
 
 section "Checking programs run from inittab"
