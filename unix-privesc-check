@@ -364,7 +364,7 @@ only_user_can_write () {
 	# can always grant themselves write access
 	get_owner $O_FILE; O_FILE_USER=$GET_OWNER_RETURN
 	if [ ! "$O_USER" = "$O_FILE_USER" ] && [ ! "$O_FILE_USER" = "root" ]; then
-		echo "WARNING: $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE"
+		echo "[UPC001] WARNING: $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE"
 	fi
 }
 
@@ -379,7 +379,7 @@ group_can_write () {
 		# check the group actually has some members other than $O_USER
 		group_has_other_members "$O_FILE_GROUP" "$O_USER"; # sets OTHER_MEMBERS to 1 or 0
 		if [ "$OTHER_MEMBERS" = "1" ]; then
-			echo "WARNING: $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE"
+			echo "[UPC002] WARNING: $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE"
 		fi
 	fi
 }
@@ -428,9 +428,9 @@ world_can_write () {
 
 	if [ "$P" = "w" ]; then
 		if [ "$S" = "t" ]; then
-			echo "WARNING: $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set)"
+			echo "[UPC003] WARNING: $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set)"
 		else
-			echo "WARNING: $O_MESSAGE_STACK World write is set for $O_FILE"
+			echo "[UPC004] WARNING: $O_MESSAGE_STACK World write is set for $O_FILE"
 		fi
 	fi
 }
@@ -444,7 +444,7 @@ only_user_can_read () {
 	# can always grant themselves read access
 	get_owner $O_FILE; O_FILE_USER=$GET_OWNER_RETURN
 	if [ ! "$O_USER" = "$O_FILE_USER" ] && [ ! "$O_FILE_USER" = "root" ]; then
-		echo "WARNING: $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE"
+		echo "[UPC005] WARNING: $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE"
 	fi
 }
 
@@ -459,7 +459,7 @@ group_can_read () {
 		# check the group actually has some members other than $O_USER
 		group_has_other_members "$O_FILE_GROUP" "$O_USER"; # sets OTHER_MEMBERS to 1 or 0
 		if [ "$OTHER_MEMBERS" = "1" ]; then
-			echo "WARNING: $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE"
+			echo "[UPC006] WARNING: $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE"
 		fi
 	fi
 }
@@ -471,7 +471,7 @@ world_can_read () {
 	P=`ls -lLd $O_FILE | cut -c 8`
 
 	if [ "$P" = "w" ]; then
-		echo "WARNING: $O_MESSAGE_STACK World read is set for $O_FILE"
+		echo "[UPC007] WARNING: $O_MESSAGE_STACK World read is set for $O_FILE"
 	fi
 }
 
@@ -536,7 +536,7 @@ fi
 section "Checking if external authentication is allowed in /etc/passwd"
 FLAG=`grep '^+:' /etc/passwd`
 if [ -n "$FLAG" ]; then
-	echo "WARNING: /etc/passwd allows external authentcation:"
+	echo "[UPC008] WARNING: /etc/passwd allows external authentcation:"
 	grep '^+:' /etc/passwd
 	EXT_AUTH=1
 else
@@ -558,12 +558,12 @@ if [ "$OS" = "aix" ]; then
 		# ldap        Uses LDAP services for resolving names
 		NIS=`grep '^host' /etc/netsvc.conf | grep 'nis'`
 		if [ -n "$NIS" ]; then
-			echo "WARNING: NIS is used for authentication on this system"
+			echo "[UPC009] WARNING: NIS is used for authentication on this system"
 			EXT_AUTH=1
 		fi
 		LDAP=`grep '^host' /etc/netsvc.conf | grep 'ldap'`
 		if [ -n "$LDAP" ]; then
-			echo "WARNING: LDAP is used for authentication on this system"
+			echo "[UPC010] WARNING: LDAP is used for authentication on this system"
 			EXT_AUTH=1
 		fi
 	else
@@ -573,12 +573,12 @@ else
 	if [ -r "/etc/nsswitch.conf" ]; then
 		NIS=`grep '^passwd' /etc/nsswitch.conf  | grep 'nis'`
 		if [ -n "$NIS" ]; then
-			echo "WARNING: NIS is used for authentication on this system"
+			echo "[UPC011] WARNING: NIS is used for authentication on this system"
 			EXT_AUTH=1
 		fi
 		LDAP=`grep '^passwd' /etc/nsswitch.conf  | grep 'ldap'`
 		if [ -n "$LDAP" ]; then
-			echo "WARNING: LDAP is used for authentication on this system"
+			echo "[UPC012] WARNING: LDAP is used for authentication on this system"
 			EXT_AUTH=1
 		fi
 	
@@ -610,7 +610,7 @@ check_perms "/etc/passwd can be written to" /etc/passwd root
 section "Checking for password hashes in /etc/passwd"
 FLAG=`grep -v '^[^:]*:[!x\*]*:' /etc/passwd | grep -v '^#'`
 if [ -n "$FLAG" ]; then
-	echo "WARNING: There seem to be some password hashes in /etc/passwd"
+	echo "[UPC013] WARNING: There seem to be some password hashes in /etc/passwd"
 	grep -v '^[^:]*:[!x\*]*:' /etc/passwd | grep -v '^#'
 	EXT_AUTH=1
 else
@@ -623,7 +623,7 @@ section "Checking account settings"
 if [ -r "/etc/passwd" ]; then
 	OPEN=`grep "^[^:][^:]*::" /etc/passwd | cut -f 1 -d ":"`
 	if [ -n "$OPEN" ]; then
-		echo "WARNING: The following accounts have no password:"
+		echo "[UPC014] WARNING: The following accounts have no password:"
 		grep "^[^:][^:]*::" /etc/passwd | cut -f 1 -d ":"
 	fi
 fi
@@ -635,7 +635,7 @@ if [ -r "$SHADOW" ]; then
 			USER=`echo "$LINE" | awk '{print $1}'`
 			STATUS=`echo "$LINE" | awk '{print $2}'`
 			if [ "$STATUS" = "NP" ]; then
-				echo "WARNING: User $USER doesn't have a password"
+				echo "[UPC015] WARNING: User $USER doesn't have a password"
 			fi
 		done
 	elif [ "$OS" = "solaris" ]; then
@@ -644,7 +644,7 @@ if [ -r "$SHADOW" ]; then
 			USER=`echo "$LINE" | awk '{print $1}'`
 			STATUS=`echo "$LINE" | awk '{print $2}'`
 			if [ "$STATUS" = "NP" ]; then
-				echo "WARNING: User $USER doesn't have a password"
+				echo "[UPC016] WARNING: User $USER doesn't have a password"
 			fi
 		done
 	fi
@@ -674,7 +674,7 @@ if [ -f "/etc/sudoers" ] && [ -r "/etc/sudoers" ]; then
 	echo "Checking if sudo is configured"
 	SUDO_USERS=`grep -v '^#' /etc/sudoers | grep -v '^[ \t]*$' | grep -v '^[ \t]*Default' | grep =`
 	if [ ! -z "$SUDO_USERS" ]; then
-		echo "WARNING: Sudo is configured.  Manually check nothing unsafe is allowed:"
+		echo "[UPC017] WARNING: Sudo is configured.  Manually check nothing unsafe is allowed:"
 		grep -v '^#' /etc/sudoers | grep -v '^[ \t]*$' | grep = | grep -v '^[ \t]*Default'
 	fi
 
@@ -682,7 +682,7 @@ if [ -f "/etc/sudoers" ] && [ -r "/etc/sudoers" ]; then
 	echo "Checking sudo users need a password"
 	SUDO_NOPASSWD=`grep -v '^#' /etc/sudoers | grep -v '^[ \t]*$' | grep NOPASSWD`
 	if [ ! -z "$SUDO_NOPASSWD" ]; then
-		echo "WARNING: Some users can use sudo without a password:"
+		echo "[UPC018] WARNING: Some users can use sudo without a password:"
 		grep -v '^#' /etc/sudoers | grep -v '^[ \t]*$' | grep NOPASSWD
 	fi
 else
@@ -721,7 +721,7 @@ for DIR in $PGDIRS; do
 			AUTH=`echo "$LINE" | awk '{print $NF}'`
 			if [ "$AUTH" = "trust" ]; then
 				PGTRUST=1
-				echo "WARNING: Postgres trust configured in $DIR/pg_hba.conf: $LINE"
+				echo "[UPC019] WARNING: Postgres trust configured in $DIR/pg_hba.conf: $LINE"
 			fi
 		done
 	fi
@@ -731,14 +731,14 @@ PGVER1=`psql -U postgres template1 -c 'select version()' 2>/dev/null | grep vers
 
 if [ -n "$PGVER1" ]; then 
 	PGTRUST=1
-	echo "WARNING: Can connect to local postgres database as \"postgres\" without a password"
+	echo "[UPC020] WARNING: Can connect to local postgres database as \"postgres\" without a password"
 fi
 
 PGVER2=`psql -U pgsql template1 -c 'select version()' 2>/dev/null | grep version`
 
 if [ -n "$PGVER2" ]; then 
 	PGTRUST=1
-	echo "WARNING: Can connect to local postgres database as \"pgsql\" without a password"
+	echo "[UPC021] WARNING: Can connect to local postgres database as \"pgsql\" without a password"
 fi
 
 if [ -z "$PGTRUST" ]; then
@@ -787,7 +787,7 @@ elif [ "$OS" = "hpux" ]; then
 
 	NFS=`mount | grep NFS`
 	if [ -n "$NFS" ]; then
-		echo "WARNING: This system is an NFS client.  Check for nosuid and nodev options."
+		echo "[UPC022] WARNING: This system is an NFS client.  Check for nosuid and nodev options."
 		mount | grep NFS
 	fi
 elif [ "$OS" = "aix" ]; then
@@ -998,7 +998,7 @@ if [ "$MODE" = "detailed" ]; then
 		check_called_programs_suid $FILE
 		SUIDDCRIPT=`file $FILE | grep script`
 		if [ -n "$SUIDSCRIPT" ]; then
-			echo "WARNING: SetUID shell script, may be vulnerable to race attacks"
+			echo "[UPC023] WARNING: SetUID shell script, may be vulnerable to race attacks"
 		fi
 	done
 else
@@ -1010,7 +1010,7 @@ section "Checking for cleartext subversion passwords in home directories"
 for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do 
 	if [ -d "$HOMEDIR/.subversion/auth/svn.simple" ]; then 
 		for FILE in $HOMEDIR/.subversion/auth/svn.simple/*; do
-			echo "WARNING: Cleartext subversion passsword file: $FILE"
+			echo "[UPC024] WARNING: Cleartext subversion passsword file: $FILE"
 		done
 	fi  
 done
@@ -1024,9 +1024,9 @@ for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do
 			for KEY in $PRIV_KEYS; do
 				ENC_KEY=`grep -l 'ENCRYPTED' "$KEY" 2>/dev/null`
 				if [ -n "$ENC_KEY" ]; then
-					echo "WARNING: Encrypted private SSH key found in $KEY"
+					echo "[UPC025] WARNING: Encrypted private SSH key found in $KEY"
 				else
-					echo "WARNING: Unencrypted private SSH key found in $KEY"
+					echo "[UPC026] WARNING: Unencrypted private SSH key found in $KEY"
 				fi
 			done
 		fi
@@ -1039,7 +1039,7 @@ for HOMEDIR in `cut -f 6 -d : /etc/passwd`; do
 	if [ -r "$HOMEDIR/.ssh/authorized_keys" ]; then 
 		KEYS=`grep '^ssh-' $HOMEDIR/.ssh/authorized_keys 2>/dev/null`
 		if [ -n "$KEYS" ]; then 
-			echo "WARNING: Public SSH Key Found in $HOMEDIR/.ssh/authorized_keys"
+			echo "[UPC027] WARNING: Public SSH Key Found in $HOMEDIR/.ssh/authorized_keys"
 		fi
 	fi  
 done
@@ -1058,14 +1058,14 @@ done
 section "Checking for SSH agents"
 AGENTS=`ps -ef | grep ssh-agent | grep -v grep`
 if [ -n "$AGENTS" ]; then
-	echo "WARNING: There are SSH agents running on this system:"
+	echo "[UPC028] WARNING: There are SSH agents running on this system:"
 	ps -ef | grep ssh-agent | grep -v grep
 	# for PID in `ps aux | grep ssh-agent | grep -v grep | awk '{print $2}'`; do
 	for SOCK in `ls /tmp/ssh-*/agent.* 2>/dev/null`; do
 		SSH_AUTH_SOCK=$SOCK; export SSH_AUTH_SOCK
 		AGENT_KEYS=`ssh-add -l | grep -v 'agent has no identities.' 2>/dev/null`
 		if [ -n "$AGENT_KEYS" ]; then
-			echo "WARNING: SSH Agent has keys loaded [SSH_AUTH_SOCK=$SSH_AUTH_SOCK]"
+			echo "[UPC029] WARNING: SSH Agent has keys loaded [SSH_AUTH_SOCK=$SSH_AUTH_SOCK]"
 			ssh-add -l
 		fi
 	done
@@ -1077,7 +1077,7 @@ fi
 section "Checking for GPG agents"
 AGENTS=`ps -ef | grep gpg-agent | grep -v grep`
 if [ -n "$AGENTS" ]; then
-	echo "WARNING: There are GPG agents running on this system:"
+	echo "[UPC030] WARNING: There are GPG agents running on this system:"
 	ps aux | grep gpg-agent | grep -v grep
 else
 	echo "No GPG agents found"
@@ -1191,17 +1191,17 @@ if [ "$MODE" = "detailed" ]; then
 	if [ "$OS" = "solaris" ]; then
 		NX=`grep noexec_user_stack /etc/system | grep -v _log | grep 1`
 		if [ -z "$NX" ]; then
-			echo "WARNING: No NX"
+			echo "[UPC031] WARNING: No NX"
 		fi
 
 		NXLOG=`grep noexec_user_stack_log /etc/system | grep 1`
 		if [ -z "$NXLOG" ]; then
-			echo "WARNING: No NX logging"
+			echo "[UPC032] WARNING: No NX logging"
 		fi
 
 		AUDIT=`grep c2audit:audit_load /etc/system | grep 1`
 		if [ -z "$AUDIT" ]; then
-			echo "WARNING: Auditing not enabled"
+			echo "[UPC033] WARNING: Auditing not enabled"
 		fi
 	fi
 	if [ "$OS" = "aix" ]; then
@@ -1210,26 +1210,26 @@ if [ "$MODE" = "detailed" ]; then
 	if [ "$OS" = "hpux" ]; then
 		NX=`kmtune -q executable_stack | grep executable_stack | awk '{print $2}'`
 		if [ "$NX" -eq 1 ]; then
-			echo "WARNING: No NX"
+			echo "[UPC034] WARNING: No NX"
 		elif [ "$NX" -eq 2 ]; then
-			echo "WARNING: NX set to logging only"
+			echo "[UPC035] WARNING: NX set to logging only"
 		fi
 	fi
 	if [ "$OS" = "linux" ]; then
 		ASLR=`sysctl kernel.randomize_va_space | awk '{print $3}'`
 		if [ "$ASLR" -eq 0 ]; then
-			echo "WARNING: No ASLR"
+			echo "[UPC036] WARNING: No ASLR"
 		elif [ "$ASLR" -eq 1 ]; then
-			echo "WARNING: Conservative ASLR"
+			echo "[UPC037] WARNING: Conservative ASLR"
 		fi
 
 		MMAP=`cat /proc/sys/vm/mmap_min_addr`
 		if [ "$MMAP" -eq 0 -o "$MMAP" = "" ]; then
-			echo "WARNING: mmap allows map to 0"
+			echo "[UPC038] WARNING: mmap allows map to 0"
 		fi
 
 		if [ ! -f /selinux/enforce ]; then
-			echo "WARNING: SELinux does not enforce"
+			echo "[UPC039] WARNING: SELinux does not enforce"
 		fi
 
 		for PROCDIR in /proc/[0-9]*; do
@@ -1261,12 +1261,12 @@ if [ "$MODE" = "detailed" ]; then
 				echo "Program path: $PROGPATH"
 				NX=`grep stack $PROCDIR/maps | grep -v "rw-"`
 				if [ -n "$NX" ]; then
-					echo "WARNING: NX not enabled"
+					echo "[UPC040] WARNING: NX not enabled"
 				fi
 				
 				SSP=`objdump -D $PROCDIR/exe | grep stack_chk`
 				if [ -z "$SSP" ]; then
-					echo "WARNING: SSP not enabled"
+					echo "[UPC041] WARNING: SSP not enabled"
 				fi
 			fi
 		done
@@ -1276,7 +1276,7 @@ if [ "$MODE" = "detailed" ]; then
 			
 			SSP=`objdump -D $PROGPATH | grep stack_chk`
 			if [ -z "$SSP" ]; then
-				echo "WARNING: SSP not enabled"
+				echo "[UPC042] WARNING: SSP not enabled"
 			fi
 		done
 	fi
