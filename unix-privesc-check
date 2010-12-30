@@ -996,7 +996,7 @@ section "Checking SUID programs"
 if [ "$MODE" = "detailed" ]; then
 	for FILE in `find / -type f -perm -04000 2>/dev/null`; do
 		check_called_programs_suid $FILE
-		SUIDDCRIPT=`file $FILE | grep script`
+		SUIDSCRIPT=`file $FILE | grep script`
 		if [ -n "$SUIDSCRIPT" ]; then
 			echo "[UPC023] WARNING: SetUID shell script, may be vulnerable to race attacks"
 		fi
