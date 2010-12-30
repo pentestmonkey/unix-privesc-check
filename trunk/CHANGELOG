@@ -1,3 +1,9 @@
+2010-12-30 unix-privesc-check trunk
+
+* Bug fix: Cleaned up a typo
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2010-04-17 unix-privesc-check trunk
 
 * Bug fix: Now checks HP-UX swap permissions correctly
