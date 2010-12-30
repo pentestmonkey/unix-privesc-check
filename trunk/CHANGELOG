@@ -1,8 +1,22 @@
 2010-12-30 unix-privesc-check trunk
 
 * Bug fix: Cleaned up a typo
+* Added support for fscaps
+* Updated CHANGELOG
 
 -- Tim Brown <timb@nth-dimension.org.uk>
+
+2010-11-09 unix-privesc-check trunk
+
+* Bug fix: False positive if svn.simple directory is empty
+
+-- <pentestmonkey@pentestmonkey.net>
+
+2010-11-04 unix-privesc-check trunk
+
+* Added unique issue numbers. Should help to generate reports
+
+-- <pentestmonkey@pentestmonkey.net>
 
 2010-04-17 unix-privesc-check trunk
 
@@ -10,6 +24,12 @@
 * Bug fix: Cleaned up a few typos
 
 -- Tim Brown <timb@nth-dimension.org.uk>
+
+2010-09-27 unix-privesc-check trunk
+
+* Added check for cleartext subversion passwords in home directory
+
+-- <pentestmonkey@pentestmonkey.net>
 
 2010-01-06 unix-privesc-check trunk
 
