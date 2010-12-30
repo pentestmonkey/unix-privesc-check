@@ -85,8 +85,9 @@
 # - check SGID programs
 # - Get rid of the awk, command-to-parse-output-from | while read parta partb partc is much better
 # - HPUX TCB?
+# - caps on processes
 
-VERSION="1.5"
+VERSION="1.6"
 SVNVERSION="$Revision$" # Don't change this line.  Auto-updated.
 SVNVNUM=`echo $SVNVERSION | sed 's/[^0-9]//g'`
 if [ -n $SVNVNUM ]; then
@@ -259,7 +260,60 @@ check_called_programs_suid () {
 	fi
 }
 
-# Check if $1 can be changed by users who are not $2
+# Parse any full paths from $1 (config files, progs, dirs).
+# Check the permissions on each of these.
+check_called_programs_fscaps () {
+	CCP_FILE=$1
+	CCP_PATH=$2 # optional
+
+	CCP_MESSAGE_STACK="$CCP_FILE has fscaps."
+	LS=`ls -l $CCP_FILE`
+	echo "Checking fscaps program $CCP_FILE: $LS"
+
+	# Don't check perms of executable itself
+	# check_perms "$CCP_MESSAGE_STACK" "$CCP_FILE" "$CCP_PATH"
+
+	# Check if file is text or not
+	IS_TEXT=`file "$CCP_FILE" | grep -i text`
+	IS_DYNBIN=`file "$CCP_FILE" | grep -i 'dynamically linked'`
+
+	# Process shell scripts (would also work on config files that reference other files)
+	if [ ! -z "$IS_TEXT" ]; then
+		# Skip the slow check if we're in quick mode
+		if [ "$MODE" = "standard" ]; then
+			return 0;
+		fi
+
+		# Parse full paths from file - ignoring commented lines
+		CALLED_FILES=`grep -v '^#' "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`
+		for CALLED_FILE in $CALLED_FILES; do
+			# echo "$CCP_FILE contains a reference to $CALLED_FILE.  Checking perms."
+			check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "root" "$CCP_PATH"
+		done
+	else
+		# Process dynamically linked binaries
+		if [ ! -z "$IS_DYNBIN" ]; then
+		
+			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' '`
+			for CALLED_FILE in $CALLED_FILES; do
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" "root" "$CCP_PATH"
+			done
+	
+			# Skip the slow check if we're in quick mode
+			if [ "$MODE" = "standard" ]; then
+				return 0;
+			fi
+
+			# Strings binary to look for hard-coded config files 
+			# or other programs that might be called.
+			for CALLED_FILE in `strings "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`; do
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "root" "$CCP_PATH"
+			done
+		fi
+	fi
+}
+
+# Check if $2 can be changed by users who are not $3
 check_perms () {
 	CP_MESSAGE_STACK=$1
 	CHECK_PERMS_FILE=$2
@@ -996,13 +1050,29 @@ section "Checking SUID programs"
 if [ "$MODE" = "detailed" ]; then
 	for FILE in `find / -type f -perm -04000 2>/dev/null`; do
 		check_called_programs_suid $FILE
-		SUIDSCRIPT=`file $FILE | grep script`
+		SUIDDCRIPT=`file $FILE | grep script`
 		if [ -n "$SUIDSCRIPT" ]; then
 			echo "[UPC023] WARNING: SetUID shell script, may be vulnerable to race attacks"
 		fi
 	done
 else
 	echo "Skipping checks of SUID programs (it's slow!).  Run again in 'detailed' mode."
+fi
+
+section "Checking fscaps programs"
+if [ "$OS" = "linux" -a -x /sbin/getcap ]; then
+	if [ "$MODE" = "detailed" ]; then
+		for FILE in `find / -type f -exec /sbin/getcap {} \; 2>/dev/null | grep "=" | awk '{print $1}'`; do
+			/sbin/getcap $FILE
+			check_called_programs_fscaps $FILE
+			FSCAPSSCRIPT=`file $FILE | grep script`
+			if [ -n "$FSCAPSSCRIPT" ]; then
+				echo "[UPC043] WARNING: fscaps shell script, may be vulnerable to race attacks"
+			fi
+		done
+	else
+		echo "Skipping checks of fscaps programs (it's slow!).  Run again in 'detailed' mode."
+	fi
 fi
 
 # Check for cleartext subversion passwords
@@ -1186,8 +1256,8 @@ elif [ "$OS" = "linux" ]; then
 	done
 fi
 
+section "Checking exploit mitigation"
 if [ "$MODE" = "detailed" ]; then
-	section "Checking exploit mitigation"
 	if [ "$OS" = "solaris" ]; then
 		NX=`grep noexec_user_stack /etc/system | grep -v _log | grep 1`
 		if [ -z "$NX" ]; then
@@ -1274,6 +1344,14 @@ if [ "$MODE" = "detailed" ]; then
 			echo "Program path: $PROGPATH"
 			ls -la $PROGPATH
 			
+			SSP=`objdump -D $PROGPATH | grep stack_chk`
+			if [ -z "$SSP" ]; then
+				echo "[UPC042] WARNING: SSP not enabled"
+			fi
+		done
+		find / -type f -exec /sbin/getcap {} \; 2>/dev/null | grep "=" | awk '{print $1}' | while read PROGPATH; do
+			echo "Program path: $PROGPATH"
+			/sbin/getcap $PROGPATH
 			SSP=`objdump -D $PROGPATH | grep stack_chk`
 			if [ -z "$SSP" ]; then
 				echo "[UPC042] WARNING: SSP not enabled"
