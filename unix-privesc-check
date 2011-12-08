@@ -208,6 +208,24 @@ check_called_programs () {
 
 # Parse any full paths from $1 (config files, progs, dirs).
 # Check the permissions on each of these.
+check_called_programs_suid_sgid () {
+	CCP_FILE=$1
+
+	is_suid $CCP_FILE # sets $IS_SUID_RETURN
+
+	if [ "$IS_SUID_RETURN" -eq 1 ]; then
+		check_called_programs_suid $CCP_FILE
+	fi
+
+	is_sgid $CCP_FILE # sets $IS_SGID_RETURN
+
+	if [ "$IS_SGID_RETURN" -eq 1 ]; then
+		check_called_programs_sgid $CCP_FILE
+	fi
+}
+
+# Parse any full paths from $1 (config files, progs, dirs).
+# Check the permissions on each of these.
 check_called_programs_suid () {
 	CCP_FILE=$1
 	CCP_PATH=$2 # optional
@@ -235,7 +253,7 @@ check_called_programs_suid () {
 		CALLED_FILES=`grep -v '^#' "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`
 		for CALLED_FILE in $CALLED_FILES; do
 			# echo "$CCP_FILE contains a reference to $CALLED_FILE.  Checking perms."
-			check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+			check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" root "$CCP_PATH"
 		done
 	else
 		# Process dynamically linked binaries
@@ -243,7 +261,7 @@ check_called_programs_suid () {
 		
 			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' '`
 			for CALLED_FILE in $CALLED_FILES; do
-				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" root "$CCP_PATH"
 			done
 	
 			# Skip the slow check if we're in quick mode
@@ -254,7 +272,61 @@ check_called_programs_suid () {
 			# Strings binary to look for hard-coded config files 
 			# or other programs that might be called.
 			for CALLED_FILE in `strings "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`; do
-				check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" "$CCP_USER" "$CCP_PATH"
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" root "$CCP_PATH"
+			done
+		fi
+	fi
+}
+
+# Parse any full paths from $1 (config files, progs, dirs).
+# Check the permissions on each of these.
+check_called_programs_sgid () {
+	CCP_FILE=$1
+	CCP_PATH=$2 # optional
+
+	get_group $CCP_FILE; CCP_GROUP=$GET_GROUP_RETURN
+	CCP_MESSAGE_STACK="$CCP_FILE is SGID $CCP_GROUP."
+	LS=`ls -l $CCP_FILE`
+	echo "Checking SGID-$CCP_GROUP program $CCP_FILE: $LS"
+
+	# Don't check perms of executable itself
+	# check_perms "$CCP_MESSAGE_STACK" "$CCP_FILE" "$CCP_USER" "$CCP_PATH"
+
+	# Check if file is text or not
+	IS_TEXT=`file "$CCP_FILE" | grep -i text`
+	IS_DYNBIN=`file "$CCP_FILE" | grep -i 'dynamically linked'`
+
+	# Process shell scripts (would also work on config files that reference other files)
+	if [ ! -z "$IS_TEXT" ]; then
+		# Skip the slow check if we're in quick mode
+		if [ "$MODE" = "standard" ]; then
+			return 0;
+		fi
+
+		# Parse full paths from file - ignoring commented lines
+		CALLED_FILES=`grep -v '^#' "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`
+		for CALLED_FILE in $CALLED_FILES; do
+			# echo "$CCP_FILE contains a reference to $CALLED_FILE.  Checking perms."
+			check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" root "$CCP_PATH"
+		done
+	else
+		# Process dynamically linked binaries
+		if [ ! -z "$IS_DYNBIN" ]; then
+		
+			CALLED_FILES=`ldd "$CCP_FILE" 2>/dev/null | grep '/' | sed 's/[^\/]*\//\//' | cut -f 1 -d ' '`
+			for CALLED_FILE in $CALLED_FILES; do
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE uses the library $CALLED_FILE." "$CALLED_FILE" root "$CCP_PATH"
+			done
+	
+			# Skip the slow check if we're in quick mode
+			if [ "$MODE" = "standard" ]; then
+				return 0;
+			fi
+
+			# Strings binary to look for hard-coded config files 
+			# or other programs that might be called.
+			for CALLED_FILE in `strings "$CCP_FILE" | sed -e 's/^[^\/]*//' -e 's/["'\'':}$]/\x0a/g' | grep '/' | sed -e 's/[ \*].*//' | grep '^/[a-zA-Z0-9_/-]*$' | sort -u`; do
+				check_perms "$CCP_MESSAGE_STACK $CCP_FILE contains the string $CALLED_FILE." "$CALLED_FILE" root "$CCP_PATH"
 			done
 		fi
 	fi
@@ -435,6 +507,28 @@ group_can_write () {
 		if [ "$OTHER_MEMBERS" = "1" ]; then
 			echo "[UPC002] WARNING: $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE"
 		fi
+	fi
+}
+
+is_suid () {
+	O_FILE=$1
+
+	P=`ls -lLd $O_FILE | cut -c 4`
+	if [ "$P" = "s" ]; then
+		IS_SUID_RETURN=1
+	else
+		IS_SUID_RETURN=0
+	fi
+}
+
+is_sgid () {
+	O_FILE=$1
+
+	P=`ls -lLd $O_FILE | cut -c 7`
+	if [ "$P" = "s" ]; then
+		IS_SGID_RETURN=1
+	else
+		IS_SGID_RETURN=0
 	fi
 }
 
@@ -1046,17 +1140,17 @@ do
 	done
 done
 
-section "Checking SUID programs"
+section "Checking SUID/SGID programs"
 if [ "$MODE" = "detailed" ]; then
-	for FILE in `find / -type f -perm -04000 2>/dev/null`; do
-		check_called_programs_suid $FILE
+	for FILE in `find / -type f -perm -04000 -o -type f -perm -02000 2>/dev/null`; do
+		check_called_programs_suid_sgid $FILE
 		SUIDDCRIPT=`file $FILE | grep script`
 		if [ -n "$SUIDSCRIPT" ]; then
-			echo "[UPC023] WARNING: SetUID shell script, may be vulnerable to race attacks"
+			echo "[UPC023] WARNING: SetUID/SetGID shell script, may be vulnerable to race attacks"
 		fi
 	done
 else
-	echo "Skipping checks of SUID programs (it's slow!).  Run again in 'detailed' mode."
+	echo "Skipping checks of SUID/SGID programs (it's slow!).  Run again in 'detailed' mode."
 fi
 
 section "Checking fscaps programs"
