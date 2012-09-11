@@ -108,7 +108,7 @@ binary_dependency_main () {
 	do
 		filename="`inetd_show_command "${portnumber}"`"
 		stdio_message_log "binary_dependency" "${filename} is spawned by inetd"
-		filename="`file_show_real_filename "${filename}"`
+		filename="`file_show_real_filename "${filename}"`"
 		if [ "${filename}" != "" ]
 		then
 			linker_list_dependencies "${filename}" | while read filename
@@ -118,7 +118,7 @@ binary_dependency_main () {
 		fi
 		filename="`inetd_show_arguments "${portnumber}"`"
 		stdio_message_log "binary_dependency" "${filename} is spawned by inetd"
-		filename="`file_show_real_filename "${filename}"`
+		filename="`file_show_real_filename "${filename}"`"
 		if [ "${filename}" != "" ]
 		then
 			linker_list_dependencies "${filename}" | while read filename
@@ -135,7 +135,7 @@ binary_dependency_main () {
 			continue
 		fi
 		stdio_message_log "binary_dependency" "${filename} is running"
-		filename="`file_show_real_filename "${filename}"`
+		filename="`file_show_real_filename "${filename}"`"
 		if [ "${filename}" != "" ]
 		then
 			linker_list_dependencies "${filename}" | while read filename
