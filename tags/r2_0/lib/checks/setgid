@@ -1,0 +1,46 @@
+# $Revision$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# (c) Tim Brown, 2012
+# <mailto:timb@nth-dimension.org.uk>
+# <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+
+. lib/misc/stdio
+. lib/misc/file
+
+setgid_init () {
+	stdio_message_log "setgid" "Starting"
+}
+
+setgid_main () {
+	file_check_or_generate_cache
+	for permissionspattern in "-?????s???" "-?????S???"
+	do
+		file_list_by_perm "${permissionspattern}" | while read filename
+		do
+			stdio_message_warn "setgid" "${filename} is setgid"
+			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+			do
+				# TODO we should validate these
+				stdio_message_debug "setgid" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+			done
+		done
+	done
+}
+
+setgid_fini () {
+	stdio_message_log "setgid" "Ending"
+}

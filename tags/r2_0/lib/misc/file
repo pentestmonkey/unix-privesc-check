@@ -1,0 +1,104 @@
+# $Revision$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# (c) Tim Brown, 2012
+# <mailto:timb@nth-dimension.org.uk>
+# <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Supports: Linux, AIX
+
+. lib/misc/stdio
+
+file_check_or_generate_cache () {
+	if [ ! -f ${filecachefilename} ]
+	then
+		if [ "${filecacheignoresymlinksflag}" -eq 1 ]
+		then
+			# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
+			find "${filecacherootpath}" ! -type l -ls | sed "s/%/%%/g" | while read dummy dummy filepermissions dummy fileuserid filegroupid dummy dummy dummy dummy restofline
+			do
+				printf -- "${filepermissions} ${fileuserid} ${filegroupid} ${restofline}\n"
+			done >"${filecachefilename}"
+		else
+			# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
+			# TODO what to do about symlinks, atm you'll get filename returned as /path/to/symlink -> /path/to/filename which isn't that helpful really
+			find "${filecacherootpath}" -ls | sed "s/%/%%/g" | while read dummy dummy filepermissions dummy fileuserid filegroupid dummy dummy dummy dummy restofline
+			do
+				printf -- "${filepermissions} ${fileuserid} ${filegroupid} ${restofline}\n"
+			done >"${filecachefilename}"
+		fi	
+	fi
+}
+
+file_list_by_perm () {
+	pattern="$1"
+	cat "${filecachefilename}" | sed "s/%/%%/g" | while read filepermissions fileuserid filegroupid filefilename
+	do
+		case "${filepermissions}" in
+			${pattern})
+				printf "${filefilename}\n"
+				;;
+		esac
+	done
+}
+
+file_list_by_filename () {
+	pattern="$1"
+	cat "${filecachefilename}" | sed "s/%/%%/g" | while read filepermissions fileuserid filegroupid filefilename
+	do
+		case "${filefilename}" in
+			${pattern})
+				printf "${filefilename}\n"
+				;;
+		esac
+	done
+}
+
+file_show_perms () {
+	pattern="$1"
+	cat "${filecachefilename}" | sed "s/%/%%/g" | while read filepermissions fileuserid filegroupid filefilename
+	do
+		case "${filefilename}" in
+			${pattern})
+				printf -- "${filefilename} ${filepermissions} ${fileuserid} ${filegroupid}\n"
+				;;
+		esac
+	done
+}
+
+file_show_real_filename () {
+	pattern="$1"
+	# TODO we could be smarter about this, but for now, which should suffice
+	case "${pattern}" in
+		/*)
+			printf "${pattern}\n"
+			;;
+		*)
+			printf "`which -- ${pattern}`\n"
+			;;
+	esac
+}
+
+file_matches_string () {
+	pattern="$1"
+	pattern2="$2"
+	if [ "`cat "${pattern}" | egrep "${pattern2}"`" != "" ]
+	then
+		printf "1\n"
+	else
+		printf "0\n"
+	fi
+}
