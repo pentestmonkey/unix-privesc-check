@@ -2,6 +2,7 @@
 
 * Branching 1.x at revision 26
 * 2.0 released
+* Bug fix: Typo in lib/checks/binary_dependency
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
