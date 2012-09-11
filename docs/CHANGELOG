@@ -1,3 +1,9 @@
+2012-09-11 unix-privesc-check trunk
+
+* Branching 1.x at revision 26
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2010-12-30 unix-privesc-check trunk
 
 * Bug fix: Cleaned up a typo

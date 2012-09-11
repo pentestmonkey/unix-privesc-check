@@ -1,0 +1,79 @@
+# $Revision$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# (c) Tim Brown, 2012
+# <mailto:timb@nth-dimension.org.uk>
+# <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Supports: Linux, AIX (binary_list_rpath)
+
+binary_list_rpath () {
+	pattern="$1"
+	if [ "`uname`" = "AIX" ]
+	then
+		dumpflag=0
+		dump -Hv -X 32_64 "${pattern}" | while read line
+		do
+			if [ "${dumpflag}" -eq 1 ]
+			then
+				printf "${line}\n" | while read index base member
+				do
+					if [ "${index}" -eq 0 ]
+					then
+						printf "${base}\n" | tr ":" "\n" | while read binaryfilename
+						do
+							printf "${binaryfilename}\n"
+						done
+					fi
+				done
+			fi
+			if [ "`printf "${line}\n" | grep "INDEX"`" != "" ]
+			then
+				dumpflag=1
+			fi
+		done | sort | uniq
+	else
+		objdump -x "${pattern}" | grep "RPATH" | while read header rpath
+		do
+			printf "${rpath}\n" | tr ":" "\n" | while read binaryfilename
+			do
+				printf "${binaryfilename}\n"
+			done
+		done | sort | uniq
+	fi
+}
+
+binary_matches_string () {
+	pattern="$1"
+	pattern2="$2"
+	if [ "`strings "${pattern}" | egrep "${pattern2}"`" != "" ]
+	then
+		printf "1\n"
+	else
+		printf "0\n"
+	fi
+}
+
+binary_matches_function () {
+	pattern="$1"
+	pattern2="$2"
+	if [ "`objdump -T "${pattern}" | egrep "${pattern2}"`" != "" ]
+	then
+		printf "1\n"
+	else
+		printf "0\n"
+	fi
+}

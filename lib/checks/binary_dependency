@@ -1,0 +1,152 @@
+# $Revision$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# (c) Tim Brown, 2012
+# <mailto:timb@nth-dimension.org.uk>
+# <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+
+. lib/misc/stdio
+. lib/misc/file
+. lib/misc/linker
+. lib/misc/inetd
+. lib/misc/process
+
+binary_dependency_init () {
+	stdio_message_log "binary_dependency" "Starting"
+}
+
+binary_dependency_traverse () {
+	filename="$1"
+	filerunasuserid="$2"
+	filerunasgroupid="$2"
+	# start with the dependency itself and then use dirname to find the parent directory
+	while [ "${filename}" != "/" ]
+	do
+		file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+		do
+			if [ "${filerunasuserid}" != "" ]
+			then
+				stdio_message_warn "binary_dependency" "${filename} is run as user ${filerunasuserid} but owned by user ${fileuserid}"
+				stdio_message_debug "binary_dependency" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+			else
+				if [ "${filerunasgroupid}" != "" ]
+				then
+					stdio_message_warn "binary_dependency" "${filename} is run as group ${filerunasgroupid} but owned by user ${fileuserid}"
+					stdio_message_warn "binary_dependency" "${filename} is run as group ${filerunasgroupid} but owned by group ${filegroupid}"
+					stdio_message_debug "binary_dependency" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+				fi
+			fi
+			case "${filepermissions}" in
+				?????w????|????????w?)
+					if [ "${filerunasuserid}" != "" ]
+					then
+						stdio_message_warn "binary_dependency" "${filename} is run as user ${filerunasuserid} but may be group or world writable"
+						stdio_message_debug "binary_dependency" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+					else
+						if [ "${filerunasgroupid}" != "" ]
+						then
+							# while it should be obvious why allowing o+w is bad, the case not not allowing g+w less clear cut, again my thinking is that with the privileges of the setgid binary it should not be possible to modify dependencies otherwise it may be possible to turn repurpose it... we should probably check for g+ws binaries too, this falls somewhere between setgid and group_writable... i'll change 
+							stdio_message_warn "binary_dependency" "${filename} is run as group ${filerunasgroupid} but may be group or world writable"
+							stdio_message_debug "binary_dependency" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+						fi
+					fi
+					;;
+			esac
+		done
+		# find the parent directory
+		filename="`dirname ${filename}`"
+	done
+
+}
+
+binary_dependency_main () {
+	file_check_or_generate_cache
+	for permissionspattern in "-??s??????" "-??S??????"
+	do
+		file_list_by_perm "${permissionspattern}" | while read filename
+		do
+			stdio_message_log "binary_dependency" "${filename} is setuid"
+			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+			do
+				filerunasuserid="${fileuserid}"
+				linker_list_dependencies "${filename}" | while read filename
+				do
+					binary_dependency_traverse "${filename}" "${filerunasuserid}" ""
+				done
+			done
+		done
+	done
+	for permissionspattern in "-?????s???" "-?????S???"
+	do
+		file_list_by_perm "${permissionspattern}" | while read filename
+		do
+			stdio_message_log "binary_dependency" "${filename} is setgid"
+			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+			do
+				filerunasgroupid="${filegroupid}"
+				linker_list_dependencies "${filename}" | while read filename
+				do
+					binary_dependency_traverse "${filename}" "" "${filerunasgroupid}"
+				done
+			done
+		done
+	done
+	inetd_list ".*" | while read portnumber
+	do
+		filename="`inetd_show_command "${portnumber}"`"
+		stdio_message_log "binary_dependency" "${filename} is spawned by inetd"
+		filename="`file_show_real_filename "${filename}"`
+		if [ "${filename}" != "" ]
+		then
+			linker_list_dependencies "${filename}" | while read filename
+			do
+				binary_dependency_traverse "${filename}" "`inetd_show_userid "${portnumber}"`" ""
+			done
+		fi
+		filename="`inetd_show_arguments "${portnumber}"`"
+		stdio_message_log "binary_dependency" "${filename} is spawned by inetd"
+		filename="`file_show_real_filename "${filename}"`
+		if [ "${filename}" != "" ]
+		then
+			linker_list_dependencies "${filename}" | while read filename
+			do
+				binary_dependency_traverse "${filename}" "`inetd_show_userid "${portnumber}"`" ""
+			done
+		fi
+	done
+	process_list ".*" | while read processid
+	do
+		filename="`process_show_command "${processid}"`"
+		if [ "${filename}" = "" ]
+		then
+			continue
+		fi
+		stdio_message_log "binary_dependency" "${filename} is running"
+		filename="`file_show_real_filename "${filename}"`
+		if [ "${filename}" != "" ]
+		then
+			linker_list_dependencies "${filename}" | while read filename
+			do
+				binary_dependency_traverse "${filename}" "`process_show_userid "${processid}"`" ""
+			done
+		fi
+	done
+	# TODO still need to add similar checks for stuff spawned from init or cron or which has fscaps
+}
+
+binary_dependency_fini () {
+	stdio_message_log "binary_dependency" "Ending"
+}
