@@ -90,6 +90,8 @@ binary_chroot_main () {
 			fi
 		fi
 	done
+	# TODO this loop will cause the same line to be output multiple times if
+	#      several copies of the same program are running.  Need to "sort -u" somehow
 	process_list ".*" | while read processid
 	do
 		filename="`process_show_command "${processid}"`"
