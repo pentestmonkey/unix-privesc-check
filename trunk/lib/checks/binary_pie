@@ -17,32 +17,28 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Based on ideas found at http://people.redhat.com/sgrubb/security/
 
 . lib/misc/stdio
-. lib/misc/file
+. lib/misc/privileged
+. lib/misc/binary
 
-group_writable_init () {
-	stdio_message_log "group_writable" "Starting"
-	file_check_or_generate_cache
+binary_pie_init () {
+	stdio_message_log "binary_pie" "Starting"
 }
 
-group_writable_main () {
-	file_list_by_perm "?????w????" | while read filename
+binary_pie_main () {
+	privileged_list | while read type filename usergroupid
 	do
-		if [ -h  "${filename}" ]
+		stdio_message_log "binary_pie" "${filename} is ${type}, running as user/group ${usergroupid}"
+		if [ "`binary_pie "${filename}"`" -ne 1 ]
 		then
-			stdio_message_debug "group_writable" "${filename} is a symlink"
-			# TODO chase the dragon (symlink)
-		else
-			stdio_message_warn "group_writable" "${filename} is group writable"
-			file_show_perms "${filename}" | while read filename permissions userid groupid
-			do
-				stdio_message_debug "group_writable" "${filename} (${userid}, ${groupid})=${permissions}"
-			done
+			stdio_message_warn "binary_pie" "${filename} is not compiled with PIE"
 		fi
 	done
 }
 
-group_writable_fini () {
-	stdio_message_log "group_writable" "Ending"
+binary_pie_fini () {
+	stdio_message_log "binary_pie" "Ending"
 }

@@ -39,25 +39,28 @@ binary_dependency_main () {
 				stdio_message_log "binary_dependency" "${filename} depends on ${filename2}"
 				file_parent_traverse "${filename2}" | while read filename
 				do
-					if [ -e "${filename}" -a ! -l "${filename}" ]
+					if [ -e "${filename}" ]
 					then
-						file_show_perms "${filename}" | while read filename permissions userid groupid
-						do
-							stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but owned by user ${userid}"
-							stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but owned by group ${groupid}"
-							stdio_message_debug "binary_dependency" "${filename} (${userid}, ${groupid})=${permissions}"
-							case "${permissions}" in
-								?????w????|????????w?)
-									stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but is group or world writable"
-									stdio_message_debug "binary_dependency" "${filename} (${userid}, ${groupid})=${permissions}"
-									;;
-							esac
-						done
-					else
-						if [ ! -l "${filename}" ]
+						if [ -h  "${filename}" ]
 						then
-							stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but does not exist"
+							stdio_message_debug "binary_dependency" "${filename} is a symlink"
+							# TODO chase the dragon (symlink)
+						else
+							file_show_perms "${filename}" | while read filename permissions userid groupid
+							do
+								stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but owned by user ${userid}"
+								stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but owned by group ${groupid}"
+								stdio_message_debug "binary_dependency" "${filename} (${userid}, ${groupid})=${permissions}"
+								case "${permissions}" in
+									?????w????|????????w?)
+										stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but is group or world writable"
+										stdio_message_debug "binary_dependency" "${filename} (${userid}, ${groupid})=${permissions}"
+										;;
+								esac
+							done
 						fi
+					else
+						stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but does not exist"
 					fi
 				done
 			done
