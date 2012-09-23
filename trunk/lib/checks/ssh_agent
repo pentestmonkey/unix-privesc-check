@@ -35,7 +35,10 @@ ssh_agent_main () {
 		do
 			stdio_message_warn "ssh_agent" "ssh-agent uses key from ${filename}"
 			# TODO check perms
-			# TODO check encryption
+			if [ "`file_matches_string "${filename}" "ENCRYPTED"`" -ne 1 ]
+			then
+				stdio_message_warn "ssh_key_unencrypted" "${filename} is unencrypted"
+			fi
 		done	
 	done
 }

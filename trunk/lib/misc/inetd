@@ -21,42 +21,42 @@
 # Supports: Linux
 
 inetd_list () {
-	pattern="$1"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | grep "${pattern}" | while read inetdportnumber inetdsockettype inetdprotocol inetdflags inetduserid inetdcommand inetdarguments inetdargumentsarguments
+	pattern="${1}"
+	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | grep "${pattern}" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		printf "${inetdportnumber}\n";
+		printf "${portnumber}\n";
 	done
 }
 
 inetd_show_command () {
-	pattern="$1"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read inetdportnumber inetdsockettype inetdprotocol inetdflags inetduserid inetdcommand inetdarguments inetdargumentsarguments
+	pattern="${1}"
+	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		if [ "${inetdportnumber}" = "${pattern}" ]
+		if [ "${portnumber}" = "${pattern}" ]
 		then
-			printf "${inetdcommand}\n"
+			printf "${command}\n"
 		fi
 	done
 }
 
 inetd_show_userid () {
-	pattern="$1"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read inetdportnumber inetdsockettype inetdprotocol inetdflags inetduserid inetdcommand inetdarguments inetdargumentsarguments
+	pattern="${1}"
+	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		if [ "${inetdportnumber}" = "${pattern}" ]
+		if [ "${portnumber}" = "${pattern}" ]
 		then
-			printf "${inetduserid}\n"
+			printf "${userid}\n"
 		fi
 	done
 }
 
 inetd_show_arguments () {
-	pattern="$1"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read inetdportnumber inetdsockettype inetdprotocol inetdflags inetduserid inetdcommand inetdarguments inetdargumentsarguments
+	pattern="${1}"
+	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		if [ "${inetdportnumber}" = "${pattern}" ]
+		if [ "${portnumber}" = "${pattern}" ]
 		then
-			printf "${inetdarguments}\n"
+			printf "${arguments}\n"
 		fi
 	done
 }

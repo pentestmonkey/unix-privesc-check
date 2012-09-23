@@ -18,69 +18,78 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Supports: Linux, AIX
+# Supports: Linux, Solaris
 
 . lib/misc/stdio
 
 file_check_or_generate_cache () {
 	if [ ! -f ${filecachefilename} ]
 	then
-		if [ "${filecacheignoresymlinksflag}" -eq 1 ]
-		then
-			# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
-			find "${filecacherootpath}" ! -type l -ls | sed "s/%/%%/g" | while read dummy dummy filepermissions dummy fileuserid filegroupid dummy dummy dummy dummy restofline
-			do
-				printf -- "${filepermissions} ${fileuserid} ${filegroupid} ${restofline}\n"
-			done >"${filecachefilename}"
-		else
-			# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
-			# TODO what to do about symlinks, atm you'll get filename returned as /path/to/symlink -> /path/to/filename which isn't that helpful really
-			find "${filecacherootpath}" -ls | sed "s/%/%%/g" | while read dummy dummy filepermissions dummy fileuserid filegroupid dummy dummy dummy dummy restofline
-			do
-				printf -- "${filepermissions} ${fileuserid} ${filegroupid} ${restofline}\n"
-			done >"${filecachefilename}"
-		fi	
+		stdio_message_log "file" "Generating file cache..."
+		# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
+		# TODO what to do about symlinks, atm you'll get filename returned as /path/to/symlink -> /path/to/filename which isn't that helpful really
+		find "${filecacherootpath}" -ls | sed "s/%/%%/g" | while read dummy dummy permissions dummy userid groupid dummy dummy dummy dummy restofline
+		do
+			if [ "`uname`" = "SunOS" ]
+			then
+				printf "${permissions} ${userid} ${groupid} ${restofline}\n"
+			else
+				printf -- "${permissions} ${userid} ${groupid} ${restofline}\n"
+			fi
+		done >"${filecachefilename}"
+		stdio_message_log "file" "Cache generated..."
 	fi
 }
 
 file_list_by_perm () {
-	pattern="$1"
-	cat "${filecachefilename}" | sed "s/%/%%/g" | while read filepermissions fileuserid filegroupid filefilename
+	pattern="${1}"
+	# this is expensive, so we cheat and use egrep
+	greppattern="`echo ${pattern} | tr "?" "."`"
+	cat "${filecachefilename}" | egrep -- "${greppattern}" | while read permissions userid groupid filename
 	do
-		case "${filepermissions}" in
+		case "${permissions}" in
 			${pattern})
-				printf "${filefilename}\n"
+				printf "${filename}\n"
 				;;
 		esac
 	done
 }
 
 file_list_by_filename () {
-	pattern="$1"
-	cat "${filecachefilename}" | sed "s/%/%%/g" | while read filepermissions fileuserid filegroupid filefilename
+	pattern="${1}"
+	# this is expensive, so we cheat and use egrep
+	greppattern="`echo ${pattern} | tr "?" "."`"
+	cat "${filecachefilename}" | egrep -- "${greppattern}" | while read permissions userid groupid filename
 	do
-		case "${filefilename}" in
+		case "${filename}" in
 			${pattern})
-				printf "${filefilename}\n"
+				printf "${filename}\n"
 				;;
 		esac
 	done
 }
 
 file_show_perms () {
-	pattern="$1"
-	cat "${filecachefilename}" | sed "s/%/%%/g" | while read filepermissions fileuserid filegroupid filefilename
+	pattern="${1}"
+	# this is expensive, so we cheat and use egrep
+	greppattern="`echo ${pattern} | tr "?" "."`"
+	cat "${filecachefilename}" | egrep -- "${greppattern}" | while read permissions userid groupid filename
 	do
-		case "${filefilename}" in
+		case "${filename}" in
 			${pattern})
-				printf -- "${filefilename} ${filepermissions} ${fileuserid} ${filegroupid}\n"
+				if [ "`uname`" = "SunOS" ]
+				then
+					printf "${filename} ${permissions} ${userid} ${groupid}\n"
+				else
+					printf -- "${filename} ${permissions} ${userid} ${groupid}\n"
+				fi
 				;;
 		esac
 	done
 }
 
 file_show_real_filename () {
-	pattern="$1"
+	pattern="${1}"
 	# TODO we could be smarter about this, but for now, which should suffice
 	case "${pattern}" in
 		/*)
@@ -93,12 +102,24 @@ file_show_real_filename () {
 }
 
 file_matches_string () {
-	pattern="$1"
-	pattern2="$2"
-	if [ "`cat "${pattern}" | egrep "${pattern2}"`" != "" ]
+	pattern="${1}"
+	pattern2="${2}"
+	if [ -n "`cat "${pattern}" | egrep "${pattern2}"`" ]
 	then
 		printf "1\n"
 	else
 		printf "0\n"
 	fi
+}
+
+file_parent_traverse () {
+	filename="${1}"
+	usergroupid="${2}"
+	# start with the dependency itself and then use dirname to find the parent directory
+	while [ "${filename}" != "/" ]
+	do
+		printf "${filename}\n"
+		# find the parent directory
+		filename="`dirname ${filename}`"
+	done
 }

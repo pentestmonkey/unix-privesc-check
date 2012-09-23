@@ -26,55 +26,32 @@
 
 system_libraries_init () {
 	stdio_message_log "system_libraries" "Starting"
-}
-
-system_libraries_traverse () {
-	filename="$1"
-	filerunasuserid="$2"
-	filerunasgroupid="$2"
-	# start with the dependency itself and then use dirname to find the parent directory
-	while [ "${filename}" != "/" ]
-	do
-		file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
-		do
-			if [ "${filerunasuserid}" != "" ]
-			then
-				stdio_message_warn "system_libraries" "${filename} is run as user ${filerunasuserid} but owned by user ${fileuserid}"
-				stdio_message_debug "system_libraries" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-			else
-				if [ "${filerunasgroupid}" != "" ]
-				then
-					stdio_message_warn "system_libraries" "${filename} is run as group ${filerunasgroupid} but owned by group ${filegroupid}"
-					stdio_message_debug "system_libraries" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-				fi
-			fi
-			case "${filepermissions}" in
-				?????w????|????????w?)
-					if [ "${filerunasuserid}" != "" ]
-					then
-						stdio_message_warn "system_libraries" "${filename} is run as user ${filerunasuserid} but may be group or world writable"
-						stdio_message_debug "system_libraries" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-					else
-						if [ "${filerunasgroupid}" != "" ]
-						then
-							# while it should be obvious why allowing o+w is bad, the case not not allowing g+w less clear cut, again my thinking is that with the privileges of the setgid binary it should not be possible to modify dependencies otherwise it may be possible to turn repurpose it... we should probably check for g+ws binaries too, this falls somewhere between setgid and group_writable... i'll change 
-							stdio_message_warn "system_libraries" "${filename} is run as group ${filerunasgroupid} but may be group or world writable"
-							stdio_message_debug "system_libraries" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-						fi
-					fi
-					;;
-			esac
-		done
-		# find the parent directory
-		filename="`dirname ${filename}`"
-	done
-
+	file_check_or_generate_cache
 }
 
 system_libraries_main () {
 	linker_list_system_filenames | while read filename
 	do
-		system_libraries_traverse "${filename}" "anyone"  "anyone"
+		file_parent_traverse "${filename}" | while read filename
+		do
+			if [ -e "${filename}" ]
+			then
+				file_show_perms "${filename}" | while read filename permissions userid groupid
+				do
+					stdio_message_warn "system_libraries" "${filename} is run as user/group anybody but owned by user ${userid}"
+					stdio_message_warn "system_libraries" "${filename} is run as user/group anybody but owned by group ${groupid}"
+					stdio_message_debug "system_libraries" "${filename} (${userid}, ${groupid})=${permissions}"
+					case "${permissions}" in
+						?????w????|????????w?)
+							stdio_message_warn "system_libraries" "${filename} is run as user/group anybody but is group or world writable"
+							stdio_message_debug "system_libraries" "${filename} (${userid}, ${groupid})=${permissions}"
+							;;
+					esac
+				done
+			else
+				stdio_message_warn "system_libraries" "${filename} is run as user/group ${usergroupid} but does not exist"
+			fi
+		done
 	done
 }
 

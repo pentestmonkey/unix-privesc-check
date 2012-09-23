@@ -26,12 +26,12 @@ shadow_hashes_init () {
 }
 
 shadow_hashes_main () {
-	shadow_list ".*" | while read shadowusername
+	shadow_list ".*" | while read username
 	do
-		shadowhash="`shadow_show_hash "${shadowusername}"`"
-		if [ "${shadowhash}" = "" ]
+		hash="`shadow_show_hash "${username}"`"
+		if [ -z "${hash}" ]
 		then
-			stdio_message_warn "shadow_hashes" "${shadowusername} has no password set"
+			stdio_message_warn "shadow_hashes" "${username} has no password set"
 		fi
 	done
 }

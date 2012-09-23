@@ -21,12 +21,12 @@
 # Supports: Linux
 
 ssh_agent_list () {
-	pattern="$1"
+	pattern="${1}"
 	SSH_AUTH_SOCK="`ls "/tmp/ssh-*/agent.${pattern}"`"
 	export SSH_AUTH_SOCK
-	ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy ssh_agentkeyfilename dummy
+	ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy keyfilename dummy
 	do
-		printf "${ssh_agentkeyfilename}\n"
+		printf "${keyfilename}\n"
 	done
 	unset SSH_AUTH_SOCK
 }
