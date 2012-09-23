@@ -22,15 +22,40 @@
 # TODO tidy up config names a little
 filecachefilename="files_cache.tmp"
 filecacherootpath="/"
-filecacheignoresymlinksflag=1
 
-for checkfilename in lib/checks/*
+usage() {
+        printf "usage: ${0}\n"
+	printf "Identifies potential privilege escalation paths.\n"
+	printf "\n"
+	printf "\t--help\tdisplay this help and exit\n"
+	printf "\t--type\tselect from one of the following check types:\n"
+	for checktype in lib/checks/enabled/*
+	do
+		printf "\t\t`basename ${checktype}`\n"
+	done
+        exit 1
+}
+
+CHECKTYPE="all"
+while [ -n "${1}" ]
 do
-	if [ -x "${checkfilename}" ]
-	then
-		. "${checkfilename}"
-		`basename "${checkfilename}"`_init
-		`basename "${checkfilename}"`_main
-		`basename "${checkfilename}"`_fini
-	fi
+	case "${1}" in
+		"--help")
+			usage
+			;;
+		"--type")
+			shift
+			CHECKTYPE="${1}"
+			;;
+	esac
+	shift
 done
+
+for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
+do
+	. "${checkfilename}"
+	`basename "${checkfilename}"`_init
+	`basename "${checkfilename}"`_main
+	`basename "${checkfilename}"`_fini
+done
+exit 0

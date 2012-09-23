@@ -1,8 +1,35 @@
+2012-09-22 unix-privesc-check trunk
+
+* Started adding --help
+* Removed date from output
+* Bug fix: Changed $1 to ${1} etc
+* Added message when generating cache
+* Bug fix: Checking wrong variable in lib/misc/process
+* Added lib/misc/privileged
+* Changed string checks from "" to -n etc
+* Standardised variable names
+* Changed how checks are enabled, it is now possible to have
+  different types of scan using --type
+* Added check for encryption to lib/checks/ssh_key_unencrypted
+* Renamed lib/checks/binary_changeprivs to
+  lib/checks/binary_change_privileges
+* Updated docs/COPYING.UNIX-PRIVESC-CHECK to reference
+  version 1 explicitly.  This will allow version 2 into
+  Debian and other free distributions
+* Added lib/checks/binary_banned
+* Added check for lack of XXX in lib/checks/tmp
+* Added check for DT_RUNPATH to lib/checks/binary_rpath
+* Started work on porting lib/misc/* to Solaris
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2012-09-11 unix-privesc-check trunk
 
 * Branching 1.x at revision 26
 * 2.0 released
 * Bug fix: Typo in lib/checks/binary_dependency
+* Improved output of lib/checks/system_libraries,
+  lib/checks/binary_dependency, lib/checks/binary_rpath
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 

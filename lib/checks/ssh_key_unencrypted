@@ -23,14 +23,14 @@
 
 ssh_key_unencrypted_init () {
 	stdio_message_log "ssh_key_unencrypted" "Starting"
+	file_check_or_generate_cache
 }
 
 ssh_key_unencrypted_main () {
-	file_check_or_generate_cache
 	# TODO we should expand this list
-	for filenamepattern in "*id_dsa*" "*id_rsa*" "*.ssh/*"
+	for pattern in "*id_dsa*" "*id_rsa*" "*.ssh/*"
 	do
-		file_list_by_filename "${filenamepattern}" | while read filename
+		file_list_by_filename "${pattern}" | while read filename
 		do
 			if [ "`file_matches_string "${filename}" "ENCRYPTED"`" -ne 1 ]
 			then

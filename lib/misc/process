@@ -21,53 +21,53 @@
 # Supports: Linux
 
 process_list () {
-	pattern="$1"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read processuserid processgroupid processprocessid processparentid processcommand processarguments
+	pattern="${1}"
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
-		printf "${processprocessid}\n"
+		printf "${processid}\n"
 	done
 }
 	
 process_show_userid () {
-	pattern="$1"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read processuserid processgroupid processprocessid processparentid processcommand processarguments
+	pattern="${1}"
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
-		if [ "${processprocessid}" -eq "${pattern}" ]
+		if [ "${processid}" -eq "${pattern}" ]
 		then
-			printf "${processuserid}\n"
+			printf "${userid}\n"
 		fi
 	done
 }
 
 process_show_parentid () {
-	pattern="$1"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read processuserid processgroupid processprocessid processparentid processcommand processarguments
+	pattern="${1}"
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
-		if [ "${processprocessid}" -eq "${pattern}" ]
+		if [ "${processid}" -eq "${pattern}" ]
 		then
-			printf "${processparentid}\n"
+			printf "${parentid}\n"
 		fi
 	done
 }
 
 process_show_command () {
-	pattern="$1"
+	pattern="${1}"
 	# TODO still debating if i want to this, writing OS specific code is a bumpy road to travel down
 	if [ "`uname`" = "Linux" ]
 	then
-		if [ -d "/proc/${processid}" ]
+		if [ -d "/proc/${pattern}" ]
 		then
-			cat "/proc/${processid}/cmdline" | tr "\00" " " | sed "s/$/\n/g" | while read processcommand processarguments
+			cat "/proc/${pattern}/cmdline" | tr "\00" " " | sed "s/$/\n/g" | while read command arguments
 			do
-				printf -- "${processcommand}\n"
+				printf -- "${command}\n"
 			done
 		fi
 	else
-		ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read processuserid processgroupid processprocessid processparentid processcommand processarguments
+		ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 		do
-			if [ "${processprocessid}" -eq "${pattern}" ]
+			if [ "${processid}" -eq "${pattern}" ]
 			then
-				printf -- "${processcommand}\n"
+				printf -- "${command}\n"
 			fi
 		done
 	fi

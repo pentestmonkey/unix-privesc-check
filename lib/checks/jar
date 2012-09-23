@@ -23,16 +23,16 @@
 
 jar_init () {
 	stdio_message_log "jar" "Starting"
+	file_check_or_generate_cache
 }
 
 jar_main () {
-	file_check_or_generate_cache
 	file_list_by_filename "*.jar" | while read filename
 	do
-		file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+		file_show_perms "${filename}" | while read filename permissions userid groupid
 		do
 			# TODO should we attempt to validate permissions
-			stdio_message_warn "jar" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+			stdio_message_warn "jar" "${filename} (${userid}, ${groupid})=${permissions}"
 		done
 	done
 }

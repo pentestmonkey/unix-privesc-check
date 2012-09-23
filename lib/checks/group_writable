@@ -23,16 +23,16 @@
 
 group_writable_init () {
 	stdio_message_log "group_writable" "Starting"
+	file_check_or_generate_cache
 }
 
 group_writable_main () {
-	file_check_or_generate_cache
 	file_list_by_perm "?????w????" | while read filename
 	do
 		stdio_message_warn "group_writable" "${filename} is group writable"
-		file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+		file_show_perms "${filename}" | while read filename permissions userid groupid
 		do
-			stdio_message_debug "group_writable" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+			stdio_message_debug "group_writable" "${filename} (${userid}, ${groupid})=${permissions}"
 		done
 	done
 }

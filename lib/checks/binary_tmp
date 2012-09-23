@@ -21,95 +21,28 @@
 # Based on ideas found at http://people.redhat.com/sgrubb/security/
 
 . lib/misc/stdio
-. lib/misc/file
+. lib/misc/privileged
 . lib/misc/binary
-. lib/misc/inetd
-. lib/misc/process
 
 binary_tmp_init () {
 	stdio_message_log "binary_tmp" "Starting"
 }
 
 binary_tmp_main () {
-	file_check_or_generate_cache
-	for permissionspattern in "-??s??????" "-??S??????"
+	privileged_list | while read type filename usergroupid
 	do
-		file_list_by_perm "${permissionspattern}" | while read filename
-		do
-			stdio_message_log "binary_tmp" "${filename} is setuid"
-			if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
-			then
-				if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -ne 1 ]
-				then
-					stdio_message_warn "binary_tmp" "${filename} may use /tmp unsafely"
-				fi
-			fi
-		done
-	done
-	for permissionspattern in "-?????s???" "-?????S???"
-	do
-		file_list_by_perm "${permissionspattern}" | while read filename
-		do
-			stdio_message_log "binary_tmp" "${filename} is setgid"
-			if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
-			then
-				if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -ne 1 ]
-				then
-					stdio_message_warn "binary_tmp" "${filename} may use /tmp unsafely"
-				fi
-			fi
-		done
-	done
-	inetd_list ".*" | while read portnumber
-	do
-		filename="`inetd_show_command "${portnumber}"`"
-		stdio_message_log "binary_tmp" "${filename} is spawned by inetd"
-		filename="`file_show_real_filename "${filename}"`"
-		if [ "${filename}" != "" ]
+		stdio_message_log "binary_tmp" "${filename} is ${type}, running as user/group ${usergroupid}"
+		if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
 		then
-			if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
+			if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -ne 1 ]
 			then
-				if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -ne 1 ]
+				if [ "`binary_matches_string "${filename}" "XXX"`" -ne 1 ]
 				then
-					stdio_message_warn "binary_tmp" "${filename} may use /tmp unsafely"
-				fi
-			fi
-		fi
-		filename="`inetd_show_arguments "${portnumber}"`"
-		stdio_message_log "binary_tmp" "${filename} is spawned by inetd"
-		filename="`file_show_real_filename "${filename}"`"
-		if [ "${filename}" != "" ]
-		then
-			if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
-			then
-				if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -ne 1 ]
-				then
-					stdio_message_warn "binary_tmp" "${filename} may use /tmp unsafely"
+				      stdio_message_warn "binary_tmp" "${filename} may use /tmp unsafely"
 				fi
 			fi
 		fi
 	done
-	process_list ".*" | while read processid
-	do
-		filename="`process_show_command "${processid}"`"
-		if [ "${filename}" = "" ]
-		then
-			continue
-		fi
-		stdio_message_log "binary_tmp" "${filename} is running"
-		filename="`file_show_real_filename "${filename}"`"
-		if [ "${filename}" != "" ]
-		then
-			if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
-			then
-				if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -ne 1 ]
-				then
-					stdio_message_warn "binary_tmp" "${filename} may use /tmp unsafely"
-				fi
-			fi
-		fi
-	done
-	# TODO still need to add similar checks for stuff spawned from init or cron or which has fscaps
 }
 
 binary_tmp_fini () {

@@ -18,10 +18,10 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Supports: Linux, AIX (binary_list_rpath)
+# Supports: Linux, AIX, Solaris
 
 binary_list_rpath () {
-	pattern="$1"
+	pattern="${1}"
 	if [ "`uname`" = "AIX" ]
 	then
 		dumpflag=0
@@ -33,33 +33,58 @@ binary_list_rpath () {
 				do
 					if [ "${index}" -eq 0 ]
 					then
-						printf "${base}\n" | tr ":" "\n" | while read binaryfilename
+						printf "${base}\n" | tr ":" "\n" | while read filename
 						do
-							printf "${binaryfilename}\n"
+							printf "${filename}\n"
 						done
 					fi
 				done
 			fi
-			if [ "`printf "${line}\n" | grep "INDEX"`" != "" ]
+			if [ -n "`printf "${line}\n" | grep "INDEX"`" ]
 			then
 				dumpflag=1
 			fi
 		done | sort | uniq
 	else
-		objdump -x "${pattern}" | grep "RPATH" | while read header rpath
-		do
-			printf "${rpath}\n" | tr ":" "\n" | while read binaryfilename
+		if ["`uname`" = "SunOS" ]
+		then
+			dump -Lv "${pattern}" | grep "RPATH" | while read dummy header rpath
 			do
-				printf "${binaryfilename}\n"
-			done
-		done | sort | uniq
+				printf "${rpath}\n" | tr ":" "\n" | while read filename
+				do
+					printf "${filename}\n"
+				done
+			done | sort | uniq
+			dump -Lv "${pattern}" | grep "RUNPATH" | while read dummy header rpath
+			do
+				printf "${rpath}\n" | tr ":" "\n" | while read filename
+				do
+					printf "${filename}\n"
+				done
+			done | sort | uniq
+		else
+			objdump -x "${pattern}" | grep "RPATH" | while read header rpath
+			do
+				printf "${rpath}\n" | tr ":" "\n" | while read filename
+				do
+					printf "${filename}\n"
+				done
+			done | sort | uniq
+			objdump -x "${pattern}" | grep "RUNPATH" | while read header rpath
+			do
+				printf "${rpath}\n" | tr ":" "\n" | while read filename
+				do
+					printf "${filename}\n"
+				done
+			done | sort | uniq
+		fi
 	fi
 }
 
 binary_matches_string () {
-	pattern="$1"
-	pattern2="$2"
-	if [ "`strings "${pattern}" | egrep "${pattern2}"`" != "" ]
+	pattern="${1}"
+	pattern2="${2}"
+	if [ -n "`strings "${pattern}" | egrep "${pattern2}"`" ]
 	then
 		printf "1\n"
 	else
@@ -68,9 +93,9 @@ binary_matches_string () {
 }
 
 binary_matches_function () {
-	pattern="$1"
-	pattern2="$2"
-	if [ "`objdump -T "${pattern}" | egrep "${pattern2}"`" != "" ]
+	pattern="${1}"
+	pattern2="${2}"
+	if [ -n "`objdump -T "${pattern}" | egrep "${pattern2}"`" ]
 	then
 		printf "1\n"
 	else

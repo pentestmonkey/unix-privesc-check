@@ -21,26 +21,26 @@
 # Supports: Linux, AIX
 
 linker_list_dependencies () {
-	pattern="$1"
+	pattern="${1}"
 	if [ "`uname`" = "AIX" ]
 	then
-		ldd "${pattern}" | while read linkerlibrary
+		ldd "${pattern}" | while read library
 		do
-			case "${linkerfilename}" in
+			case "${filename}" in
 				/*)
-					linkerfilename="`printf "${linkerfilename}" | sed "s/\(.*//g"`"
-					linker_list_dependencies "${linkerfilename}"
-					printf "${linkerfilename}\n"
+					filename="`printf "${filename}" | sed "s/\(.*//g"`"
+					linker_list_dependencies "${filename}"
+					printf "${filename}\n"
 					;;
 			esac
 		done | sort | uniq
 	else
-		ldd "${pattern}" | while read linkerlibrary dummy linkerfilename dummy
+		ldd "${pattern}" | while read library dummy filename dummy
 		do
-			case "${linkerfilename}" in
+			case "${filename}" in
 				/*)
-					linker_list_dependencies "${linkerfilename}"
-					printf "${linkerfilename}\n"
+					linker_list_dependencies "${filename}"
+					printf "${filename}\n"
 					;;
 			esac
 		done | sort | uniq
@@ -50,17 +50,16 @@ linker_list_dependencies () {
 linker_list_system_filenames () {
 	if [ "`uname`" = "Linux" ]
 	then
-		cat "${filecacherootpath}/etc/ld.so.conf" | while read line
+		cat "/etc/ld.so.conf" | while read line
 		do
 			case "${line}" in
 				/*)
 					printf "${line}\n"
 					;;
 				include*)
-					printf "${line}\n" | while read dummy linkerfilename
+					printf "${line}\n" | while read dummy filename
 					do
-						# not quoted to allow the shell to expand it for us
-						cat ${filecacherootpath}${linkerfilename} | while read line
+						cat "${filename}" | while read line
 						do
 							case "${line}" in
 								/*)

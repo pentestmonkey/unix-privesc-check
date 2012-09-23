@@ -21,26 +21,26 @@
 # Supports: Linux, AIX, Solaris, HP-UX
 
 stdio_message_log () {
-	check="$1"
-	message="$2"
+	check="${1}"
+	message="${2}"
 	stdio_format_message "I" "${check}" "${message}"
 }
 
 stdio_message_warn () {
-	check="$1"
-	message="$2"
+	check="${1}"
+	message="${2}"
 	stdio_format_message "W" "${check}" "${message}"
 }
 
 stdio_message_debug () {
-	check="$1"
-	message="$2"
+	check="${1}"
+	message="${2}"
 	stdio_format_message "D" "${check}" "${message}" >&2
 }
 
 stdio_format_message () {
-	type="$1"
-	check="$2"
-	message="$3"
-	printf "`date` ${type}: ${check} ${message}\n"
+	type="${1}"
+	check="${2}"
+	message="${3}"
+	printf "${type}: ${check} ${message}\n"
 }

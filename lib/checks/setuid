@@ -23,20 +23,17 @@
 
 setuid_init () {
 	stdio_message_log "setuid" "Starting"
+	file_check_or_generate_cache
 }
 
 setuid_main () {
-	file_check_or_generate_cache
-	for permissionspattern in "-??s??????" "-??S??????"
+	file_list_by_perm "-??s??????|-??S??????" | while read filename
 	do
-		file_list_by_perm "${permissionspattern}" | while read filename
+		stdio_message_warn "setuid" "${filename} is setuid"
+		file_show_perms "${filename}" | while read filename permissions userid groupid
 		do
-			stdio_message_warn "setuid" "${filename} is setuid"
-			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
-			do
-				# TODO we should validate these
-				stdio_message_debug "setuid" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-			done
+			# TODO we should validate these
+			stdio_message_debug "setuid" "${filename} (${userid}, ${groupid})=${permissions}"
 		done
 	done
 }

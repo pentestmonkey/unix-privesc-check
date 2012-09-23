@@ -26,21 +26,21 @@ passwd_hashes_init () {
 }
 
 passwd_hashes_main () {
-	passwd_list ".*" | while read passwdusername
+	passwd_list ".*" | while read username
 	do
-		if [ "${passwdusername}" = "+" ]
+		if [ "${username}" = "+" ]
 		then
 			stdio_message_warn "passwd_hashes" "/etc/passwd allows external authentication"
 		else
-			passwdhash="`passwd_show_hash "${passwdusername}"`"
+			hash="`passwd_show_hash "${username}"`"
 			# TODO this causes a problem on AIX :(
-			if [ "${passwdhash}" != "x" -a "${passwdhash}" != "!" -a "${passwdhash}" != "*" ]
+			if [ "${hash}" != "x" -a "${hash}" != "!" -a "${hash}" != "*" ]
 			then
-				if [ "${passwdhash}" = "" ]
+				if [ -z "${hash}" ]
 				then
-					stdio_message_warn "passwd_hashes" "${passwdusername} has no password set"
+					stdio_message_warn "passwd_hashes" "${username} has no password set"
 				else
-					stdio_message_warn "passwd_hashes" "/etc/passwd may contain hash for ${passwdusername}"
+					stdio_message_warn "passwd_hashes" "/etc/passwd may contain hash for ${username}"
 				fi
 			fi
 		fi

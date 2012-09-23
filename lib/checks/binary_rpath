@@ -19,151 +19,56 @@
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
 . lib/misc/stdio
+. lib/misc/privileged
 . lib/misc/file
 . lib/misc/binary
-. lib/misc/inetd
-. lib/misc/process
 
 binary_rpath_init () {
 	stdio_message_log "binary_rpath" "Starting"
-}
-
-binary_rpath_traverse () {
-	filename="$1"
-	filerunasuserid="$2"
-	filerunasgroupid="$2"
-	initialfilename="${filename}"
-	# start with the rpath itself and then use dirname to find the parent directory
-	while [ "${filename}" != "/" ]
-	do
-		if [ -e "${filename}" ]
-		then
-			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
-			do
-				if [ "${filerunasuserid}" != "" ]
-				then
-					stdio_message_warn "binary_rpath" "${filename} is run as user ${filerunasuserid} but owned by user ${fileuserid}"
-					stdio_message_debug "binary_rpath" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-				else
-					if [ "${filerunasgroupid}" != "" ]
-					then
-						stdio_message_warn "binary_rpath" "${filename} is run as group ${filerunasgroupid} but owned by group ${fileuserid}"
-						stdio_message_debug "binary_rpath" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-					fi
-				fi
-				case "${filepermissions}" in
-					?????w????|????????w?)
-						if [ "${filerunasuserid}" != "" ]
-						then
-							stdio_message_warn "binary_rpath" "${filename} is run as user ${filerunasuserid} but may be group or world writable"
-							stdio_message_debug "binary_rpath" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-						else
-							if [ "${filerunasgroupid}" != "" ]
-							then
-								# while it should be obvious why allowing o+w is bad, the case not not allowing g+w less clear cut, again my thinking is that with the privileges of the setgid binary it should not be possible to modify dependencies otherwise it may be possible to turn repurpose it... we should probably check for g+ws binaries too, this falls somewhere between setgid and group_writable... i'll change 
-								stdio_message_warn "binary_rpath" "${filename} is run as group ${filerunasgroupid} but may be group or world writable"
-								stdio_message_debug "binary_rpath" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
-							fi
-						fi
-						;;
-				esac
-			done
-		else
-			stdio_message_warn "binary_rpath" "${filename} does not exist"
-		fi
-		# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
-		if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
-		then
-			if [ "${filerunasuserid}" != "" ]
-			then
-				stdio_message_warn "binary_rpath" "${initialfilename} is run as user ${filerunasuserid} but is relative"
-			else
-				if [ "${filerunasgroupid}" != "" ]
-				then
-					stdio_message_warn "binary_rpath" "${initialfilename} is run as group ${filerunasgroupid} but is relative"
-				fi
-			fi
-			filename="/"
-		else
-			# find the parent directory
-			filename="`dirname ${filename}`"
-		fi
-	done
+	file_check_or_generate_cache
 }
 	
 binary_rpath_main () {
-	file_check_or_generate_cache
-	for permissionspattern in "-??s??????" "-??S??????"
+	privileged_list | while read type filename usergroupid
 	do
-		file_list_by_perm "${permissionspattern}" | while read filename
+		stdio_message_log "binary_rpath" "${filename} is ${type}, running as user/group ${usergroupid}"
+		file_show_perms "${filename}" | while read filename permissions userid groupid
 		do
-			stdio_message_log "binary_rpath" "${filename} is setuid"
-			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+			binary_list_rpath "${filename}" | while read filename2
 			do
-				filerunasuserid="${fileuserid}"
-				binary_list_rpath "${filename}" | while read filename
+				stdio_message_log "binary_dependency" "${filename} trusts ${filename2}"
+				file_parent_traverse "${filename2}" | while read filename
 				do
-					binary_rpath_traverse "${filename}" "${filerunasuserid}" ""
+					if [ -e "${filename}" -a ! -l "${filename}" ]
+					then
+						file_show_perms "${filename}" | while read filename permissions userid groupid
+						do
+							stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but owned by user ${userid}"
+							stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but owned by group ${groupid}"
+							stdio_message_debug "binary_rpath" "${filename} (${userid}, ${groupid})=${permissions}"
+							case "${permissions}" in
+								?????w????|????????w?)
+									stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but is group or world writable"
+									stdio_message_debug "binary_rpath" "${filename} (${userid}, ${groupid})=${permissions}"
+									;;
+							esac
+						done
+					else
+						if [ ! -l "${filename}" ]
+						then
+							stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but does not exist"
+						fi
+					fi
+					# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
+					if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
+					then
+						stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but is relative"
+						filename="/"
+					fi
 				done
 			done
 		done
 	done
-	for permissionspattern in "-?????s???" "-?????S???"
-	do
-		file_list_by_perm "${permissionspattern}" | while read filename
-		do
-			stdio_message_log "binary_rpath" "${filename} is setgid"
-			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
-			do
-				filerunasgroupid="${filegroupid}"
-				binary_list_rpath "${filename}" | while read filename
-				do
-					binary_rpath_traverse "${filename}" "" "${filerunasgroupid}"
-				done
-			done
-		done
-	done
-	inetd_list ".*" | while read portnumber
-	do
-		filename="`inetd_show_command "${portnumber}"`"
-		stdio_message_log "binary_rpath" "${filename} is spawned by inetd"
-		filename="`file_show_real_filename "${filename}"`"
-		if [ "${filename}" != "" ]
-		then
-			binary_list_rpath "${filename}" | while read filename
-			do
-				binary_rpath_traverse "${filename}" "`inetd_show_userid "${portnumber}"`" ""
-			done
-		fi
-		filename="`inetd_show_arguments "${portnumber}"`"
-		stdio_message_log "binary_rpath" "${filename} is spawned by inetd"
-		filename="`file_show_real_filename "${filename}"`"
-		if [ "${filename}" != "" ]
-		then
-			binary_list_rpath "${filename}" | while read filename
-			do
-				binary_rpath_traverse "${filename}" "`inetd_show_userid "${portnumber}"`" ""
-			done
-		done
-	done
-	process_list ".*" | while read processid
-	do
-		filename="`process_show_command "${processid}"`"
-		if [ "${filename}" = "" ]
-		then
-			continue
-		fi
-		stdio_message_log "binary_rpath" "${filename} is running"
-		filename="`file_show_real_filename "${filename}"`"
-		if [ "${filename}" != "" ]
-		then
-			binary_list_rpath "${filename}" | while read filename
-			do
-				binary_rpath_traverse "${filename}" "`process_show_userid "${processid}"`" ""
-			done
-		fi
-	done
-	# TODO still need to add similar checks for stuff spawned from init or cron or which has fscaps
 }
 
 binary_rpath_fini () {

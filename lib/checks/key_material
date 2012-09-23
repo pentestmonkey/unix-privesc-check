@@ -23,19 +23,19 @@
 
 key_material_init () {
 	stdio_message_log "key_material" "Starting"
+	file_check_or_generate_cache
 }
 
 key_material_main () {
-	file_check_or_generate_cache
 	# TODO we should expand this list
-	for filenamepattern in ".crt" "*.cer" "*.pem" "*.p12" "*.keystore" ".key"
+	for pattern in ".crt" "*.cer" "*.pem" "*.p12" "*.keystore" ".key"
 	do
-		file_list_by_filename "${filenamepattern}" | while read filename
+		file_list_by_filename "${pattern}" | while read filename
 		do
-			file_show_perms "${filename}" | while read filename filepermissions fileuserid filegroupid
+			file_show_perms "${filename}" | while read filename permissions userid groupid
 			do
 				# TODO should we attempt to validate permissions
-				stdio_message_warn "key_material" "${filename} (${fileuserid}, ${filegroupid})=${filepermissions}"
+				stdio_message_warn "key_material" "${filename} (${userid}, ${groupid})=${permissions}"
 			done
 		done
 	done
