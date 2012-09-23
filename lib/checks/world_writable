@@ -29,11 +29,17 @@ world_writable_init () {
 world_writable_main () {
 	file_list_by_perm "????????w?" | while read filename
 	do
-		stdio_message_warn "world_writable" "${filename} is world writable"
-		file_show_perms "${filename}" | while read filename permissions userid groupid
-		do
-			stdio_message_debug "world_writable" "${filename} (${userid}, ${groupid})=${permissions}"
-		done
+		if [ -h  "${filename}" ]
+		then
+			stdio_message_debug "world_writable" "${filename} is a symlink"
+			# TODO chase the dragon (symlink)
+		else
+			stdio_message_warn "world_writable" "${filename} is world writable"
+			file_show_perms "${filename}" | while read filename permissions userid groupid
+			do
+				stdio_message_debug "world_writable" "${filename} (${userid}, ${groupid})=${permissions}"
+			done
+		fi
 	done
 }
 

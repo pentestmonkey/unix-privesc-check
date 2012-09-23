@@ -36,20 +36,32 @@ system_libraries_main () {
 		do
 			if [ -e "${filename}" ]
 			then
-				file_show_perms "${filename}" | while read filename permissions userid groupid
-				do
-					stdio_message_warn "system_libraries" "${filename} is run as user/group anybody but owned by user ${userid}"
-					stdio_message_warn "system_libraries" "${filename} is run as user/group anybody but owned by group ${groupid}"
-					stdio_message_debug "system_libraries" "${filename} (${userid}, ${groupid})=${permissions}"
-					case "${permissions}" in
-						?????w????|????????w?)
-							stdio_message_warn "system_libraries" "${filename} is run as user/group anybody but is group or world writable"
-							stdio_message_debug "system_libraries" "${filename} (${userid}, ${groupid})=${permissions}"
-							;;
-					esac
-				done
+				if [ -h  "${filename}" ]
+				then
+					stdio_message_debug "system_libraries" "${filename} is a symlink"
+					# TODO chase the dragon (symlink)
+				else
+					file_show_perms "${filename}" | while read filename permissions userid groupid
+					do
+						stdio_message_warn "system_libraries" "${filename} is run as user/group ${usergroupid} but owned by user ${userid}"
+						stdio_message_warn "system_libraries" "${filename} is run as user/group ${usergroupid} but owned by group ${groupid}"
+						stdio_message_debug "system_libraries" "${filename} (${userid}, ${groupid})=${permissions}"
+						case "${permissions}" in
+							?????w????|????????w?)
+								stdio_message_warn "system_libraries" "${filename} is run as user/group ${usergroupid} but is group or world writable"
+								stdio_message_debug "system_libraries" "${filename} (${userid}, ${groupid})=${permissions}"
+								;;
+						esac
+					done
+				fi
 			else
 				stdio_message_warn "system_libraries" "${filename} is run as user/group ${usergroupid} but does not exist"
+			fi
+			# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
+			if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
+			then
+				stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but is relative"
+				filename="/"
 			fi
 		done
 	done

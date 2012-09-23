@@ -21,11 +21,11 @@
 # Supports: Linux, AIX, Solaris
 
 binary_list_rpath () {
-	pattern="${1}"
+	filename="${1}"
 	if [ "`uname`" = "AIX" ]
 	then
 		dumpflag=0
-		dump -Hv -X 32_64 "${pattern}" | while read line
+		dump -Hv -X 32_64 "${filename}" | while read line
 		do
 			if [ "${dumpflag}" -eq 1 ]
 			then
@@ -48,14 +48,14 @@ binary_list_rpath () {
 	else
 		if ["`uname`" = "SunOS" ]
 		then
-			dump -Lv "${pattern}" | grep "RPATH" | while read dummy header rpath
+			dump -Lv "${filename}" | grep "RPATH" | while read dummy header rpath
 			do
 				printf "${rpath}\n" | tr ":" "\n" | while read filename
 				do
 					printf "${filename}\n"
 				done
 			done | sort | uniq
-			dump -Lv "${pattern}" | grep "RUNPATH" | while read dummy header rpath
+			dump -Lv "${filename}" | grep "RUNPATH" | while read dummy header rpath
 			do
 				printf "${rpath}\n" | tr ":" "\n" | while read filename
 				do
@@ -63,14 +63,14 @@ binary_list_rpath () {
 				done
 			done | sort | uniq
 		else
-			objdump -x "${pattern}" | grep "RPATH" | while read header rpath
+			objdump -x "${filename}" | grep "RPATH" | while read header rpath
 			do
 				printf "${rpath}\n" | tr ":" "\n" | while read filename
 				do
 					printf "${filename}\n"
 				done
 			done | sort | uniq
-			objdump -x "${pattern}" | grep "RUNPATH" | while read header rpath
+			objdump -x "${filename}" | grep "RUNPATH" | while read header rpath
 			do
 				printf "${rpath}\n" | tr ":" "\n" | while read filename
 				do
@@ -81,10 +81,25 @@ binary_list_rpath () {
 	fi
 }
 
+binary_pie() {
+	filename="${1}"
+	if [ "`uname`" = "Linux" ]
+	then
+		if [ -n "`objdump -x "${filename}" | head -5 | grep "DYNAMIC"`" ]
+		then
+			printf "1\n"
+		else
+			printf "0\n"
+		fi
+	else
+		printf "0\n"
+	fi
+}
+
 binary_matches_string () {
-	pattern="${1}"
-	pattern2="${2}"
-	if [ -n "`strings "${pattern}" | egrep "${pattern2}"`" ]
+	filename="${1}"
+	pattern="${2}"
+	if [ -n "`strings "${filename}" | egrep "${pattern}"`" ]
 	then
 		printf "1\n"
 	else
@@ -93,9 +108,9 @@ binary_matches_string () {
 }
 
 binary_matches_function () {
-	pattern="${1}"
-	pattern2="${2}"
-	if [ -n "`objdump -T "${pattern}" | egrep "${pattern2}"`" ]
+	filename="${1}"
+	pattern="${2}"
+	if [ -n "`objdump -T "${filename}" | egrep "${pattern}"`" ]
 	then
 		printf "1\n"
 	else

@@ -1,3 +1,14 @@
+2012-09-23 unix-privesc-check trunk
+
+* Bug fix: Changed from stdio_message_debug to stdio_message_warn
+  in lib/checks/binary_banned
+* Bug fix: Incorrect symlink checking in binary_dependency,
+  binary_rpath, world_writable and group_writable
+* Added support for PIE to lib/misc/binary
+* Added lib/checks/binary_pie
+  
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2012-09-22 unix-privesc-check trunk
 
 * Started adding --help
