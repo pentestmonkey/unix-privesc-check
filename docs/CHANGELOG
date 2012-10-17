@@ -5,6 +5,7 @@
 * Changed stdio_message_error to output to STDERR
   in lib/misc/stdio
 * Removed date from output (reverting BDA change)
+* Updated lib/misc/ssh_agent (reverting BDA change)
  
 -- Tim Brown <timb@nth-dimension.org.uk>
 
