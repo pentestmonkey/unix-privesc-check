@@ -77,12 +77,12 @@ privileged_list () {
 				continue
 			fi
 
-			file_show_real_filename "${filename}" | while read filename
+			file_show_real_filename "${filename}" | while read real_filename
 			do
-				if [ -n "${filename}" ]
+				if [ -n "${real_filename}" ]
 				then
 					userid="`process_show_userid "${processid}"`"
-					printf "running ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+					printf "running ${real_filename} ${userid}\n" | tee -a ${filecacheprivileged}
 				fi
 			done
 		done
