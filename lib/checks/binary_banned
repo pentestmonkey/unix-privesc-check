@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,6 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
+# Check if privileged files call banned (and potentially dangerous) functions
 # Based on Microsoft's banned API list as parsed by ../../tools/generate_banned.sh
 
 . lib/misc/stdio
@@ -31,10 +33,10 @@ binary_banned_init () {
 binary_banned_main () {
 	privileged_list | while read type filename usergroupid
 	do
-		stdio_message_log "binary_banned" "${filename} is ${type}, running as user/group ${usergroupid}"
-		if [ "`binary_matches_function "${filename}" "alloca|gets|memcpy|scanf|sprintf|sscanf|strcat|StrCat|strcpy|StrCpy|strlen|StrLen|strncat|StrNCat|strncpy|StrNCpy|strtok|swprintf|vsnprintf|vsprintf|vswprintf|wcscat|wcscpy|wcslen|wcsncat|wcsncpy|wcstok|wmemcpy"`" -eq 1 ]
+		banned_apis="`binary_banned_api "${filename}" "alloca|gets|memcpy|scanf|sprintf|sscanf|strcat|StrCat|strcpy|StrCpy|strlen|StrLen|strncat|StrNCat|strncpy|StrNCpy|strtok|swprintf|vsnprintf|vsprintf|vswprintf|wcscat|wcscpy|wcslen|wcsncat|wcsncpy|wcstok|wmemcpy"`"
+		if [ -n "${banned_apis}" ]
 		then
-			stdio_message_warn "binary_banned" "${filename} uses banned APIs"
+			stdio_message_warn "binary_banned" "${filename} is ${type} (${usergroupid}) and uses banned APIs ($banned_apis)"
 		fi
 	done
 }
