@@ -39,6 +39,12 @@ stdio_message_debug () {
 	stdio_format_message "D" "${check}" "${message}" >&2
 }
 
+stdio_message_error () {
+	check="${1}"
+	message="${2}"
+	stdio_format_message "E" "${check}" "${message}"
+}
+
 stdio_format_message () {
 	type="${1}"
 	check="${2}"
