@@ -8,7 +8,9 @@
 * Updated lib/misc/ssh_agent (reverting BDA change)
 * Updated lib/misc/shadow (reverting BDA change)
 * Updated lib/misc/process (reverting BDA change)
-* Updated lib/misc/priviled (partially reverting BDA change)
+* Updated lib/misc/privileged (partially reverting BDA change)
+  * Kept the caching code
+  * Kept variable name changed to make the code more readable
  
 -- Tim Brown <timb@nth-dimension.org.uk>
 
