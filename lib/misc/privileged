@@ -36,35 +36,35 @@ privileged_list () {
 			do
 				file_show_perms "${filename}" | while read filename permissions userid groupid
 				do
-					printf -- "setuid ${filename} ${userid}\n" >> "${privilegedcachefilename}"
+					printf -- "setuid ${filename} ${userid}\n"
 				done
 			done
-		done
+		done >> "${privilegedcachefilename}"
 		for pattern in "-?????s???" "-?????S???"
 		do
 			file_list_by_perm "${pattern}" | while read filename
 			do
 				file_show_perms "${filename}" | while read filename permissions userid groupid
 				do
-					printf -- "setgid ${filename} ${groupid}\n" >> "${privilegedcachefilename}"
+					printf -- "setgid ${filename} ${groupid}\n"
 				done
 			done
-		done
+		done >> "${privilegedcachefilename}"
 		inetd_list | while read portnumberprotocol
 		do
 			privilegedfilename="`inetd_show_command \"${portnumberprotocol}\"`"
 			file_show_real_filename "${privilegedfilename}" | while read realfilename
 			do
 				userid="`inetd_show_userid \"${portnumberprotocol}\"`"
-				printf -- "inetd ${realfilename} ${userid}\n" >> "${privilegedcachefilename}"
+				printf -- "inetd ${realfilename} ${userid}\n"
 			done
 			privilegedarguments="`inetd_show_arguments \"${portnumberprotocol}\"`"
 			file_show_real_filename "${privilegedarguments}" | while read realfilename
 			do
 				userid="`inetd_show_userid \"${portnumberprotocol}\"`"
-				printf -- "inetd-argument ${realfilename} ${userid}\n" >> "${privilegedcachefilename}"
+				printf -- "inetd-argument ${realfilename} ${userid}\n"
 			done
-		done
+		done >> "${privilegedcachefilename}"
 		process_list ".*" | while read processid
 		do
 			filename="`process_show_command \"${processid}\"`"
@@ -77,10 +77,10 @@ privileged_list () {
 				if [ -n "${realfilename}" ]
 				then
 					userid="`process_show_userid \"${processid}\"`"
-					printf -- "running ${realfilename} ${userid}\n" >> "${privilegedcachefilename}"
+					printf -- "running ${realfilename} ${userid}\n"
 				fi
 			done
-		done
+		done >> "${privilegedcachefilename}"
 		# TODO still need to add similar checks for stuff spawned from init or cron, which has fscaps, or binds a listening port not via inetd
 		stdio_message_debug "privileged" "Cache generated"
 	fi
