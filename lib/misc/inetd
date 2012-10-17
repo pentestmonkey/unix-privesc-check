@@ -22,33 +22,41 @@
 # Supports: Linux
 
 inetd_list () {
-	pattern="${1}"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | grep "${pattern}" | while read portnumber _ _ _ _ _ _ _
+	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		printf "${portnumber}\n"
+		printf -- "${portnumber}-${protocol}\n";
 	done
 }
 
 inetd_show_command () {
-	portnumber="${1}"
-	cat /etc/inetd.conf | grep "^${portnumber}" | while read _ _ _ _ _ command _ _
+	pattern="${1}"
+	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		printf "${command}\n"
+		if [ "${portnumber}-${protocol}" = "${pattern}" ]
+		then
+			printf -- "${command}\n"
+		fi
 	done
 }
 
 inetd_show_userid () {
-	portnumber="${1}"
-	cat /etc/inetd.conf | grep "^${portnumber}" | while read _ _ _ _ userid _ _ _
+	pattern="${1}"
+	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		printf "${userid}\n"
+		if [ "${portnumber}-${protocol}" = "${pattern}" ]
+		then
+			printf -- "${userid}\n"
+		fi
 	done
 }
 
 inetd_show_arguments () {
-	portnumber="${1}"
-	cat /etc/inetd.conf | grep "^${portnumber}" | while read _ _ _ _ _ _ arguments _
+	pattern="${1}"
+	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
-		printf "${arguments}\n"
+		if [ "${portnumber}-${protocol}" = "${pattern}" ]
+		then
+			printf -- "${arguments}\n"
+		fi
 	done
 }
