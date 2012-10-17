@@ -36,13 +36,12 @@ binary_tmp_main () {
 	do
 		if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
 		then
-			tempfuncs="`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`"
-			if [ -n "${tempfuncs}" ]
+			if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -eq 1 ]
 			then
 				# TODO why this check here?
 				if [ "`binary_matches_string "${filename}" "XXX"`" -ne 1 ]
 				then
-					  stdio_message_warn "binary_tmp" "${filename} is ${type} (${usergroupid}) and may use /tmp unsafely"
+					stdio_message_warn "binary_tmp" "${filename} is ${type} (${usergroupid}) and may use /tmp unsafely"
 				fi
 			fi
 		fi
