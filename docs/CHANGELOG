@@ -2,6 +2,8 @@
 
 * Added lib/checks/binary_path
 * Added lib/checks/binary_random
+* Changed stdio_message_error to output to STDERR
+  in lib/misc/stdio 
   
 -- Tim Brown <timb@nth-dimension.org.uk>
 
