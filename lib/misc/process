@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,17 +23,28 @@
 
 process_list () {
 	pattern="${1}"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read _ _ processid _ _ _
 	do
 		printf "${processid}\n"
 	done
 }
-	
-process_show_userid () {
-	pattern="${1}"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
+
+process_show_command () {
+	pid="${1}"
+	ps -aeo pid,args | grep -v "PID" | grep "${pid}" | grep -v "grep" | while read processid cmd _
 	do
-		if [ "${processid}" -eq "${pattern}" ]
+		if [ "${processid}" -eq "${pid}" ]
+		then
+			printf "${cmd}\n"
+		fi
+	done
+}
+
+process_show_userid () {
+	pid="${1}"
+	ps -aeo ruser,pid | grep -v "PID" | grep "${pid}" | grep -v "grep" | while read userid processid
+	do
+		if [ "${processid}" -eq "${pid}" ]
 		then
 			printf "${userid}\n"
 		fi
@@ -40,35 +52,12 @@ process_show_userid () {
 }
 
 process_show_parentid () {
-	pattern="${1}"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
+	pid="${1}"
+	ps -aeo pid,ppid | grep -v "PID" | grep "${pid}" | grep -v "grep" | while read processid parentid
 	do
-		if [ "${processid}" -eq "${pattern}" ]
+		if [ "${processid}" -eq "${pid}" ]
 		then
 			printf "${parentid}\n"
 		fi
 	done
-}
-
-process_show_command () {
-	pattern="${1}"
-	# TODO still debating if i want to this, writing OS specific code is a bumpy road to travel down
-	if [ "`uname`" = "Linux" ]
-	then
-		if [ -d "/proc/${pattern}" ]
-		then
-			cat "/proc/${pattern}/cmdline" | tr "\00" " " | sed "s/$/\n/g" | while read command arguments
-			do
-				printf -- "${command}\n"
-			done
-		fi
-	else
-		ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
-		do
-			if [ "${processid}" -eq "${pattern}" ]
-			then
-				printf -- "${command}\n"
-			fi
-		done
-	fi
 }
