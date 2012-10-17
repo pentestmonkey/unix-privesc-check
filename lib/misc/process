@@ -33,15 +33,21 @@ process_show_command () {
 	pid="${1}"
 	ps -aeo pid,args | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read processid cmd _
 	do
-		printf "${cmd}\n"
+		if [ "${processid}" -eq "${pid}" ]
+		then
+			printf "${cmd}\n"
+		fi
 	done
 }
 
 process_show_userid () {
 	pid="${1}"
-	ps -aeo ruser,pid | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read userid processid
+	ps -aeo ruser,pid | grep -v "PID" | grep "${pid}$" | grep -v "grep" | while read userid processid
 	do
-		printf "${userid}\n"
+		if [ "${processid}" -eq "${pid}" ]
+		then
+			printf "${userid}\n"
+		fi
 	done
 }
 
@@ -49,6 +55,9 @@ process_show_parentid () {
 	pid="${1}"
 	ps -aeo pid,ppid | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read processid parentid
 	do
-		printf "${parentid}\n"
+		if [ "${processid}" -eq "${pid}" ]
+		then
+			printf "${parentid}\n"
+		fi
 	done
 }
