@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,65 +23,73 @@
 . lib/misc/inetd
 . lib/misc/process
 
-privileged_init () {
-	file_check_or_generate_cache
-}
+filecacheprivileged="files_cache_privileged.tmp"
 
 privileged_list () {
-	for pattern in "-??s??????" "-??S??????"
-	do
-		file_list_by_perm "${pattern}" | while read filename
+	if [  -f ${filecacheprivileged} ]
+	then
+		cat ${filecacheprivileged} | while read line
 		do
-			file_show_perms "${filename}" | while read filename permissions userid groupid
+			printf "$line\n"
+		done
+	else
+		# check SUID files
+		file_list_by_perm "^-??s?????? |^-??S?????? " | while read filename
+		do
+			file_show_nonsymlink_perms "${filename}" | while read filename _ userid _
 			do
-				printf "setuid ${filename} ${userid}\n"
+				printf "setuid ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
 			done
 		done
-	done
-	for pattern in "-?????s???" "-?????S???"
-	do
-		file_list_by_perm "${pattern}" | while read filename
+
+		# check SGID files
+		file_list_by_perm "^-?????s??? |^-?????S??? " | while read filename
 		do
-			file_show_perms "${filename}" | while read filename permissions userid groupid
+			file_show_nonsymlink_perms "${filename}" | while read filename _ _ groupid
 			do
-				printf "setgid ${filename} ${setgid}\n"
+				printf "setgid ${filename} ${groupid}\n" | tee -a ${filecacheprivileged}
 			done
 		done
-	done
-	inetd_list ".*" | while read portnumber
-	do
-		privilegedfilename="`inetd_show_command "${portnumber}"`"
-		file_show_real_filename "${privilegedfilename}" | while read filename
+
+		# inetd services
+		inetd_list ".*" | while read portnumber
 		do
-			userid="`inetd_show_userid "${portnumber}"`"
-			printf "inetd ${filename} ${userid}\n"
+			privilegedfilename="`inetd_show_command "${portnumber}"`"
+			file_show_real_filename "${privilegedfilename}" | while read filename
+			do
+				userid="`inetd_show_userid "${portnumber}"`"
+				printf "inetd ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+			done
+			privilegedarguments="`inetd_show_arguments "${portnumber}"`"
+			file_show_real_filename "${privilegedarguments}" | while read filename
+			do
+				userid="`inetd_show_userid "${portnumber}"`"
+				printf "inetd-argument ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+			done
 		done
-		privilegedarguments="`inetd_show_arguments "${portnumber}"`"
-		file_show_real_filename "${privilegedarguments}" | while read filename
+
+		# processes
+		process_list ".*" | while read processid
 		do
-			userid="`inetd_show_userid "${portnumber}"`"
-			printf "inetd-argument ${filename} ${userid}\n"
-		done
-	done
-	process_list ".*" | while read processid
-	do
-		filename="`process_show_command "${processid}"`"
-		if [ -z "${filename}" ]
-		then
-			continue
-		fi
-		file_show_real_filename "${filename}" | while read filename
-		do
-			if [ -n "${filename}" ]
+			filename="`process_show_command "${processid}"`"
+			if [ -z "${filename}" ]
 			then
-				userid="`process_show_userid "${processid}"`"
-				printf "running ${filename} ${userid}\n"
+				continue
 			fi
+
+			file_show_real_filename "${filename}" | while read filename
+			do
+				if [ -n "${filename}" ]
+				then
+					userid="`process_show_userid "${processid}"`"
+					printf "running ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+				fi
+			done
 		done
-	done
-	# TODO still need to add similar checks for stuff spawned from init or cron, which has fscaps, or binds a listening port not via inetd
+
+		# TODO still need to add similar checks for stuff spawned from init or cron, which has fscaps, or binds a listening port not via inetd
+
+	fi
 }
 
 # TODO what we really need is a privileged_matches function for binary_dependency etc
-
-privileged_init
