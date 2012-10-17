@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,6 +18,9 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Check for excessive permissions over privileged files and processes'
+# linked libraries
 
 . lib/misc/stdio
 . lib/misc/file
@@ -25,44 +29,53 @@
 
 binary_dependency_init () {
 	stdio_message_log "binary_dependency" "Starting"
-	file_check_or_generate_cache
+}
+
+binary_dependency_permissions () {
+	pattern="${1}"
+	file_show_nonsymlink_perms " ${pattern}$" | while read filename3 permissions userid groupid
+	do
+		case "${permissions}" in
+			????????w? )
+				stdio_message_warn "binary_dependency" "${filename3} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			;;
+			?????w???? )
+				if [ -n "`id -G -n | grep ${groupid}`" ]
+				then
+					stdio_message_warn "binary_dependency" "${filename3} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				else
+					stdio_message_log "binary_dependency" "${filename3} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				fi
+			;;
+		esac
+	done
 }
 
 binary_dependency_main () {
 	privileged_list | while read type filename usergroupid
 	do
-		stdio_message_log "binary_dependency" "${filename} is ${type}, running as user/group ${usergroupid}"
-		file_show_perms "${filename}" | while read filename permissions userid groupid
+		file_list_by_filename " ${filename}$" | while read filename2
 		do
-			linker_list_dependencies "${filename}" | while read filename2
+			linker_list_dependencies "${filename2}" | while read library
 			do
-				stdio_message_log "binary_dependency" "${filename} depends on ${filename2}"
-				file_parent_traverse "${filename2}" | while read filename
-				do
-					if [ -e "${filename}" ]
+				if [ ! -e "${library}" ]
+				then
+					stdio_message_warn "binary_dependency" "${filename2} depends on ${library} but this does not exist"
+					continue
+				fi
+
+				if [ -h "${library}" ]
+				then
+					new_library="`file_show_symlinked_file "${library}"`"
+
+					if [ -n "${new_library}" ]
 					then
-						if [ -h  "${filename}" ]
-						then
-							stdio_message_debug "binary_dependency" "${filename} is a symlink"
-							# TODO chase the dragon (symlink)
-						else
-							file_show_perms "${filename}" | while read filename permissions userid groupid
-							do
-								stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but owned by user ${userid}"
-								stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but owned by group ${groupid}"
-								stdio_message_debug "binary_dependency" "${filename} (${userid}, ${groupid})=${permissions}"
-								case "${permissions}" in
-									?????w????|????????w?)
-										stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but is group or world writable"
-										stdio_message_debug "binary_dependency" "${filename} (${userid}, ${groupid})=${permissions}"
-										;;
-								esac
-							done
-						fi
-					else
-						stdio_message_warn "binary_dependency" "${filename} is run as user/group ${usergroupid} but does not exist"
+						#stdio_message_debug "binary_dependency" "${filename2} depends on ${library}, a symlink to ${new_library}"
+						binary_dependency_permissions ${new_library}
 					fi
-				done
+				else
+					binary_dependency_permissions ${library}
+				fi
 			done
 		done
 	done
