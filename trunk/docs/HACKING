@@ -6,13 +6,19 @@ General:
 * Reference variables as ${variablename}
 * "printf --" unless you have reason not to
 * Avoid unnecessary cats, never use two commands if one will do
+* No unnecessary new lines, the only blocks should be those
+  introduced by code: if/then/else/fi etc
 
-lib/misc:
+lib/misc/*:
 
+
+* Code in here is meant to be ported to new platforms
 * OS specific code should be minimised
 * Minimise changes to the APIs used by lib/checks/*
 * Don't read _ if there's a chance the data may be useful later
 
-lib/checks:
+lib/checks/*:
 
+* Code in here is meant to be portable, it should inherit new
+  capabilities by way of changes to lib/misc/*
 * Avoid OS specific code, the APIs should fail sane
