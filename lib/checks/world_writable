@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -27,7 +28,7 @@ world_writable_init () {
 }
 
 world_writable_main () {
-	file_list_by_perm "????????w?" | while read filename
+	file_list_by_perm "^????????w? " | while read filename
 	do
 		if [ -h  "${filename}" ]
 		then
