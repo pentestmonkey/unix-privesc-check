@@ -88,3 +88,5 @@ privileged_list () {
 }
 
 # TODO what we really need is a privileged_matches function for binary_dependency etc
+
+# TODO we might still split out the cache generation
