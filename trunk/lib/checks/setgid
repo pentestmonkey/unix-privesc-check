@@ -18,6 +18,8 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# List setgid files
 
 . lib/misc/stdio
 . lib/misc/file
@@ -34,7 +36,7 @@ setgid_main () {
 		file_show_perms "${filename}" | while read filename permissions userid groupid
 		do
 			# TODO we should validate these
-			stdio_message_debug "setgid" "${filename} (${userid}, ${groupid})=${permissions}"
+			stdio_message_debug "setgid" "${filename} (${userid}, ${groupid}): ${permissions}"
 		done
 	done
 }
