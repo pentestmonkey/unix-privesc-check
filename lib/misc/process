@@ -31,33 +31,24 @@ process_list () {
 
 process_show_command () {
 	pid="${1}"
-	ps -aeo pid,args | grep -v "PID" | grep "${pid}" | grep -v "grep" | while read processid cmd _
+	ps -aeo pid,args | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read processid cmd _
 	do
-		if [ "${processid}" -eq "${pid}" ]
-		then
-			printf "${cmd}\n"
-		fi
+		printf "${cmd}\n"
 	done
 }
 
 process_show_userid () {
 	pid="${1}"
-	ps -aeo ruser,pid | grep -v "PID" | grep "${pid}" | grep -v "grep" | while read userid processid
+	ps -aeo ruser,pid | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read userid processid
 	do
-		if [ "${processid}" -eq "${pid}" ]
-		then
-			printf "${userid}\n"
-		fi
+		printf "${userid}\n"
 	done
 }
 
 process_show_parentid () {
 	pid="${1}"
-	ps -aeo pid,ppid | grep -v "PID" | grep "${pid}" | grep -v "grep" | while read processid parentid
+	ps -aeo pid,ppid | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read processid parentid
 	do
-		if [ "${processid}" -eq "${pid}" ]
-		then
-			printf "${parentid}\n"
-		fi
+		printf "${parentid}\n"
 	done
 }
