@@ -8,6 +8,7 @@ General:
 * Avoid unnecessary cats, never use two commands if one will do
 * No unnecessary new lines, the only blocks should be those
   introduced by code: if/then/else/fi etc
+* Redirects take the form >/path/to/redirect/to (i.e. no space)
 
 lib/misc/*:
 
