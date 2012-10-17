@@ -49,5 +49,5 @@ stdio_format_message () {
 	type="${1}"
 	check="${2}"
 	message="${3}"
-	printf "[${type}] [${check}] ${message}\n"
+	printf "${type}: [${check}] ${message}\n"
 }
