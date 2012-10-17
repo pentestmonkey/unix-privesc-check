@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -45,39 +46,37 @@ binary_list_rpath () {
 				dumpflag=1
 			fi
 		done | sort | uniq
+	elif ["`uname`" = "SunOS" ]
+	then
+		dump -Lv "${filename}" | grep "RPATH" | while read dummy header rpath
+		do
+			printf "${rpath}\n" | tr ":" "\n" | while read filename
+			do
+				printf "${filename}\n"
+			done
+		done | sort | uniq
+		dump -Lv "${filename}" | grep "RUNPATH" | while read dummy header rpath
+		do
+			printf "${rpath}\n" | tr ":" "\n" | while read filename
+			do
+				printf "${filename}\n"
+			done
+		done | sort | uniq
 	else
-		if ["`uname`" = "SunOS" ]
-		then
-			dump -Lv "${filename}" | grep "RPATH" | while read dummy header rpath
+		objdump -x "${filename}" | grep -i "RPATH" | while read header rpath
+		do
+			printf "${rpath}\n" | tr ":" "\n" | while read filename
 			do
-				printf "${rpath}\n" | tr ":" "\n" | while read filename
-				do
-					printf "${filename}\n"
-				done
-			done | sort | uniq
-			dump -Lv "${filename}" | grep "RUNPATH" | while read dummy header rpath
+				printf "${filename}\n"
+			done
+		done | sort | uniq
+		objdump -x "${filename}" | grep -i "RUNPATH" | while read header rpath
+		do
+			printf "${rpath}\n" | tr ":" "\n" | while read filename
 			do
-				printf "${rpath}\n" | tr ":" "\n" | while read filename
-				do
-					printf "${filename}\n"
-				done
-			done | sort | uniq
-		else
-			objdump -x "${filename}" | grep "RPATH" | while read header rpath
-			do
-				printf "${rpath}\n" | tr ":" "\n" | while read filename
-				do
-					printf "${filename}\n"
-				done
-			done | sort | uniq
-			objdump -x "${filename}" | grep "RUNPATH" | while read header rpath
-			do
-				printf "${rpath}\n" | tr ":" "\n" | while read filename
-				do
-					printf "${filename}\n"
-				done
-			done | sort | uniq
-		fi
+				printf "${filename}\n"
+			done
+		done | sort | uniq
 	fi
 }
 
@@ -116,4 +115,10 @@ binary_matches_function () {
 	else
 		printf "0\n"
 	fi
+}
+
+binary_banned_api () {
+	filename="${1}"
+	pattern="${2}"
+	printf "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
 }
