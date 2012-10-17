@@ -1,3 +1,16 @@
+2012-10-15 unix-privesc-check trunk
+
+* Added lib/checks/binary_path
+* Added lib/checks/binary_random
+  
+-- Tim Brown <timb@nth-dimension.org.uk>
+
+2012-10-15 unix-privesc-check trunk
+
+* Vast swathes of changes, too numerous to document
+
+-- Bernado Damele <bernardo.damele@gmail.com>
+
 2012-09-23 unix-privesc-check trunk
 
 * Bug fix: Changed from stdio_message_debug to stdio_message_warn
