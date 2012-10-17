@@ -19,10 +19,6 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
-# TODO tidy up config names a little
-filecachefilename="files_cache.tmp"
-filecacherootpath="/"
-
 usage() {
         printf "usage: ${0}\n"
 	printf "Identifies potential privilege escalation paths.\n"
