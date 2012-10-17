@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,6 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
+# Check if privileged files drop their privileges
 # Based on ideas found at http://people.redhat.com/sgrubb/security/
 
 . lib/misc/stdio
@@ -31,13 +33,13 @@ binary_change_privileges_init () {
 binary_change_privileges_main () {
 	privileged_list | while read type filename usergroupid
 	do
-		stdio_message_log "binary_change_privileges" "${filename} is ${type}, running as user/group ${usergroupid}"
-		if [ "`binary_matches_function "${filename}" "setuid|setgid|seteuid|setegid|setresuid|setresgid|setreuid|setregid|initgroups|setgroups|setcap|setfsuid|setfsgid"`" -eq 1 ]
+		match="`binary_matches_function "${filename}" "setuid|setgid|seteuid|setegid|setresuid|setresgid|setreuid|setregid|initgroups|setgroups|setcap|setfsuid|setfsgid"`"
+		if [ $match -eq 1 ]
 		then
 			# TODO we should validate these as there are interesting edge cases
-			stdio_message_debug "binary_change_privileges" "${filename} attempts to change privileges"
+			stdio_message_debug "binary_change_privileges" "${filename} is ${type} (${usergroupid}) and attempts to change privileges"
 		else
-			stdio_message_warn "binary_change_privileges" "${filename} does not attempt to change privileges"
+			stdio_message_warn "binary_change_privileges" "${filename} is ${type} (${usergroupid}) and does not attempt to change privileges"
 		fi
 	done
 }
