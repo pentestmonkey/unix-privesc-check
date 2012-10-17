@@ -30,6 +30,7 @@ dependencies_check () {
 	#	stdio_message_error "dependencies" "missing mandatory tool (objdump or strings), install binutils and rerun"
 	#	#exit 127
 	#fi
+	false
 }
 
 dependencies_check
