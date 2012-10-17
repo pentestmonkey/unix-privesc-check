@@ -39,7 +39,7 @@ privileged_list () {
 					printf -- "setuid ${filename} ${userid}\n"
 				done
 			done
-		done >> "${privilegedcachefilename}"
+		done >>"${privilegedcachefilename}"
 		for pattern in "-?????s???" "-?????S???"
 		do
 			file_list_by_perm "${pattern}" | while read filename
@@ -49,7 +49,7 @@ privileged_list () {
 					printf -- "setgid ${filename} ${groupid}\n"
 				done
 			done
-		done >> "${privilegedcachefilename}"
+		done >>"${privilegedcachefilename}"
 		inetd_list | while read portnumberprotocol
 		do
 			privilegedfilename="`inetd_show_command \"${portnumberprotocol}\"`"
@@ -64,7 +64,7 @@ privileged_list () {
 				userid="`inetd_show_userid \"${portnumberprotocol}\"`"
 				printf -- "inetd-argument ${realfilename} ${userid}\n"
 			done
-		done >> "${privilegedcachefilename}"
+		done >>"${privilegedcachefilename}"
 		process_list ".*" | while read processid
 		do
 			filename="`process_show_command \"${processid}\"`"
