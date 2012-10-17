@@ -19,77 +19,72 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
+. lib/misc/stdio
 . lib/misc/file
 . lib/misc/inetd
 . lib/misc/process
 
-filecacheprivileged="files_cache_privileged.tmp"
+privilegedcachefilename="privileged_cache.tmp"
 
 privileged_list () {
-	if [  -f ${filecacheprivileged} ]
+	if [ ! -f "${privilegedcachefilename}" ]
 	then
-		cat ${filecacheprivileged} | while read line
+		stdio_message_debug "privileged" "Generating privileged cache"
+		for pattern in "-??s??????" "-??S??????"
 		do
-			printf "$line\n"
-		done
-	else
-		# check SUID files
-		file_list_by_perm "^-??s?????? |^-??S?????? " | while read filename
-		do
-			file_show_nonsymlink_perms "${filename}" | while read filename _ userid _
+			file_list_by_perm "${pattern}" | while read filename
 			do
-				printf "setuid ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+				file_show_perms "${filename}" | while read filename permissions userid groupid
+				do
+					printf -- "setuid ${filename} ${userid}\n" >> "${privilegedcachefilename}"
+				done
 			done
 		done
-
-		# check SGID files
-		file_list_by_perm "^-?????s??? |^-?????S??? " | while read filename
+		for pattern in "-?????s???" "-?????S???"
 		do
-			file_show_nonsymlink_perms "${filename}" | while read filename _ _ groupid
+			file_list_by_perm "${pattern}" | while read filename
 			do
-				printf "setgid ${filename} ${groupid}\n" | tee -a ${filecacheprivileged}
+				file_show_perms "${filename}" | while read filename permissions userid groupid
+				do
+					printf -- "setgid ${filename} ${groupid}\n" >> "${privilegedcachefilename}"
+				done
 			done
 		done
-
-		# inetd services
-		inetd_list ".*" | while read portnumber
+		inetd_list | while read portnumberprotocol
 		do
-			privilegedfilename="`inetd_show_command "${portnumber}"`"
-			file_show_real_filename "${privilegedfilename}" | while read filename
+			privilegedfilename="`inetd_show_command \"${portnumberprotocol}\"`"
+			file_show_real_filename "${privilegedfilename}" | while read realfilename
 			do
-				userid="`inetd_show_userid "${portnumber}"`"
-				printf "inetd ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+				userid="`inetd_show_userid \"${portnumberprotocol}\"`"
+				printf -- "inetd ${realfilename} ${userid}\n" >> "${privilegedcachefilename}"
 			done
-			privilegedarguments="`inetd_show_arguments "${portnumber}"`"
-			file_show_real_filename "${privilegedarguments}" | while read filename
+			privilegedarguments="`inetd_show_arguments \"${portnumberprotocol}\"`"
+			file_show_real_filename "${privilegedarguments}" | while read realfilename
 			do
-				userid="`inetd_show_userid "${portnumber}"`"
-				printf "inetd-argument ${filename} ${userid}\n" | tee -a ${filecacheprivileged}
+				userid="`inetd_show_userid \"${portnumberprotocol}\"`"
+				printf -- "inetd-argument ${realfilename} ${userid}\n" >> "${privilegedcachefilename}"
 			done
 		done
-
-		# processes
 		process_list ".*" | while read processid
 		do
-			filename="`process_show_command "${processid}"`"
+			filename="`process_show_command \"${processid}\"`"
 			if [ -z "${filename}" ]
 			then
 				continue
 			fi
-
-			file_show_real_filename "${filename}" | while read real_filename
+			file_show_real_filename "${filename}" | while read realfilename
 			do
-				if [ -n "${real_filename}" ]
+				if [ -n "${realfilename}" ]
 				then
-					userid="`process_show_userid "${processid}"`"
-					printf "running ${real_filename} ${userid}\n" | tee -a ${filecacheprivileged}
+					userid="`process_show_userid \"${processid}\"`"
+					printf -- "running ${realfilename} ${userid}\n" >> "${privilegedcachefilename}"
 				fi
 			done
 		done
-
 		# TODO still need to add similar checks for stuff spawned from init or cron, which has fscaps, or binds a listening port not via inetd
-
+		stdio_message_debug "privileged" "Cache generated"
 	fi
+	cat "${privilegedcachefilename}"
 }
 
 # TODO what we really need is a privileged_matches function for binary_dependency etc

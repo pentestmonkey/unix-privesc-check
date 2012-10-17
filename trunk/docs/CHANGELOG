@@ -8,6 +8,7 @@
 * Updated lib/misc/ssh_agent (reverting BDA change)
 * Updated lib/misc/shadow (reverting BDA change)
 * Updated lib/misc/process (reverting BDA change)
+* Updated lib/misc/priviled (partially reverting BDA change)
  
 -- Tim Brown <timb@nth-dimension.org.uk>
 
