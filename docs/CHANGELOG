@@ -3,8 +3,9 @@
 * Added lib/checks/binary_path
 * Added lib/checks/binary_random
 * Changed stdio_message_error to output to STDERR
-  in lib/misc/stdio 
-  
+  in lib/misc/stdio
+* Removed date from output (reverting BDA change)
+ 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
 2012-10-15 unix-privesc-check trunk
