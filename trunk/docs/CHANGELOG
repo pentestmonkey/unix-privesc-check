@@ -12,6 +12,7 @@
   * Kept the caching code
   * Kept variable name changed to make the code more readable
 * Updated lib/misc/passwd (reverting BDA change)
+* Updated lib/misc/linker (reverting BDA change)
  
 -- Tim Brown <timb@nth-dimension.org.uk>
 
