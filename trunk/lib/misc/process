@@ -23,41 +23,41 @@
 
 process_list () {
 	pattern="${1}"
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read _ _ processid _ _ _
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
-		printf "${processid}\n"
+		printf -- "${processid}\n"
 	done
 }
-
-process_show_command () {
-	pid="${1}"
-	ps -aeo pid,args | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read processid cmd _
-	do
-		if [ "${processid}" -eq "${pid}" ]
-		then
-			printf "${cmd}\n"
-		fi
-	done
-}
-
+	
 process_show_userid () {
-	pid="${1}"
-	ps -aeo ruser,pid | grep -v "PID" | grep "${pid}$" | grep -v "grep" | while read userid processid
+	pattern="${1}"
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
-		if [ "${processid}" -eq "${pid}" ]
+		if [ "${processid}" -eq "${pattern}" ]
 		then
-			printf "${userid}\n"
+			printf -- "${userid}\n"
 		fi
 	done
 }
 
 process_show_parentid () {
-	pid="${1}"
-	ps -aeo pid,ppid | grep -v "PID" | grep "${pid} " | grep -v "grep" | while read processid parentid
+	pattern="${1}"
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
-		if [ "${processid}" -eq "${pid}" ]
+		if [ "${processid}" -eq "${pattern}" ]
 		then
-			printf "${parentid}\n"
+			printf -- "${parentid}\n"
+		fi
+	done
+}
+
+process_show_command () {
+	pattern="${1}"
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
+	do
+		if [ "${processid}" -eq "${pattern}" ]
+		then
+			printf -- "${command}\n"
 		fi
 	done
 }
