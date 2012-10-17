@@ -22,12 +22,12 @@
 # Supports: Linux
 
 ssh_agent_list () {
-	pattern="${1}"
-	SSH_AUTH_SOCK="`ls "/tmp/ssh-*/agent.${pattern}"`"
+	processid="${1}"
+	SSH_AUTH_SOCK="`ls \"/tmp/ssh-*/agent.${processid}\"`"
 	export SSH_AUTH_SOCK
-	ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy keyfilename dummy
+	ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy filename dummy
 	do
-		printf "${keyfilename}\n"
+		printf -- "${filename}\n"
 	done
 	unset SSH_AUTH_SOCK
 }
