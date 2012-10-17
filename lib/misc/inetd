@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -22,41 +23,32 @@
 
 inetd_list () {
 	pattern="${1}"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | grep "${pattern}" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
+	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | grep "${pattern}" | while read portnumber _ _ _ _ _ _ _
 	do
-		printf "${portnumber}\n";
+		printf "${portnumber}\n"
 	done
 }
 
 inetd_show_command () {
-	pattern="${1}"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
+	portnumber="${1}"
+	cat /etc/inetd.conf | grep "^${portnumber}" | while read _ _ _ _ _ command _ _
 	do
-		if [ "${portnumber}" = "${pattern}" ]
-		then
-			printf "${command}\n"
-		fi
+		printf "${command}\n"
 	done
 }
 
 inetd_show_userid () {
-	pattern="${1}"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
+	portnumber="${1}"
+	cat /etc/inetd.conf | grep "^${portnumber}" | while read _ _ _ _ userid _ _ _
 	do
-		if [ "${portnumber}" = "${pattern}" ]
-		then
-			printf "${userid}\n"
-		fi
+		printf "${userid}\n"
 	done
 }
 
 inetd_show_arguments () {
-	pattern="${1}"
-	cat /etc/inetd.conf | grep -v "^#" | grep -v "^$" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
+	portnumber="${1}"
+	cat /etc/inetd.conf | grep "^${portnumber}" | while read _ _ _ _ _ _ arguments _
 	do
-		if [ "${portnumber}" = "${pattern}" ]
-		then
-			printf "${arguments}\n"
-		fi
+		printf "${arguments}\n"
 	done
 }
