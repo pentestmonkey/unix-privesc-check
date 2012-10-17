@@ -24,7 +24,7 @@
 . lib/misc/stdio
 
 filecacherootpath="/"
-filecachefilename="files_cache_no_sys.tmp"
+filecachefilename="files_cache.tmp"
 
 file_check_or_generate_cache () {
 	if [ ! -f ${filecachefilename} ]
