@@ -1,0 +1,18 @@
+General:
+
+* docs/* exists for a reason, especially docs/CHANGELOG
+* Quote correctly
+* Variable names should be descriptive
+* Reference variables as ${variablename}
+* "printf --" unless you have reason not to
+* Avoid unnecessary cats, never use two commands if one will do
+
+lib/misc:
+
+* OS specific code should be minimised
+* Minimise changes to the APIs used by lib/checks/*
+* Don't read _ if there's a chance the data may be useful later
+
+lib/checks:
+
+* Avoid OS specific code, the APIs should fail sane
