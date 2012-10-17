@@ -21,6 +21,8 @@
 #
 # Supports: Linux, AIX, Solaris
 
+. lib/misc/dependencies
+
 binary_list_rpath () {
 	filename="${1}"
 	if [ "`uname`" = "AIX" ]
