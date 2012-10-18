@@ -20,7 +20,7 @@
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
 usage() {
-        printf "usage: ${0}\n"
+	printf "usage: ${0}\n"
 	printf "Identifies potential privilege escalation paths.\n"
 	printf "\n"
 	printf "\t--help\tdisplay this help and exit\n"
@@ -29,17 +29,17 @@ usage() {
 	do
 		printf "\t\t`basename ${checktype}`\n"
 	done
-        exit 1
+	exit 1
 }
 
 CHECKTYPE="all"
 while [ -n "${1}" ]
 do
 	case "${1}" in
-		"--help")
+		--help|-h)
 			usage
 			;;
-		"--type")
+		--type)
 			shift
 			CHECKTYPE="${1}"
 			;;
