@@ -30,14 +30,14 @@ privileged_list () {
 	if [ ! -f "${privilegedcachefilename}" ]
 	then
 		stdio_message_debug "privileged" "Generating privileged cache"
-		file_list_by_perm "^...s...... |^...S...... " | while read filename
+		file_list_by_perm "^-..s...... |^-..S...... " | while read filename
 		do
 			file_show_perms " ${filename}$" | while read filename permissions userid groupid
 			do
 				printf -- "setuid ${filename} ${userid}\n"
 			done
 		done >>"${privilegedcachefilename}"
-		file_list_by_perm "^......s... |^......S... " | while read filename
+		file_list_by_perm "^-.....s... |^-.....S... " | while read filename
 		do
 			file_show_perms " ${filename}$" | while read filename permissions userid groupid
 			do
@@ -90,3 +90,5 @@ privileged_list () {
 # TODO what we really need is a privileged_matches function for binary_dependency etc
 
 # TODO we might still split out the cache generation
+
+# TODO privileged_list will ONLY work for files.  That's probably what we want, but might want to look at dirs later.
