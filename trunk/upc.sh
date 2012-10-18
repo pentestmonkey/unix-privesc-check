@@ -19,6 +19,8 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
+. lib/misc/stdio
+
 header() {
 	printf "unix-privesc-check version 2.1-dev (rev $Revision$)\n"
 	printf "Shell script to check for simple privilege escalation vectors on Unix systems.\n"
@@ -67,11 +69,11 @@ do
 		--version|-v|-V)
 			version
 			;;
-		--type)
+		--type|-t)
 			shift
 			CHECKTYPE="${1}"
 			;;
-		--check)
+		--check|-c)
 			shift
 			CHECKS="${1}"
 			;;
@@ -81,12 +83,17 @@ done
 
 if [ -n "${CHECKS}" ]
 then
-	for checkfilename in `echo "${CHECKS}" | tr ',' ' '`
+	for checkfilename in `echo "${CHECKS}" | tr -d " " | tr "," " "`
 	do
-		. "lib/checks/${checkfilename}"
-		`basename "${checkfilename}"`_init
-		`basename "${checkfilename}"`_main
-		`basename "${checkfilename}"`_fini
+		if [ ! -e "lib/checks/${checkfilename}" ]
+		then
+			stdio_message_error "upc" "the provided check name '${checkfilename}' does not exist"
+		else
+			. "lib/checks/${checkfilename}"
+			`basename "${checkfilename}"`_init
+			`basename "${checkfilename}"`_main
+			`basename "${checkfilename}"`_fini
+		fi
 	done
 else
 	for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
