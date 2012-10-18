@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,6 +18,8 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# List potentially sensible files
 
 . lib/misc/stdio
 . lib/misc/file
@@ -30,12 +33,12 @@ key_material_main () {
 	# TODO we should expand this list
 	for pattern in ".crt" "*.cer" "*.pem" "*.p12" "*.keystore" ".key"
 	do
-		file_list_by_filename "${pattern}" | while read filename
+		file_list_by_filename "${pattern}$" | while read filename
 		do
-			file_show_perms "${filename}" | while read filename permissions userid groupid
+			file_show_non_symlink_perms "${filename}$" | while read filename permissions userid groupid
 			do
 				# TODO should we attempt to validate permissions
-				stdio_message_warn "key_material" "${filename} (${userid}, ${groupid})=${permissions}"
+				stdio_message_warn "key_material" "${filename} (${userid}, ${groupid}): ${permissions}"
 			done
 		done
 	done
