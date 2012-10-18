@@ -32,14 +32,14 @@ privileged_list () {
 		stdio_message_debug "privileged" "Generating privileged cache"
 		file_list_by_perm "^...s...... |^...S...... " | while read filename
 		do
-			file_show_perms "${filename}" | while read filename permissions userid groupid
+			file_show_perms " ${filename}$" | while read filename permissions userid groupid
 			do
 				printf -- "setuid ${filename} ${userid}\n"
 			done
 		done >>"${privilegedcachefilename}"
 		file_list_by_perm "^......s... |^......S... " | while read filename
 		do
-			file_show_perms "${filename}" | while read filename permissions userid groupid
+			file_show_perms " ${filename}$" | while read filename permissions userid groupid
 			do
 				printf -- "setgid ${filename} ${groupid}\n"
 			done
