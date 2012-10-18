@@ -1,0 +1,69 @@
+#!/bin/sh
+# $Revision$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# (c) Tim Brown, 2012
+# <mailto:timb@nth-dimension.org.uk>
+# <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Check for write permissions over privileged files and processes
+
+. lib/misc/stdio
+. lib/misc/file
+. lib/misc/privileged
+. lib/misc/linker
+
+binary_writable_init () {
+	stdio_message_log "binary_writable" "Starting"
+}
+
+binary_writable_permissions () {
+	pattern="${1}"
+	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
+	do
+		case "${permissions}" in
+			????????w?)
+				stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			;;
+			?????w????)
+				if [ -n "`id -G -n | grep ${groupid}`" ]
+				then
+					stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				else
+					stdio_message_log "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				fi
+			;;
+		esac
+	done
+}
+
+binary_writable_main () {
+	privileged_list | while read type filename usergroupid
+	do
+		# the privileged file might not exist for example when inetd calls it, but the executable has been uninstalled/removed (and inetd configuration not aligned)
+		if [ ! -e "${filename}" ]
+		then
+			stdio_message_debug "binary_writable" "${filename} does not exist"
+			continue
+		fi
+
+		binary_writable_permissions "${filename}"
+	done
+}
+
+binary_writable_fini () {
+	stdio_message_log "binary_writable" "Ending"
+}
