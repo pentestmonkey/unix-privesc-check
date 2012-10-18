@@ -24,7 +24,7 @@
 . lib/misc/inetd
 . lib/misc/process
 
-privilegedcachefilename="privileged_cache.tmp"
+privilegedcachefilename="privileged_cache.temp"
 
 privileged_list () {
 	if [ ! -f "${privilegedcachefilename}" ]
