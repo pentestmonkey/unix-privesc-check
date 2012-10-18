@@ -50,7 +50,7 @@ group_writable_main () {
 	do
 		if [ -h "${filename}" ]
 		then
-			linkedfilename="`file_show_symlinked_file "${filename}"`"
+			linkedfilename="`file_show_symlinked_filename "${filename}"`"
 
 			if [ -e "${linkedfilename}" ]
 			then
