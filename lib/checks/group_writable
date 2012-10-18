@@ -46,7 +46,7 @@ group_writable_permissions () {
 }
 
 group_writable_main () {
-	file_list_by_perm "^.....w.... " | while read filename dummy dummy dummy dummy
+	file_list_by_perm "^.....w.... " | while read filename
 	do
 		if [ -h "${filename}" ]
 		then
