@@ -19,7 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Check for excessive permissions over privileged files and processes'
+# Check for write permissions over privileged files and processes'
 # linked libraries
 
 . lib/misc/stdio
@@ -54,29 +54,26 @@ binary_dependency_permissions () {
 binary_dependency_main () {
 	privileged_list | while read type filename usergroupid
 	do
-		file_list_by_filename " ${filename}$" | while read filename2
+		linker_list_dependencies "${filename}" | while read library
 		do
-			linker_list_dependencies "${filename2}" | while read library
-			do
-				if [ ! -e "${library}" ]
-				then
-					stdio_message_warn "binary_dependency" "${filename2} depends on ${library} but this does not exist"
-					continue
-				fi
+			if [ ! -e "${library}" ]
+			then
+				stdio_message_warn "binary_dependency" "${filename} depends on ${library} but this does not exist"
+				continue
+			fi
 
-				if [ -h "${library}" ]
-				then
-					linkedlibrary="`file_show_symlinked_filename "${library}"`"
+			if [ -h "${library}" ]
+			then
+				linkedlibrary="`file_show_symlinked_filename "${library}"`"
 
-					if [ -n "${linkedlibrary}" ]
-					then
-						#stdio_message_debug "binary_dependency" "${filename2} depends on ${library}, a symlink to ${linkedlibrary}"
-						binary_dependency_permissions "${linkedlibrary}"
-					fi
-				else
-					binary_dependency_permissions "${library}"
+				if [ -n "${linkedlibrary}" ]
+				then
+					#stdio_message_debug "binary_dependency" "${filename} depends on ${library}, a symlink to ${linkedlibrary}"
+					binary_dependency_permissions "${linkedlibrary}"
 				fi
-			done
+			else
+				binary_dependency_permissions "${library}"
+			fi
 		done
 	done
 }
