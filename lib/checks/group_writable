@@ -33,7 +33,7 @@ group_writable_permissions () {
 	file_show_nonsymlink_perms " ${pattern}$" | while read filename permissions userid groupid
 	do
 		case "${permissions}" in
-			?????w???? )
+			?????w????)
 				if [ -n "`id -G -n | grep ${groupid}`" ]
 				then
 					stdio_message_warn "group_writable" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
@@ -46,19 +46,20 @@ group_writable_permissions () {
 }
 
 group_writable_main () {
-	file_list_by_perm "^?????w???? " | while read filename _ _ _
+	file_list_by_perm "^.....w.... " | while read filename dummy dummy dummy dummy
 	do
 		if [ -h "${filename}" ]
 		then
-			new_filename="`file_show_symlinked_file "${filename}"`"
+			linkedfilename="`file_show_symlinked_file "${filename}"`"
 
-			if [ -n "${new_filename}" ]
+			if [ -e "${linkedfilename}" ]
 			then
-				#stdio_message_debug "group_writable" "${filename} is a symlink to ${new_filename}"
-				group_writable_permissions ${new_filename}
+				#stdio_message_debug "group_writable" "${filename} is a symlink to ${linkedfilename}"
+				group_writable_permissions "${linkedfilename}"
 			fi
-		else
-			group_writable_permissions ${filename}
+		elif [ -e "${filename}" ]
+		then
+			group_writable_permissions "${filename}"
 		fi
 	done
 }
