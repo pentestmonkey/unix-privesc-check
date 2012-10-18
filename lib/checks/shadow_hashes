@@ -18,6 +18,8 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# List users with no password set
 
 . lib/misc/stdio
 . lib/misc/shadow
