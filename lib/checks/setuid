@@ -30,7 +30,7 @@ setuid_init () {
 }
 
 setuid_main () {
-	file_list_by_perm "^-??s?????? |^-??S?????? " | while read filename
+	file_list_by_perm "^-..s...... |^-..S...... " | while read filename
 	do
 		file_show_perms " ${filename}$" | while read filename permissions userid groupid
 		do
