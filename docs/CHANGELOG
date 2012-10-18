@@ -1,3 +1,7 @@
+2012-10-16 unix-privesc-check trunk
+
+* Changed lib/misc/shadow to favour 1 egrep over 2 greps
+
 2012-10-15 unix-privesc-check trunk
 
 * Added lib/checks/binary_path
