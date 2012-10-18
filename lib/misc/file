@@ -133,7 +133,7 @@ file_matches_string () {
 	fi
 }
 
-filepath_traverse () {
+file_parent_traverse () {
 	filename="${1}"
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
