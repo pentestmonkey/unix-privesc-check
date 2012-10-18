@@ -31,15 +31,12 @@ key_material_init () {
 
 key_material_main () {
 	# TODO we should expand this list
-	for pattern in ".crt" "*.cer" "*.pem" "*.p12" "*.keystore" ".key"
+	for pattern in " *\.crt" " *\.cer" " *\.pem" " *\.p12" " *\.keystore" " *\.key"
 	do
-		file_list_by_filename "${pattern}$" | while read filename
+		file_show_non_symlink_perms "${pattern}$" | while read filename permissions userid groupid
 		do
-			file_show_non_symlink_perms "${filename}$" | while read filename permissions userid groupid
-			do
-				# TODO should we attempt to validate permissions
-				stdio_message_warn "key_material" "${filename} (${userid}, ${groupid}): ${permissions}"
-			done
+			# TODO should we attempt to validate permissions
+			stdio_message_warn "key_material" "${filename} (${userid}, ${groupid}): ${permissions}"
 		done
 	done
 }

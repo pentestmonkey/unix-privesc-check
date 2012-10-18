@@ -30,13 +30,10 @@ jar_init () {
 }
 
 jar_main () {
-	file_list_by_filename "*.jar$" | while read filename
+	file_show_non_symlink_perms " *\.jar$" | while read filename permissions userid groupid
 	do
-		file_show_non_symlink_perms "${filename}$" | while read filename permissions userid groupid
-		do
-			# TODO should we attempt to validate permissions
-			stdio_message_warn "jar" "${filename} (${userid}, ${groupid}): ${permissions}"
-		done
+		# TODO should we attempt to validate permissions
+		stdio_message_warn "jar" "${filename} (${userid}, ${groupid}): ${permissions}"
 	done
 }
 
