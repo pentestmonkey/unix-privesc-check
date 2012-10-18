@@ -33,18 +33,18 @@ binary_dependency_init () {
 
 binary_dependency_permissions () {
 	pattern="${1}"
-	file_show_nonsymlink_perms " ${pattern}$" | while read filename3 permissions userid groupid
+	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
 	do
 		case "${permissions}" in
-			????????w? )
-				stdio_message_warn "binary_dependency" "${filename3} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			????????w?)
+				stdio_message_warn "binary_dependency" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 			;;
-			?????w???? )
+			?????w????)
 				if [ -n "`id -G -n | grep ${groupid}`" ]
 				then
-					stdio_message_warn "binary_dependency" "${filename3} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+					stdio_message_warn "binary_dependency" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 				else
-					stdio_message_log "binary_dependency" "${filename3} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+					stdio_message_log "binary_dependency" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 				fi
 			;;
 		esac
@@ -66,15 +66,15 @@ binary_dependency_main () {
 
 				if [ -h "${library}" ]
 				then
-					new_library="`file_show_symlinked_file "${library}"`"
+					linkedlibrary="`file_show_symlinked_filename "${library}"`"
 
-					if [ -n "${new_library}" ]
+					if [ -n "${linkedlibrary}" ]
 					then
-						#stdio_message_debug "binary_dependency" "${filename2} depends on ${library}, a symlink to ${new_library}"
-						binary_dependency_permissions ${new_library}
+						#stdio_message_debug "binary_dependency" "${filename2} depends on ${library}, a symlink to ${linkedlibrary}"
+						binary_dependency_permissions "${linkedlibrary}"
 					fi
 				else
-					binary_dependency_permissions ${library}
+					binary_dependency_permissions "${library}"
 				fi
 			done
 		done
