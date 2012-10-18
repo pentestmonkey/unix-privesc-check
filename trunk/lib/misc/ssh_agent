@@ -22,12 +22,23 @@
 # Supports: Linux
 
 ssh_agent_list () {
-	processid="${1}"
-	SSH_AUTH_SOCK="`ls /tmp/ssh-*/agent.${processid}`"
-	export SSH_AUTH_SOCK
-	ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy filename dummy
-	do
-		printf -- "${filename}\n"
+	parentprocessid="${1}"
+	# when ssh-agent parent process id is 10571, the temporary agent file is
+	# /tmp/ssh-???????10570/agent.10570 (not 10571) - tested on Ubuntu 12.04
+	processid="`expr ${2} - 1`"
+
+	for pid in ${parentprocessid} ${processid}
+ 	do
+		SSH_AUTH_SOCK="`ls /tmp/ssh-*/agent.${pid}`"
+		if [ -n "${SSH_AUTH_SOCK}" ]
+		then
+			export SSH_AUTH_SOCK
+
+			ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy filename dummy
+			do
+				printf -- "${filename}\n"
+			done
+		fi
+		unset SSH_AUTH_SOCK
 	done
-	unset SSH_AUTH_SOCK
 }
