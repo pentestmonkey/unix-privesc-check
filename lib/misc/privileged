@@ -70,11 +70,17 @@ privileged_list () {
 			do
 				if [ -n "${realfilename}" ]
 				then
-					userid="`process_show_userid \"${processid}\"`"
-					printf -- "running ${realfilename} ${userid}\n"
+					userid="`process_show_userid "${processid}"`"
+					# avoid duplicates' processes
+					if [ -n "`egrep \"^running ${realfilename} ${userid}\" ${privilegedcachefilename}`" ]
+					then
+						continue
+					else
+						printf -- "running ${realfilename} ${userid}\n"
+					fi
 				fi
 			done
-		done >> "${privilegedcachefilename}"
+		done >>"${privilegedcachefilename}"
 		# TODO still need to add similar checks for stuff spawned from init or cron, which has fscaps, or binds a listening port not via inetd
 		stdio_message_debug "privileged" "Cache generated"
 	fi
