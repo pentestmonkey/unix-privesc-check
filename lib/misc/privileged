@@ -30,24 +30,18 @@ privileged_list () {
 	if [ ! -f "${privilegedcachefilename}" ]
 	then
 		stdio_message_debug "privileged" "Generating privileged cache"
-		for pattern in "-??s??????" "-??S??????"
+		file_list_by_perm "^...s...... |^...S...... " | while read filename
 		do
-			file_list_by_perm "${pattern}" | while read filename
+			file_show_perms "${filename}" | while read filename permissions userid groupid
 			do
-				file_show_perms "${filename}" | while read filename permissions userid groupid
-				do
-					printf -- "setuid ${filename} ${userid}\n"
-				done
+				printf -- "setuid ${filename} ${userid}\n"
 			done
 		done >>"${privilegedcachefilename}"
-		for pattern in "-?????s???" "-?????S???"
+		file_list_by_perm "^......s... |^......S... " | while read filename
 		do
-			file_list_by_perm "${pattern}" | while read filename
+			file_show_perms "${filename}" | while read filename permissions userid groupid
 			do
-				file_show_perms "${filename}" | while read filename permissions userid groupid
-				do
-					printf -- "setgid ${filename} ${groupid}\n"
-				done
+				printf -- "setgid ${filename} ${groupid}\n"
 			done
 		done >>"${privilegedcachefilename}"
 		inetd_list | while read portnumberprotocol
