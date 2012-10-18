@@ -19,19 +19,44 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
+header() {
+	printf "unix-privesc-check version 2.1-dev (rev $Revision$)\n"
+	printf "Shell script to check for simple privilege escalation vectors on Unix systems.\n"
+	printf "\n"
+}
+
+version() {
+	header
+	printf "http://code.google.com/p/unix-privesc-check/\n\n"
+	printf "brought to you by:\n"
+	cat docs/AUTHORS
+	exit 1
+}
+
 usage() {
-	printf "usage: ${0}\n"
-	printf "Identifies potential privilege escalation paths.\n"
+	header
+	printf "Usage: ${0}\n"
 	printf "\n"
 	printf "\t--help\tdisplay this help and exit\n"
+	printf "\t--version\tdisplay version and exit\n"
 	printf "\t--type\tselect from one of the following check types:\n"
 	for checktype in lib/checks/enabled/*
 	do
 		printf "\t\t`basename ${checktype}`\n"
 	done
+	printf "\t--check\tprovide a comma separated list of checks to run\n"
+	printf "\t\tselect from the following:\n"
+	for check in lib/checks/*
+	do
+		if [ "${check}" != "enabled" ]
+		then
+			printf "\t\t`basename ${check}`\n"
+		fi
+	done
 	exit 1
 }
 
+CHECKS=""
 CHECKTYPE="all"
 while [ -n "${1}" ]
 do
@@ -39,19 +64,37 @@ do
 		--help|-h)
 			usage
 			;;
+		--version|-v|-V)
+			version
+			;;
 		--type)
 			shift
 			CHECKTYPE="${1}"
+			;;
+		--check)
+			shift
+			CHECKS="${1}"
 			;;
 	esac
 	shift
 done
 
-for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
-do
-	. "${checkfilename}"
-	`basename "${checkfilename}"`_init
-	`basename "${checkfilename}"`_main
-	`basename "${checkfilename}"`_fini
-done
+if [ -n "${CHECKS}" ]
+then
+	for checkfilename in `echo "${CHECKS}" | tr ',' ' '`
+	do
+		. "lib/checks/${checkfilename}"
+		`basename "${checkfilename}"`_init
+		`basename "${checkfilename}"`_main
+		`basename "${checkfilename}"`_fini
+	done
+else
+	for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
+	do
+		. "${checkfilename}"
+		`basename "${checkfilename}"`_init
+		`basename "${checkfilename}"`_main
+		`basename "${checkfilename}"`_fini
+	done
+fi
 exit 0
