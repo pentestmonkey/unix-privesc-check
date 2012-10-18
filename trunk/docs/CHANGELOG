@@ -21,6 +21,7 @@
   and inspect /tmp folder for both SSH agent parent process and pid-1
 * Avoid duplicate processes entries in lib/misc/privileged
 * Improved regular expression patterns throughout the code
+* Added --check and --version switches to upc.sh
 * Added description to missing checks
 * Added verbose comment to lib/checks/ssh_key_unencrypted with suggestions
   for improvements
