@@ -1,13 +1,30 @@
 2012-10-18 unix-privesc-check trunk
 
+* Bug fix: fixed regexp patterns to avoid returning directories in
+  lib/misc/privileged and lib/misc/file
+
+-- <pentestmonkey@pentestmonkey.net>
+
+2012-10-18 unix-privesc-check trunk
+
+* Added check lib/checks/binary_writable
 * Bug fix: proper use of dirname in file_show_symlinked_filename function
 * Bug fix: replaced stdin redirection with cat for inetd configuration
   files parsing in lib/misc/linker
+* Bug fix: avoid escaping a path with an asterisk in lib/misc/ssh_agent
 * Refactored check lib/checks/system_libraries code
 * Refactored check lib/checks/world_writable code
+* Refactored check lib/checks/binary_dependency code
+* Refactored checks lib/checks/setuid and lib/checks/setgid code
+* Improved a lot speed of lib/checks/jar and lib/checks/key_material
+* Improved lib/misc/ssh_agent to work on recent Linux distributions too
+  and inspect /tmp folder for both SSH agent parent process and pid-1
 * Avoid duplicate processes entries in lib/misc/privileged
 * Improved regular expression patterns throughout the code
 * Added description to missing checks
+* Added verbose comment to lib/checks/ssh_key_unencrypted with suggestions
+  for improvements
+* Set subversion properties on all missing files
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
