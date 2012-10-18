@@ -1,6 +1,9 @@
 General:
 
 * docs/* exists for a reason, especially docs/CHANGELOG
+  * Changes should match commit messages, barring mistakes
+  * "Bug fix:" should be used to identify minor changes due to
+    coding errors
 * Quote correctly
 * Variable names should be descriptive
 * Reference variables as ${variablename}
@@ -14,14 +17,14 @@ lib/misc/*:
 
 * Changes to existing APIs used by lib/checks/* must be discussed
   prior to implementation
-* Such changes to the APIs used by lib/checks/* must be minimised
+  * Such changes to the APIs used by lib/checks/* must be minimised
 * New APIs can be freely added
 * Code in here is meant to be ported to new platforms
-* OS specific code should be minimised
+  * OS specific code should be minimised
 * Don't read _ if there's a chance the data may be useful later
 
 lib/checks/*:
 
 * Code in here is meant to be portable, it should inherit new
   capabilities by way of changes to lib/misc/*
-* Avoid OS specific code, the APIs should fail sane
+  * Avoid OS specific code, the APIs should fail sane
