@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -17,6 +18,8 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Check if the ssh-agent is running and list SSH unencrypted keys
 
 . lib/misc/stdio
 . lib/misc/process
@@ -30,8 +33,8 @@ ssh_agent_init () {
 ssh_agent_main () {
 	process_list "ssh-agent" | while read processid 
 	do
-		stdio_message_warn "ssh_agent" "ssh-agent running as `process_show_userid ${processid}`"
-		ssh_agent_list `process_show_parentid ${processid}` | while read filename
+		stdio_message_log "ssh_agent" "ssh-agent running as `process_show_userid ${processid}` (`process_show_command ${processid}`)"
+		ssh_agent_list `process_show_parentid ${processid}` ${processid} | while read filename
 		do
 			stdio_message_warn "ssh_agent" "ssh-agent uses key from ${filename}"
 			# TODO check perms
