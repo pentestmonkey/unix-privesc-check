@@ -18,6 +18,8 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# List world-writable files
 
 . lib/misc/stdio
 . lib/misc/file
@@ -27,19 +29,33 @@ world_writable_init () {
 	file_check_or_generate_cache
 }
 
-world_writable_main () {
-	file_list_by_perm "^????????w? " | while read filename
+world_writable_permissions () {
+	pattern="${1}"
+	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
 	do
-		if [ -h  "${filename}" ]
+		case "${permissions}" in
+			????????w?)
+				stdio_message_warn "world_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			;;
+		esac
+	done
+}
+
+world_writable_main () {
+	file_list_by_perm "^........w. " | while read filename dummy dummy dummy dummy
+	do
+		if [ -h "${filename}" ]
 		then
-			stdio_message_debug "world_writable" "${filename} is a symlink"
-			# TODO chase the dragon (symlink)
-		else
-			stdio_message_warn "world_writable" "${filename} is world writable"
-			file_show_perms "${filename}" | while read filename permissions userid groupid
-			do
-				stdio_message_debug "world_writable" "${filename} (${userid}, ${groupid})=${permissions}"
-			done
+			linkedfilename="`file_show_symlinked_filename "${filename}"`"
+
+			if [ -e "${linkedfilename}" ]
+			then
+				#stdio_message_debug "group_writable" "${filename} is a symlink to ${linkedfilename}"
+				world_writable_permissions "${linkedfilename}"
+			fi
+		elif [ -e "${filename}" ]
+		then
+			world_writable_permissions "${filename}"
 		fi
 	done
 }
