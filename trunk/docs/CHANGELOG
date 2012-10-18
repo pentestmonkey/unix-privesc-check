@@ -23,7 +23,9 @@
 * Updated lib/misc/file (partially reverting BDA change)
   * Kept symlink related code
   * Kept permissions related code
- 
+* Changed lib/misc/privileged to use file_list_by_perms
+  correctly.  Bonus, reduction of loops
+
 -- Tim Brown <timb@nth-dimension.org.uk>
 
 2012-10-15 unix-privesc-check trunk
