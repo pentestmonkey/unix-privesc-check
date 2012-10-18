@@ -30,7 +30,7 @@ group_writable_init () {
 
 group_writable_permissions () {
 	pattern="${1}"
-	file_show_nonsymlink_perms " ${pattern}$" | while read filename permissions userid groupid
+	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
 	do
 		case "${permissions}" in
 			?????w????)
