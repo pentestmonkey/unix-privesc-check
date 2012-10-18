@@ -50,7 +50,7 @@ file_list_by_perm () {
 
 file_list_by_filename () {
 	pattern="${1}"
-	# patterns must always take the form " /path/*/find" i.e. regular expressions 
+	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
@@ -60,7 +60,7 @@ file_list_by_filename () {
 
 file_show_perms () {
 	pattern="${1}"
-	# patterns must always take the form " /path/*/find" i.e. regular expressions 
+	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
@@ -70,7 +70,7 @@ file_show_perms () {
 
 file_show_non_symlink_perms () {
 	pattern="${1}"
-	# patterns must always take the form " /path/*/find" i.e. regular expressions 
+	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
 	do
 		case "${permissions}" in
@@ -106,16 +106,16 @@ file_show_real_filename () {
 file_show_symlinked_filename () {
 	pattern="${1}"
 	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
-	egrep -- "${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename linkedfilename
+	egrep -- "${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename dummy linkedfilename
 	do
 		case "${linkedfilename}" in
 			/*)
-				printf -- "${realfilename}\n"
+				printf -- "${linkedfilename}\n"
 				;;
 			*)
-				if [ -n "${realfilename}" ]
+				if [ -n "${linkedfilename}" ]
 				then
-					printf -- "`dirname \"${realfilename}/${linkedfilename}\"`\n"
+					printf -- "`dirname \"${filename}\"`/${linkedfilename}\n"
 				fi
 				;;
 		esac
@@ -133,7 +133,7 @@ file_matches_string () {
 	fi
 }
 
-file_parent_traverse () {
+filepath_traverse () {
 	filename="${1}"
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
