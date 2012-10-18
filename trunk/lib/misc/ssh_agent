@@ -23,7 +23,7 @@
 
 ssh_agent_list () {
 	processid="${1}"
-	SSH_AUTH_SOCK="`ls \"/tmp/ssh-*/agent.${processid}\"`"
+	SSH_AUTH_SOCK="`ls /tmp/ssh-*/agent.${processid}`"
 	export SSH_AUTH_SOCK
 	ssh-add -l | grep -v "The agent has no identities" | while read dummy dummy filename dummy
 	do
