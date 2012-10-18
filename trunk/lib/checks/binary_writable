@@ -60,7 +60,10 @@ binary_writable_main () {
 			continue
 		fi
 
-		binary_writable_permissions "${filename}"
+		file_parent_traverse "${filename}" | while read filename2
+		do
+			binary_writable_permissions "${filename2}"
+		done
 	done
 }
 
