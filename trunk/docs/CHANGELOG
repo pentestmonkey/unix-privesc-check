@@ -1,21 +1,36 @@
 2012-10-18 unix-privesc-check trunk
 
+* Bug fix: proper use of dirname in file_show_symlinked_filename function
+* Bug fix: replaced stdin redirection with cat for inetd configuration
+  files parsing in lib/misc/linker
+* Refactored check lib/checks/system_libraries code
+* Refactored check lib/checks/world_writable code
+* Avoid duplicate processes entries in lib/misc/privileged
+* Improved regular expression patterns throughout the code
+* Added description to missing checks
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-10-18 unix-privesc-check trunk
+
 * Changed lib/misc/shadow to favour 1 egrep over 2 greps
 
-2012-10-15 unix-privesc-check trunk
+-- Tim Brown <timb@nth-dimension.org.uk>
+
+2012-10-17 unix-privesc-check trunk
 
 * Added lib/checks/binary_path
 * Added lib/checks/binary_random
 * Changed stdio_message_error to output to STDERR
   in lib/misc/stdio
 * Removed date from output (reverting BDA change)
-* Updated lib/misc/ssh_agent (reverting BDA change)
-* Updated lib/misc/shadow (reverting BDA change)
+* Updated lib/misc/ssh_agent
+* Updated lib/misc/shadow
 * Updated lib/misc/process (reverting BDA change)
 * Updated lib/misc/privileged (partially reverting BDA change)
   * Kept the caching code
   * Kept variable name changed to make the code more readable
-* Updated lib/misc/passwd (reverting BDA change)
+* Updated lib/misc/passwd
 * Updated lib/misc/linker (reverting BDA change)
 * Updated lib/misc/inetd (reverting BDA change)
 * Updated lib/misc/dependencies to disable for now.  The
@@ -32,9 +47,24 @@
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
-2012-10-15 unix-privesc-check trunk
+2012-10-17 unix-privesc-check trunk
 
-* Vast swathes of changes, too numerous to document
+* Added binary_banned_api function to lib/misc/binary
+* Added file_show_symlinked_file function to lib/misc/file
+* Added code comments to lib/misc/file
+* Added cashing mechanism to lib/misc/privileged
+* Added file headers throughout the source code
+* Added checks' description in comment headers
+* Added date to standard output function
+* Added an error message log function
+* Added notification of needed dependencies (binutils package)
+* Narrowed down regular expression patterns in some checks
+* Refactored check lib/checks/credentials code and exclude man pages and
+  python/ruby/perl libraries
+* Refactored check lib/checks/binary_dependency code
+* Refactored check lib/checks/group_writable code
+* Removed unnecessary Linux-specific code from lib/misc/process
+* Standardized checks' standard output and removed unnecessary lines
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
