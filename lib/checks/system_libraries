@@ -53,7 +53,7 @@ system_libraries_permissions () {
 system_libraries_main () {
 	linker_list_system_filenames | while read filename
 	do
-		filepath_traverse "${filename}" | while read filename
+		file_parent_traverse "${filename}" | while read filename
 		do
 			if [ ! -e "${filename}" ]
 			then
