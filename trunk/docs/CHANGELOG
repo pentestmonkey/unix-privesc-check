@@ -20,6 +20,9 @@
   what happens on non-Linux systems etc
 * Added docs/HACKING.  I will need to work on it but it should
   help to smooth the path for new hackers :)
+* Updated lib/misc/privileged (partially reverting BDA change)
+  * Kept symlink related code
+  * Kept permissions related code
  
 -- Tim Brown <timb@nth-dimension.org.uk>
 

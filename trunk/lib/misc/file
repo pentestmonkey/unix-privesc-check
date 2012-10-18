@@ -19,126 +19,103 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Supports: Linux, Solaris
+# Supports: AIX, Solaris, Linux
 
 . lib/misc/stdio
 
+filecachefilename="files_cache.temp"
 filecacherootpath="/"
-filecachefilename="files_cache.tmp"
 
 file_check_or_generate_cache () {
-	if [ ! -f ${filecachefilename} ]
+	if [ ! -f "${filecachefilename}" ]
 	then
 		stdio_message_log "file" "Generating file cache..."
 		# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
-		# TODO what to do about symlinks, atm you'll get filename returned as /path/to/symlink -> /path/to/filename which isn't that helpful really
-		find "${filecacherootpath}" -ls | sed "s/%/%%/g" | while read _ _ permissions _ userid groupid _ _ _ _ restofline
+		find "${filecacherootpath}" ! -type l -ls | sed "s/%/%%/g" | while read dummy dummy permissions dummy userid groupid dummy dummy dummy dummy restofline
 		do
-			if [ "`uname`" = "SunOS" ]
-			then
-				printf "${permissions} ${userid} ${groupid} ${restofline}\n"
-			else
-				printf -- "${permissions} ${userid} ${groupid} ${restofline}\n"
-			fi
+			printf -- "${permissions} ${userid} ${groupid} ${restofline}\n"
 		done >"${filecachefilename}"
 		stdio_message_log "file" "Cache generated..."
 	fi
 }
 
 file_list_by_perm () {
-	# always provide a pattern in the form "^?????????? ", for example:
-	# "^?????w???? "
-	# "^-??s?????? |^-??S?????? "
 	pattern="${1}"
-
-	# this is expensive, so we cheat and use egrep
-	greppattern="`echo ${pattern} | tr "?" "."`"
-
-	egrep "${greppattern}" "${filecachefilename}" | while read _ _ _ filename _
+	# patterns must always take the form "^.......... " i.e. regular expressions. for example "^...s...... |^....S...... " will select setuid binaries 
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
 	do
-		printf "${filename}\n"
+		printf -- "${filename}\n"
 	done
 }
 
 file_list_by_filename () {
-	# this function will return all files that match pattern, including
-	# symlinks
 	pattern="${1}"
-
-	# this is expensive, so we cheat and use egrep
-	greppattern="`echo ${pattern} | tr "?" "."`"
-
-	egrep " ${greppattern}$" "${filecachefilename}" | while read _ _ _ filename _
+	# patterns must always take the form " /path/*/find" i.e. regular expressions 
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
 	do
-		printf "${filename}\n"
+		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
+		printf -- "${filename}\n"
 	done
 }
 
-file_show_nonsymlink_perms () {
-	# this function will return non-symlink files (and info) that match
-	# pattern
+file_show_perms () {
 	pattern="${1}"
-
-	# this is expensive, so we cheat and use egrep
-	greppattern="`echo ${pattern} | tr "?" "."`"
-
-	egrep "${greppattern}" "${filecachefilename}" | while read permissions userid groupid filename _
+	# patterns must always take the form " /path/*/find" i.e. regular expressions 
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
 	do
-		# exclude symlinked entries
+		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
+		printf -- "${filename} ${permissions} ${userid} ${groupid}\n"
+	done
+}
+
+file_show_non_symlink_perms () {
+	pattern="${1}"
+	# patterns must always take the form " /path/*/find" i.e. regular expressions 
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
+	do
 		case "${permissions}" in
-			l*)
+			l?????????)
 				continue
 				;;
 			*)
-				printf "${filename} ${permissions} ${userid} ${groupid}\n"
+				printf -- "${filename} ${permissions} ${userid} ${groupid}\n"
 				;;
 		esac
 	done
 }
 
-file_show_perms () {
-	# this function will return all files (and info) that match pattern,
-	# including symlinks
-	pattern="${1}"
-
-	# this is expensive, so we cheat and use egrep
-	greppattern="`echo ${pattern} | tr "?" "."`"
-
-	egrep "${greppattern}" "${filecachefilename}" | while read permissions userid groupid filename _
-	do
-		printf "${filename} ${permissions} ${userid} ${groupid}\n"
-	done
-}
-
 file_show_real_filename () {
 	pattern="${1}"
-
-	# TODO we could be smarter about this, but for now, which should suffice
-	# Alternatives? whereis, updatedb/locate
+	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
 	case "${pattern}" in
 		/*)
-			printf "${pattern}\n"
+			printf -- "${pattern}\n"
 			;;
 		*)
-			printf "`which ${pattern}`\n"
+			# AIX errors to stdout, ideally we'd use $? but which on Solaris doesn't exit() differently depending on result :(
+			# TODO maybe we should break it out with uname checks?
+			realfilename="`which \"\`basename \\\"${pattern}\\\"\`\" 2>&1 | egrep -v \"There is no |^no \"`"
+			if [ -n "${realfilename}" ]
+			then
+				printf -- "${realfilename}\n"
+			fi
 			;;
 	esac
 }
 
-file_show_symlinked_file () {
-	symlink="${1}"
-	egrep " ${symlink} -> " ${filecachefilename} | while read _ _ _ _ _ linkedfile
+file_show_symlinked_filename () {
+	pattern="${1}"
+	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
+	egrep -- "${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename linkedfilename
 	do
-		case "${linkedfile}" in
+		case "${linkedfilename}" in
 			/*)
-				printf "${linkedfile}\n"
+				printf -- "${realfilename}\n"
 				;;
 			*)
-				if [ -n "${linkedfile}" ]
+				if [ -n "${realfilename}" ]
 				then
-					printf "`dirname ${symlink}`/${linkedfile}\n"
-				else
-					printf ""
+					printf -- "`dirname \"${realfilename}/${linkedfilename}\"`\n"
 				fi
 				;;
 		esac
@@ -148,23 +125,22 @@ file_show_symlinked_file () {
 file_matches_string () {
 	filename="${1}"
 	pattern="${2}"
-	if [ -n "`egrep "${pattern}" "${filename}"`" ]
+	if [ -n "`egrep \"${pattern}\" \"${filename}\"`" ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
 file_parent_traverse () {
 	filename="${1}"
-	usergroupid="${2}"
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
 	do
-		printf "${filename}\n"
+		printf -- "${filename}\n"
 		# find the parent directory
-		filename="`dirname ${filename}`"
+		filename="`dirname \"${filename}\"`"
 	done
 }
 
