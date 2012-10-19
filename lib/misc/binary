@@ -50,14 +50,14 @@ binary_list_rpath () {
 		done | sort | uniq
 	elif [ "`uname`" = "SunOS" ]
 	then
-		dump -Lv "${filename}" | grep "RPATH" | while read dummy header rpath
+		dump -Lv "${filename}" | grep "RPATH" | while read _ header rpath
 		do
 			printf "${rpath}\n" | tr ":" "\n" | while read filename
 			do
 				printf "${filename}\n"
 			done
 		done | sort | uniq
-		dump -Lv "${filename}" | grep "RUNPATH" | while read dummy header rpath
+		dump -Lv "${filename}" | grep "RUNPATH" | while read _ header rpath
 		do
 			printf "${rpath}\n" | tr ":" "\n" | while read filename
 			do

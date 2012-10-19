@@ -31,7 +31,7 @@ file_check_or_generate_cache () {
 	then
 		stdio_message_log "file" "Generating file cache..."
 		# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
-		find "${filecacherootpath}" ! -type l -ls | sed "s/%/%%/g" | while read dummy dummy permissions dummy userid groupid dummy dummy dummy dummy filename restofline
+		find "${filecacherootpath}" ! -type l -ls | sed "s/%/%%/g" | while read _ _ permissions _ userid groupid _ _ _ _ filename restofline
 		do
 			printf -- "${permissions} ${userid} ${groupid} ${filename} ${restofline}\n"
 		done >"${filecachefilename}"
@@ -42,7 +42,7 @@ file_check_or_generate_cache () {
 file_list_by_perm () {
 	pattern="${1}"
 	# patterns must always take the form "^.......... " i.e. regular expressions. for example "^...s...... |^....S...... " will select setuid binaries 
-	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		printf -- "${filename}\n"
 	done
@@ -52,7 +52,7 @@ file_list_by_perm () {
 file_list_by_filename () {
 	pattern="${1}"
 	# patterns must always take the form " /path/*/find" i.e. regular expressions
-	egrep -- "^-.*${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
+	egrep -- "^-.*${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
 		printf -- "${filename}\n"
@@ -62,7 +62,7 @@ file_list_by_filename () {
 file_show_perms () {
 	pattern="${1}"
 	# patterns must always take the form " /path/*/find" i.e. regular expressions
-	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
 		printf -- "${filename} ${permissions} ${userid} ${groupid}\n"
@@ -72,7 +72,7 @@ file_show_perms () {
 file_show_non_symlink_perms () {
 	pattern="${1}"
 	# patterns must always take the form " /path/*/find" i.e. regular expressions
-	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename dummy
+	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		case "${permissions}" in
 			l?????????)
@@ -107,7 +107,7 @@ file_show_real_filename () {
 file_show_symlinked_filename () {
 	pattern="${1}"
 	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
-	egrep -- "${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename dummy linkedfilename
+	egrep -- "${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
 	do
 		case "${linkedfilename}" in
 			/*)

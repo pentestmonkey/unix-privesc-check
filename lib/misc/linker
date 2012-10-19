@@ -36,7 +36,7 @@ linker_list_dependencies () {
 			esac
 		done | sort | uniq
 	else
-		ldd "${filename}" | while read dummy dummy filename dummy
+		ldd "${filename}" | while read _ _ filename _
 		do
 			case "${filename}" in
 				/*)
@@ -47,7 +47,7 @@ linker_list_dependencies () {
 		done | sort | uniq
 
 		# this is for cases where the first column of the ldd is not a symlink (for example a ldd /bin/umount has amongst its libraries also /lib/ld-linux.so.2 (0xb76e6000), not symlinked)
-		ldd "${filename}" | while read filename dummy dummy dummy
+		ldd "${filename}" | while read filename _ _ _
 		do
 			case "${filename}" in
 				/*)
@@ -75,7 +75,7 @@ linker_list_system_filenames () {
 						printf -- "${line}\n"
 						;;
 					include*)
-						printf -- "${line}\n" | while read dummy filename
+						printf -- "${line}\n" | while read _ filename
 						do
 							cat ${filename} | while read line
 							do
