@@ -31,48 +31,68 @@ binary_rpath_init () {
 	file_check_or_generate_cache
 }
 
+binary_rpath_permissions () {
+	filename="${1}"
+	permissions="${2}"
+	userid="${3}"
+	groupid="${4}"
+	pattern="${1}"
+	case "${permissions}" in
+		????????w?)
+			stdio_message_warn "binary_rpath" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+		;;
+		?????w????)
+			if [ -n "`id -G -n | grep ${groupid}`" ]
+			then
+				stdio_message_warn "binary_rpath" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+			else
+				stdio_message_log "binary_rpath" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+			fi
+		;;
+	esac
+}
+
+binary_rpath_wrapper () {
+	pattern="${1}"
+	file_parent_traverse "${pattern}" | while read filepath
+	do
+		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
+		do
+			binary_rpath_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+		done
+	done
+}
+
 binary_rpath_main () {
 	privileged_list | while read type filename usergroupid
 	do
-		stdio_message_log "binary_rpath" "${filename} is ${type}, running as user/group ${usergroupid}"
-		file_show_perms "${filename}" | while read filename permissions userid groupid
+		binary_list_rpath "${filename}" | while read filepath
 		do
-			binary_list_rpath "${filename}" | while read filename2
-			do
-				stdio_message_log "binary_rpath" "${filename} trusts ${filename2}"
-				file_parent_traverse "${filename2}" | while read filename
-				do
-					if [ -e "${filename}" ]
-					then
-						if [ -h  "${filename}" ]
-						then
-							stdio_message_debug "binary_rpath" "${filename} is a symlink"
-							# TODO chase the dragon (symlink)
-						else
-							file_show_perms "${filename}" | while read filename permissions userid groupid
-							do
-								stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but owned by user ${userid}"
-								stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but owned by group ${groupid}"
-								stdio_message_debug "binary_rpath" "${filename} (${userid}, ${groupid})=${permissions}"
-								case "${permissions}" in
-									?????w????|????????w?)
-										stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but is group or world writable"
-										stdio_message_debug "binary_rpath" "${filename} (${userid}, ${groupid})=${permissions}"
-										;;
-								esac
-							done
-						fi
-					else
-						stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but does not exist"
-					fi
-					# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
-					if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
-					then
-						stdio_message_warn "binary_rpath" "${filename} is run as user/group ${usergroupid} but is relative"
-						filename="/"
-					fi
-				done
-			done
+			stdio_message_log "binary_rpath" "${filename} trusts ${filepath}"
+
+			# relative paths always end up at . with dirname
+			if [ "${filepath}" = "." -o "`printf -- \"${filepath}\" | egrep -- \"ORIGIN\"`" ]
+			then
+				stdio_message_warn "binary_rpath" "${filepath} is relative"
+				continue
+			elif [ ! -e "${filepath}" ]
+			then
+				stdio_message_warn "binary_rpath" "${filepath} does not exist"
+				continue
+			fi
+
+			if [ -h "${filepath}" ]
+			then
+				linkedfilename="`file_show_symlinked_filename "${filepath}"`"
+
+				if [ -n "${linkedfilename}" ]
+				then
+					#stdio_message_debug "binary_rpath" "${filepath} is a symlink to ${linkedfilename}"
+					binary_rpath_wrapper "${linkedfilename}"
+				fi
+			else
+				binary_rpath_wrapper "${filepath}"
+			fi
 		done
 	done
 }
