@@ -32,54 +32,56 @@ system_libraries_init () {
 
 system_libraries_permissions () {
 	pattern="${1}"
-	file_show_non_symlink_perms "${pattern}" | while read filename permissions userid groupid
+	file_show_non_symlink_perms " ${pattern}" | while read filename permissions userid groupid
 	do
-		case "${permissions}" in
-			????????w?)
-				stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-			;;
-			?????w????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
-				then
-					stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
-				else
-					stdio_message_log "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
-				fi
-			;;
-		esac
+		file_parent_traverse "${filename}" | while read filename
+		do
+			echo "filename: $filename"
+			case "${permissions}" in
+				????????w?)
+					stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				;;
+				?????w????)
+					if [ -n "`id -G -n | grep ${groupid}`" ]
+					then
+						stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+					else
+						stdio_message_log "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+					fi
+				;;
+			esac
+		done
 	done
 }
 
 system_libraries_main () {
 	linker_list_system_filenames | while read filename
 	do
-		file_parent_traverse "${filename}" | while read filename
-		do
-			if [ ! -e "${filename}" ]
-			then
-				stdio_message_warn "system_libraries" "${filename} does not exist"
-			fi
+		echo "linker_list_system_filenames filename: $filename"
+		if [ ! -e "${filename}" ]
+		then
+			stdio_message_warn "system_libraries" "${filename} does not exist"
+		fi
 
-			if [ -h "${filename}" ]
-			then
-				new_filename="`file_show_symlinked_filename "${filename}"`"
+		if [ -h "${filename}" ]
+		then
+			newfilename="`file_show_symlinked_filename "${filename}"`"
 
-				if [ -n "${new_filename}" ]
-				then
-					#stdio_message_debug "system_libraries" "${filename} is a symlink to ${new_filename}"
-					system_libraries_permissions "${new_filename}"
-				fi
-			else
-				system_libraries_permissions "${filename}"
-			fi
-
-			# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
-			if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
+			if [ -n "${newfilename}" ]
 			then
-				stdio_message_warn "binary_rpath" "${filename} is relative"
-				filename="/"
+				#stdio_message_debug "system_libraries" "${filename} is a symlink to ${newfilename}"
+				system_libraries_permissions "${newfilename}"
 			fi
-		done
+		else
+			system_libraries_permissions "${filename}"
+		fi
+
+		# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
+		if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
+		then
+			stdio_message_warn "binary_rpath" "${filename} is relative"
+			filename="/"
+		fi
 	done
 }
 
