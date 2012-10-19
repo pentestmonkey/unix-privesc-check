@@ -1,3 +1,4 @@
+#!/bin/sh
 # $Revision$
 #
 # This program is free software; you can redistribute it and/or modify
@@ -18,7 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Based on Microsoft's random API list as parsed by ../../tools/generate_random.sh
+# Check if privileged files call random functions
 
 . lib/misc/stdio
 . lib/misc/privileged
@@ -31,10 +32,9 @@ binary_random_init () {
 binary_random_main () {
 	privileged_list | while read type filename usergroupid
 	do
-		stdio_message_log "binary_random" "${filename} is ${type}, running as user/group ${usergroupid}"
 		if [ "`binary_matches_function "${filename}" "random|srand"`" -eq 1 ]
 		then
-			stdio_message_warn "binary_random" "${filename} uses random()/srand()"
+			stdio_message_warn "binary_random" "${filename} is ${type} (${usergroupid}) and uses random()/srand()"
 		fi
 	done
 }
