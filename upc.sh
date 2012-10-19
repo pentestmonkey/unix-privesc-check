@@ -46,8 +46,7 @@ usage() {
 	do
 		printf "\t\t`basename ${checktype}`\n"
 	done
-	printf "\t--check\tprovide a comma separated list of checks to run\n"
-	printf "\t\tselect from the following:\n"
+	printf "\t--check\tprovide a comma separated list of checks to run, select from the following checks:\n"
 	for check in lib/checks/*
 	do
 		if [ "${check}" != "enabled" ]
@@ -83,7 +82,7 @@ done
 
 if [ -n "${CHECKS}" ]
 then
-	for checkfilename in `echo "${CHECKS}" | tr -d " " | tr "," " "`
+	for checkfilename in `printf "${CHECKS}" | tr -d " " | tr "," " "`
 	do
 		if [ ! -e "lib/checks/${checkfilename}" ]
 		then
@@ -96,12 +95,17 @@ then
 		fi
 	done
 else
-	for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
-	do
-		. "${checkfilename}"
-		`basename "${checkfilename}"`_init
-		`basename "${checkfilename}"`_main
-		`basename "${checkfilename}"`_fini
-	done
+	if [ ! -d "lib/checks/enabled/${CHECKTYPE}" ]
+	then
+		stdio_message_error "upc" "the provided check type '${CHECKTYPE}' does not exist"
+	else
+		for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
+		do
+			. "${checkfilename}"
+			`basename "${checkfilename}"`_init
+			`basename "${checkfilename}"`_main
+			`basename "${checkfilename}"`_fini
+		done
+	fi
 fi
 exit 0
