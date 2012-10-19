@@ -18,6 +18,9 @@
 # (c) Tim Brown, 2012
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# List group-writable and world-writable all system libraries and their
+# parent directories
 
 . lib/misc/stdio
 . lib/misc/file
