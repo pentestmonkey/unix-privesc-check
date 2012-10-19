@@ -19,7 +19,8 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Check for write permissions over privileged files and processes
+# List group-writable and world-writable privileged files (their parent
+# directories too) and processes
 
 . lib/misc/stdio
 . lib/misc/file
@@ -31,22 +32,34 @@ binary_writable_init () {
 }
 
 binary_writable_permissions () {
+	filename="${1}"
+	permissions="${2}"
+	userid="${3}"
+	groupid="${4}"
+	case "${permissions}" in
+		????????w?)
+			stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+		;;
+		?????w????)
+			if [ -n "`id -G -n | grep ${groupid}`" ]
+			then
+				stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+			else
+				stdio_message_log "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+			fi
+		;;
+	esac
+}
+
+binary_writable_wrapper () {
 	pattern="${1}"
 	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
 	do
-		case "${permissions}" in
-			????????w?)
-				stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-			;;
-			?????w????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
-				then
-					stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
-				else
-					stdio_message_log "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
-				fi
-			;;
-		esac
+		binary_writable_permissions filename permissions userid groupid
+	done
+	file_parent_traverse "${filename}" | while read filename
+	do
+		binary_writable_permissions filename permissions userid groupid
 	done
 }
 
@@ -60,10 +73,7 @@ binary_writable_main () {
 			continue
 		fi
 
-		file_parent_traverse "${filename}" | while read filename2
-		do
-			binary_writable_permissions "${filename2}"
-		done
+		binary_writable_wrapper "${filename}"
 	done
 }
 
