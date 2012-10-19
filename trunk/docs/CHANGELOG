@@ -8,7 +8,7 @@
 
 2012-10-18 unix-privesc-check trunk
 
-* Bug fix: fixed regexp patterns to avoid returning directories in
+* Bug fix: Fixed regexp patterns to avoid returning directories in
   lib/misc/privileged and lib/misc/file
 
 -- <pentestmonkey@pentestmonkey.net>
@@ -16,10 +16,10 @@
 2012-10-18 unix-privesc-check trunk
 
 * Added check lib/checks/binary_writable
-* Bug fix: proper use of dirname in file_show_symlinked_filename function
-* Bug fix: replaced stdin redirection with cat for inetd configuration
+* Bug fix: Proper use of dirname in file_show_symlinked_filename function
+* Bug fix: Replaced stdin redirection with cat for inetd configuration
   files parsing in lib/misc/linker
-* Bug fix: avoid escaping a path with an asterisk in lib/misc/ssh_agent
+* Bug fix: Avoid escaping a path with an asterisk in lib/misc/ssh_agent
 * Refactored check lib/checks/system_libraries code
 * Refactored check lib/checks/world_writable code
 * Refactored check lib/checks/binary_dependency code
