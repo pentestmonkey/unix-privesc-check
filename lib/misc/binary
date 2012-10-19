@@ -48,7 +48,7 @@ binary_list_rpath () {
 				dumpflag=1
 			fi
 		done | sort | uniq
-	elif ["`uname`" = "SunOS" ]
+	elif [ "`uname`" = "SunOS" ]
 	then
 		dump -Lv "${filename}" | grep "RPATH" | while read dummy header rpath
 		do
