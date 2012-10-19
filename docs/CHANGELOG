@@ -2,6 +2,7 @@
 
 * Tidied up upc.sh, added an additional error check
 * Purged dummy, replaced with _ after suggestion from BDA
+* Bug fix: No longer considers "enabled" as a check
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
