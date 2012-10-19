@@ -19,7 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# List group-writable and world-writable all system libraries and their
+# List group-writable and world-writable system libraries and their
 # parent directories
 
 . lib/misc/stdio
@@ -34,31 +34,43 @@ system_libraries_init () {
 }
 
 system_libraries_permissions () {
+	filename="${1}"
+	permissions="${2}"
+	userid="${3}"
+	groupid="${4}"
+	case "${permissions}" in
+		????????w?)
+			stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+		;;
+		?????w????)
+			if [ -n "`id -G -n | grep ${groupid}`" ]
+			then
+				stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+			else
+				stdio_message_log "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+			fi
+		;;
+	esac
+}
+
+system_libraries_wrapper () {
 	pattern="${1}"
 	file_show_non_symlink_perms " ${pattern}" | while read filename permissions userid groupid
 	do
-		file_parent_traverse "${filename}" | while read filename
-		do
-			case "${permissions}" in
-				????????w?)
-					stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-				;;
-				?????w????)
-					if [ -n "`id -G -n | grep ${groupid}`" ]
-					then
-						stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
-					else
-						stdio_message_log "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
-					fi
-				;;
-			esac
-		done
+		echo "file_show_non_symlink_perms: $filename"
+		system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+	done
+	file_parent_traverse "${pattern}" | while read filename
+	do
+		echo "file_parent_traverse: $filename"
+		system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
 	done
 }
 
 system_libraries_main () {
 	linker_list_system_filenames | while read filename
 	do
+		echo "linker_list_system_filenames: $filename"
 		if [ ! -e "${filename}" ]
 		then
 			stdio_message_warn "system_libraries" "${filename} does not exist"
@@ -71,10 +83,10 @@ system_libraries_main () {
 			if [ -n "${newfilename}" ]
 			then
 				#stdio_message_debug "system_libraries" "${filename} is a symlink to ${newfilename}"
-				system_libraries_permissions "${newfilename}"
+				system_libraries_wrapper "${newfilename}"
 			fi
 		else
-			system_libraries_permissions "${filename}"
+			system_libraries_wrapper "${filename}"
 		fi
 
 		# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
