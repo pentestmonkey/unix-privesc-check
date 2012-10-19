@@ -26,7 +26,7 @@
 
 privilegedcachefilename="privileged_cache.temp"
 
-privileged_list () {
+privileged_check_or_generate_cache () {
 	if [ ! -f "${privilegedcachefilename}" ]
 	then
 		stdio_message_debug "privileged" "Generating privileged cache"
@@ -84,11 +84,14 @@ privileged_list () {
 		# TODO still need to add similar checks for stuff spawned from init or cron, which has fscaps, or binds a listening port not via inetd
 		stdio_message_debug "privileged" "Cache generated"
 	fi
+}
+
+privileged_list () {
 	cat "${privilegedcachefilename}"
 }
 
 # TODO what we really need is a privileged_matches function for binary_dependency etc
 
-# TODO we might still split out the cache generation
-
 # TODO privileged_list will ONLY work for files.  That's probably what we want, but might want to look at dirs later.
+
+privileged_check_or_generate_cache
