@@ -53,16 +53,24 @@ system_libraries_permissions () {
 	esac
 }
 
+system_libraries_traverse () {
+	pattern="${1}"
+	file_parent_traverse "${pattern}" | while read filepath
+	do
+		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
+		do
+			system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+		done
+	done
+}
+
 system_libraries_wrapper () {
 	pattern="${1}"
 	file_show_non_symlink_perms " ${pattern}" | while read filename permissions userid groupid
 	do
 		system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
 	done
-	file_parent_traverse "${pattern}" | while read filename
-	do
-		system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
-	done
+	system_libraries_traverse "${pattern}"
 }
 
 system_libraries_main () {
@@ -71,6 +79,8 @@ system_libraries_main () {
 		if [ ! -e "${filename}" ]
 		then
 			stdio_message_warn "system_libraries" "${filename} does not exist"
+			system_libraries_traverse "${filename}"
+			continue
 		fi
 
 		if [ -h "${filename}" ]
@@ -84,13 +94,6 @@ system_libraries_main () {
 			fi
 		else
 			system_libraries_wrapper "${filename}"
-		fi
-
-		# relative paths always end up at . with dirname, at which point we flag the relative path and set filename to / to terminate the loop
-		if [ "${filename}" = "." -o "${filename}" = "\$ORIGIN" ]
-		then
-			stdio_message_warn "binary_rpath" "${filename} is relative"
-			filename="/"
 		fi
 	done
 }
