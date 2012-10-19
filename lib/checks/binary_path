@@ -19,7 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Check if privileged files call temporary files handling functions
+# Check if privileged files set PATH variable
 # Based on ideas found at http://people.redhat.com/sgrubb/security/
 
 . lib/misc/stdio
