@@ -49,7 +49,7 @@ usage() {
 	printf "\t--check\tprovide a comma separated list of checks to run, select from the following checks:\n"
 	for check in lib/checks/*
 	do
-		if [ "${check}" != "enabled" ]
+		if [ "`basename \"${check}\"`" != "enabled" ]
 		then
 			printf "\t\t`basename ${check}`\n"
 		fi
