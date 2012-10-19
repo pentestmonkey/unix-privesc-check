@@ -5,6 +5,7 @@
 * Bug fix: No longer considers "enabled" as a check
 * Changed lib/misc/privileged to split out cache generation so that it
   happens on inclusion
+* Bug fix: Removed unitentional trailing space from file cache
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 

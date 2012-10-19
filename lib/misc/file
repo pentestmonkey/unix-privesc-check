@@ -33,7 +33,12 @@ file_check_or_generate_cache () {
 		# the below looks a bit odd but it's the best way to normalise file's output since we're not interested in inodes, device major/minor numbers etc
 		find "${filecacherootpath}" ! -type l -ls | sed "s/%/%%/g" | while read _ _ permissions _ userid groupid _ _ _ _ filename restofline
 		do
-			printf -- "${permissions} ${userid} ${groupid} ${filename} ${restofline}\n"
+			printf -- "${permissions} ${userid} ${groupid} ${filename}"
+			if [ -n "${restofline}" ]
+			then
+				printf -- " ${restofline}"
+			fi
+			printf "\n"
 		done >"${filecachefilename}"
 		stdio_message_log "file" "Cache generated..."
 	fi
