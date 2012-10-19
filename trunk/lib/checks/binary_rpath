@@ -19,7 +19,9 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Check if privileged files ...
+# List group-writable and world-writable privileged files (their parent
+# directories too) and processes that trust other filepaths (with RPATH
+# variable)
 
 . lib/misc/stdio
 . lib/misc/privileged
