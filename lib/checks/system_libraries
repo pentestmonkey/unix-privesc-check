@@ -39,7 +39,6 @@ system_libraries_permissions () {
 	do
 		file_parent_traverse "${filename}" | while read filename
 		do
-			echo "filename: $filename"
 			case "${permissions}" in
 				????????w?)
 					stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
@@ -60,7 +59,6 @@ system_libraries_permissions () {
 system_libraries_main () {
 	linker_list_system_filenames | while read filename
 	do
-		echo "linker_list_system_filenames filename: $filename"
 		if [ ! -e "${filename}" ]
 		then
 			stdio_message_warn "system_libraries" "${filename} does not exist"
