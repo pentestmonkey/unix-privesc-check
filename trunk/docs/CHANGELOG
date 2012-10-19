@@ -1,5 +1,11 @@
 2012-10-18 unix-privesc-check trunk
 
+* Tidied up upc.sh, added an additional error check
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
+2012-10-18 unix-privesc-check trunk
+
 * Bug fix: fixed regexp patterns to avoid returning directories in
   lib/misc/privileged and lib/misc/file
 
