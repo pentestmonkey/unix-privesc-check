@@ -1,0 +1,134 @@
+= Checks performed by unix-privesc-check =
+
+The security checks are performed by "modules" in the following directory:
+
+<pre>
+# ls -l lib/checks/
+total 96
+-rwxr-xr-x 1 root root 1738 2012-10-18 22:12 binary_banned
+-rwxr-xr-x 1 root root 1867 2012-10-18 19:47 binary_change_privileges
+-rwxr-xr-x 1 root root 1608 2012-10-18 19:47 binary_chroot
+-rwxr-xr-x 1 root root 2725 2012-10-18 22:17 binary_dependency
+-rwxr-xr-x 1 root root 1488 2012-10-18 19:47 binary_path
+-rwxr-xr-x 1 root root 1458 2012-10-18 19:47 binary_pie
+-rwxr-xr-x 1 root root 1482 2012-10-18 19:47 binary_random
+-rwxr-xr-x 1 root root 3086 2012-10-18 19:47 binary_rpath
+-rwxr-xr-x 1 root root 1402 2012-10-18 19:47 binary_ssp
+-rwxr-xr-x 1 root root 1697 2012-10-18 19:47 binary_tmp
+-rwxr-xr-x 1 root root 2582 2012-10-18 19:47 credentials
+drwxr-xr-x 8 root root 4096 2012-10-18 19:47 enabled
+-rwxr-xr-x 1 root root 1275 2012-10-18 19:47 gpg_agent
+-rwxr-xr-x 1 root root 2101 2012-10-18 19:47 group_writable
+-rwxr-xr-x 1 root root 1373 2012-10-18 19:47 jar
+-rwxr-xr-x 1 root root 1565 2012-10-18 19:47 key_material
+-rwxr-xr-x 1 root root 1697 2012-10-18 19:47 passwd_hashes
+-rwxr-xr-x 1 root root 1387 2012-10-18 19:47 setgid
+-rwxr-xr-x 1 root root 1387 2012-10-18 19:47 setuid
+-rwxr-xr-x 1 root root 1302 2012-10-18 19:47 shadow_hashes
+-rwxr-xr-x 1 root root 1562 2012-10-18 19:47 ssh_agent
+-rwxr-xr-x 1 root root 1725 2012-10-18 19:47 ssh_key_unencrypted
+-rwxr-xr-x 1 root root 2788 2012-10-18 19:47 system_libraries
+-rwxr-xr-x 1 root root 1916 2012-10-18 19:47 world_writable
+</pre>
+
+== binary_banned ==
+
+Check if privileged files call banned (and potentially dangerous) functions.  Based on Microsoft's banned API list as parsed by tools/generate_banned.sh.
+
+== binary_change_privileges ==
+
+Check if privileged files drop their privileges.
+
+Based on ideas found at http://people.redhat.com/sgrubb/security/
+
+== binary_chroot ==
+
+Check if privileged files calling chroot() function call also chdir() function.
+
+Based on ideas found at http://people.redhat.com/sgrubb/security/
+
+== binary_dependency ==
+
+Check for excessive permissions over privileged files and processes' linked libraries.
+
+== binary_path ==
+
+Check if privileged files call temporary files handling functions.
+
+Based on ideas found at http://people.redhat.com/sgrubb/security/
+
+== binary_pie ==
+
+Check for PIE (ASLR-compliant executable) support.
+
+Based on ideas found at http://people.redhat.com/sgrubb/security/
+
+== binary_random ==
+
+Based on Microsoft's random API list as parsed by tools/generate_random.sh
+
+== binary_rpath ==
+
+Checks in binaries have insecure writeable/relative RPATH.
+
+== binary_ssp ==
+
+Check for stack canary (SSP) support.
+
+== binary_tmp ==
+
+Check if privileged files call temporary files handling functions.
+
+Based on ideas found at http://people.redhat.com/sgrubb/security/
+
+== credentials ==
+
+Check for read permissions on sensitive files.
+
+== gpg_agent ==
+
+Check if the gpg-agent is running
+
+== group_writable ==
+
+List group-writable files
+
+== jar ==
+
+List all jar files
+
+== key_material ==
+
+List potentially sensitive files
+
+== passwd_hashes ==
+
+List users with no password set or password in /etc/passwd
+
+== setgid ==
+
+List setgid files.
+
+== setuid ==
+
+List setuid files.
+
+== shadow_hashes ==
+
+List users with no password set.
+
+== ssh_agent ==
+
+Check if the ssh-agent is running and list SSH unencrypted keys.
+
+== ssh_key_unencrypted ==
+
+List unencrypted SSH client private keys.
+
+== system_libraries ==
+
+List group-writable and world-writable system libraries and their parent directories.
+
+== world_writable ==
+
+List world-writable files
