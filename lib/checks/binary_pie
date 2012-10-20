@@ -31,11 +31,11 @@ binary_pie_init () {
 }
 
 binary_pie_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_pie "${filename}"`" -ne 1 ]
 		then
-			stdio_message_warn "binary_pie" "${filename} is ${type} (${usergroupid}) and is not compiled with PIE (Position Independent Executable)"
+			stdio_message_warn "binary_pie" "${filetype} ${filename} (${usergroupid}) and is not compiled with PIE (Position Independent Executable)"
 		fi
 	done
 }

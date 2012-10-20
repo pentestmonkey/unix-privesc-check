@@ -36,9 +36,11 @@ binary_writable_permissions () {
 	permissions="${2}"
 	userid="${3}"
 	groupid="${4}"
+	privfilename="${5}"
+	filetype="${6}"
 	case "${permissions}" in
 		????????w?)
-			stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 		;;
 		?????w????)
 			if [ -n "`id -G -n | grep ${groupid}`" ]
@@ -52,28 +54,29 @@ binary_writable_permissions () {
 }
 
 binary_writable_wrapper () {
-	pattern="${1}"
-	file_parent_traverse "${pattern}" | while read filepath
+	privfilename="${1}"
+	filetype="${2}"
+	file_parent_traverse "${privfilename}" | while read filepath
 	do
 		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
 		do
-			binary_writable_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+			binary_writable_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${privfilename}" "${filetype}"
 		done
 	done
 }
 
 binary_writable_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		# the privileged file might not exist for example when inetd calls it, but the executable has been uninstalled/removed (and inetd configuration not aligned)
 		if [ ! -e "${filename}" ]
 		then
-			stdio_message_debug "binary_writable" "${filename} does not exist"
+			stdio_message_debug "binary_writable" "${filetype} ${filename} does not exist"
 			binary_writable_wrapper "${filename}"
 			continue
 		fi
 
-		binary_writable_wrapper "${filename}"
+		binary_writable_wrapper "${filename}" "${filetype}"
 	done
 }
 

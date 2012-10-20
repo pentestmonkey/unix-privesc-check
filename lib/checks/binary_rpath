@@ -38,48 +38,49 @@ binary_rpath_permissions () {
 	permissions="${2}"
 	userid="${3}"
 	groupid="${4}"
-	pattern="${1}"
+	privfilename="${5}"
+	filetype="${6}"
 	case "${permissions}" in
 		????????w?)
-			stdio_message_warn "binary_rpath" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			stdio_message_warn "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 		;;
 		?????w????)
 			if [ -n "`id -G -n | grep ${groupid}`" ]
 			then
-				stdio_message_warn "binary_rpath" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				stdio_message_warn "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
-				stdio_message_log "binary_rpath" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				stdio_message_log "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 			fi
 		;;
 	esac
 }
 
 binary_rpath_wrapper () {
-	pattern="${1}"
-	file_parent_traverse "${pattern}" | while read filepath
+	origfilepath="${1}"
+	privfilename="${2}"
+	filetype="${3}"
+	file_parent_traverse "${origfilepath}" | while read filepath
 	do
 		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
 		do
-			binary_rpath_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+			binary_rpath_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${privfilename}" "${filetype}"
 		done
 	done
 }
 
 binary_rpath_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		binary_list_rpath "${filename}" | while read filepath
 		do
-			stdio_message_log "binary_rpath" "${filename} trusts ${filepath}"
-
 			# relative paths always end up at . with dirname
 			if [ "${filepath}" = "." -o "`printf -- \"${filepath}\" | egrep -- \"ORIGIN\"`" ]
 			then
-				stdio_message_warn "binary_rpath" "${filepath} is relative"
+				stdio_message_warn "binary_rpath" "${filetype} ${filename} trusts ${filepath} and this is relative"
 				continue
 			elif [ ! -e "${filepath}" ]
 			then
-				stdio_message_warn "binary_rpath" "${filepath} does not exist"
+				stdio_message_warn "binary_rpath" "${filetype} ${filename} trusts ${filepath}, but this does not exist"
 				continue
 			fi
 
@@ -89,11 +90,11 @@ binary_rpath_main () {
 
 				if [ -n "${linkedfilename}" ]
 				then
-					#stdio_message_debug "binary_rpath" "${filepath} is a symlink to ${linkedfilename}"
-					binary_rpath_wrapper "${linkedfilename}"
+					#stdio_message_debug "binary_rpath" "${filetype} ${filename} trusts ${filepath}, a symlink to ${linkedfilename}"
+					binary_rpath_wrapper "${linkedfilename}" "${filename}" "${filetype}"
 				fi
 			else
-				binary_rpath_wrapper "${filepath}"
+				binary_rpath_wrapper "${filepath}" "${filename}" "${filetype}"
 			fi
 		done
 	done
