@@ -22,21 +22,31 @@
 . lib/misc/stdio
 
 header() {
-	printf "unix-privesc-check version 2.1-dev (rev $Revision$)\n"
-	printf "Shell script to check for simple privilege escalation vectors on Unix systems.\n"
-	printf "\n"
+	VERSION="2.1"
+	SVNVERSION="$Revision$" # Don't change this line.  Auto-updated.
+	SVNVNUM=`echo $SVNVERSION | sed 's/[^0-9]//g'`
+	if [ -n $SVNVNUM ]; then
+		VERSION="$VERSION-svn-$SVNVNUM"
+	fi
+
+	printf "unix-privesc-check v${VERSION} ( http://code.google.com/p/unix-privesc-check )\n\n"
 }
 
 version() {
 	header
-	printf "http://code.google.com/p/unix-privesc-check/\n\n"
-	printf "brought to you by:\n"
+	preamble
+	printf "Brought to you by:\n"
 	cat docs/AUTHORS
 	exit 1
 }
 
+preamble() {
+	printf "Shell script to check for simple privilege escalation vectors on Unix systems.\n\n"
+}
+
 usage() {
 	header
+	preamble
 	printf "Usage: ${0}\n"
 	printf "\n"
 	printf "\t--help\tdisplay this help and exit\n"
@@ -79,6 +89,8 @@ do
 	esac
 	shift
 done
+
+header
 
 if [ -n "${CHECKS}" ]
 then
