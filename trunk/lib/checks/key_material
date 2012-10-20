@@ -29,14 +29,59 @@ key_material_init () {
 	file_check_or_generate_cache
 }
 
+key_material_permissions () {
+	pattern="${1}"
+	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
+	do
+		case "${permissions}" in
+			???????r??)
+				stdio_message_warn "key_material" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
+			;;
+			????r?????)
+				if [ -n "`id -G -n | grep ${groupid}`" ]
+				then
+					stdio_message_warn "key_material" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
+				else
+					stdio_message_log "key_material" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
+				fi
+			;;
+			?r????????)
+				if [ -n "`id -u -n | grep ${userid}`" ]
+				then
+					stdio_message_debug "key_material" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
+				else
+					stdio_message_debug "key_material" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
+				fi
+			;;
+		esac
+	done
+}
+
 key_material_main () {
 	# TODO we should expand this list
 	for pattern in " *\.crt" " *\.cer" " *\.pem" " *\.p12" " *\.keystore" " *\.key"
 	do
-		file_show_non_symlink_perms "${pattern}$" | while read filename permissions userid groupid
+		file_list_by_filename "${pattern}$" | while read filename
 		do
-			# TODO should we attempt to validate permissions
-			stdio_message_warn "key_material" "${filename} (${userid}, ${groupid}): ${permissions}"
+			# exclude Firefox certificates
+			case "${filename}" in
+				/usr/share/ca-certificates/mozilla/*)
+					continue
+				;;
+			esac
+
+			if [ -h "${filename}" ]
+			then
+				linkedfilename="`file_show_symlinked_filename "${filename}"`"
+
+				if [ -n "${linkedfilename}" ]
+				then
+					#stdio_message_debug "key_material" "${filename} is a symlink to ${linkedfilename}"
+					key_material_permissions "${linkedfilename}"
+				fi
+			else
+				key_material_permissions "${filename}"
+			fi
 		done
 	done
 }

@@ -29,11 +29,49 @@ jar_init () {
 	file_check_or_generate_cache
 }
 
-jar_main () {
-	file_show_non_symlink_perms " *\.jar$" | while read filename permissions userid groupid
+jar_permissions () {
+	pattern="${1}"
+	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
 	do
-		# TODO should we attempt to validate permissions
-		stdio_message_warn "jar" "${filename} (${userid}, ${groupid}): ${permissions}"
+		case "${permissions}" in
+			???????r??)
+				stdio_message_warn "jar" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
+			;;
+			????r?????)
+				if [ -n "`id -G -n | grep ${groupid}`" ]
+				then
+					stdio_message_warn "jar" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
+				else
+					stdio_message_log "jar" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
+				fi
+			;;
+			?r????????)
+				if [ -n "`id -u -n | grep ${userid}`" ]
+				then
+					stdio_message_debug "jar" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
+				else
+					stdio_message_debug "jar" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
+				fi
+			;;
+		esac
+	done
+}
+
+jar_main () {
+	file_list_by_filename " *\.jar$" | while read filename
+	do
+		if [ -h "${filename}" ]
+		then
+			linkedfilename="`file_show_symlinked_filename "${filename}"`"
+
+			if [ -n "${linkedfilename}" ]
+			then
+				#stdio_message_debug "jar" "${filename} is a symlink to ${linkedfilename}"
+				jar_permissions "${linkedfilename}"
+			fi
+		else
+			jar_permissions "${filename}"
+		fi
 	done
 }
 
