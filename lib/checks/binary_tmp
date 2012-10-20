@@ -38,10 +38,11 @@ binary_tmp_main () {
 		then
 			if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -eq 1 ]
 			then
-				# TODO why this check here?
+				# Note XXX is part of template filename that is replaced by mkstemp, etc.
+				# Without an XXX, we assume the filename is likely to be predictable
 				if [ "`binary_matches_string "${filename}" "XXX"`" -ne 1 ]
 				then
-					stdio_message_warn "binary_tmp" "${filetype} ${filename} (${usergroupid}) and may use /tmp unsafely"
+					stdio_message_warn "binary_tmp" "${filetype} ${filename} (${usergroupid}) and may create predictable files in /tmp unsafely"
 				fi
 			fi
 		fi
