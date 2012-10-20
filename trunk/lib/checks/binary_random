@@ -30,11 +30,11 @@ binary_random_init () {
 }
 
 binary_random_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_function "${filename}" "random|srand"`" -eq 1 ]
 		then
-			stdio_message_warn "binary_random" "${filename} is ${type} (${usergroupid}) and uses random()/srand()"
+			stdio_message_warn "binary_random" "${filetype} ${filename} (${usergroupid}) and uses random()/srand()"
 		fi
 	done
 }

@@ -31,12 +31,12 @@ binary_banned_init () {
 }
 
 binary_banned_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		banned_apis="`binary_banned_api "${filename}" "alloca|gets|memcpy|scanf|sprintf|sscanf|strcat|StrCat|strcpy|StrCpy|strlen|StrLen|strncat|StrNCat|strncpy|StrNCpy|strtok|swprintf|vsnprintf|vsprintf|vswprintf|wcscat|wcscpy|wcslen|wcsncat|wcsncpy|wcstok|wmemcpy"`"
 		if [ -n "${banned_apis}" ]
 		then
-			stdio_message_warn "binary_banned" "${filename} is ${type} (${usergroupid}) and uses banned APIs ($banned_apis)"
+			stdio_message_warn "binary_banned" "${filetype} ${filename} (${usergroupid}) and uses banned APIs ($banned_apis)"
 		fi
 	done
 }

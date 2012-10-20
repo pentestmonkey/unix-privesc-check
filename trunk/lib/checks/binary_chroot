@@ -31,14 +31,14 @@ binary_chroot_init () {
 }
 
 binary_chroot_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		match="`binary_matches_function "${filename}" "chroot"`"
 		if [ $match -eq 1 ]
 		then
 			if [ "`binary_matches_function "${filename}" "chdir"`" -ne 1 ]
 			then
-				stdio_message_warn "binary_chroot" "${filename} is ${type} (${usergroupid}) and may use chroot() unsafely - no chdir() call"
+				stdio_message_warn "binary_chroot" "${filetype} ${filename} (${usergroupid}) and may use chroot() unsafely - no chdir() call"
 			fi
 		fi
 	done

@@ -30,11 +30,11 @@ binary_ssp_init () {
 }
 
 binary_ssp_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_function "${filename}" "__stack_chk_fail"`" -ne 1 ]
 		then
-			stdio_message_warn "binary_ssp" "${filename} is ${type} (${usergroupid}) and is not compiled with SSP (Stack Smashing Protector)"
+			stdio_message_warn "binary_ssp" "${filetype} ${filename} (${usergroupid}) and is not compiled with SSP (Stack Smashing Protector)"
 		fi
 	done
 }

@@ -32,19 +32,23 @@ binary_dependency_init () {
 }
 
 binary_dependency_permissions () {
-	pattern="${1}"
-	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
+	library="${1}"
+	privfilename="${2}"
+	filetype="${3}"
+	echo "library beginning: $library (privfilename: $privfilename)"
+	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
+		echo "filename: ${filename}"
 		case "${permissions}" in
 			????????w?)
-				stdio_message_warn "binary_dependency" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 			;;
 			?????w????)
 				if [ -n "`id -G -n | grep ${groupid}`" ]
 				then
-					stdio_message_warn "binary_dependency" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 				else
-					stdio_message_log "binary_dependency" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 				fi
 			;;
 		esac
@@ -52,13 +56,13 @@ binary_dependency_permissions () {
 }
 
 binary_dependency_main () {
-	privileged_list | while read type filename usergroupid
+	privileged_list | while read filetype filename usergroupid
 	do
 		linker_list_dependencies "${filename}" | while read library
 		do
 			if [ ! -e "${library}" ]
 			then
-				stdio_message_warn "binary_dependency" "${filename} depends on ${library} but this does not exist"
+				stdio_message_warn "binary_dependency" "${filetype} ${filename} depends on ${library}, but this does not exist"
 				continue
 			fi
 
@@ -68,11 +72,11 @@ binary_dependency_main () {
 
 				if [ -n "${linkedlibrary}" ]
 				then
-					#stdio_message_debug "binary_dependency" "${filename} depends on ${library}, a symlink to ${linkedlibrary}"
-					binary_dependency_permissions "${linkedlibrary}"
+					#stdio_message_debug "binary_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
+					binary_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
 				fi
 			else
-				binary_dependency_permissions "${library}"
+				binary_dependency_permissions "${library}" "${filename}" "${filetype}"
 			fi
 		done
 	done
