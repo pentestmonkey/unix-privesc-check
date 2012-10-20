@@ -85,12 +85,12 @@ system_libraries_main () {
 
 		if [ -h "${filename}" ]
 		then
-			newfilename="`file_show_symlinked_filename "${filename}"`"
+			linkedfilename="`file_show_symlinked_filename "${filename}"`"
 
-			if [ -n "${newfilename}" ]
+			if [ -e "${linkedfilename}" ]
 			then
-				#stdio_message_debug "system_libraries" "${filename} is a symlink to ${newfilename}"
-				system_libraries_wrapper "${newfilename}"
+				#stdio_message_debug "system_libraries" "${filename} is a symlink to ${linkedfilename}"
+				system_libraries_wrapper "${linkedfilename}"
 			fi
 		else
 			system_libraries_wrapper "${filename}"
