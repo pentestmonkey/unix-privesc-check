@@ -26,7 +26,7 @@
 . lib/misc/binary
 
 binary_random_init () {
-	stdio_message_log "binary_random" "Starting"
+	stdio_message_log "binary_random" "Starting at: `date`"
 }
 
 binary_random_main () {
@@ -40,5 +40,5 @@ binary_random_main () {
 }
 
 binary_random_fini () {
-	stdio_message_log "binary_random" "Ending"
+	stdio_message_log "binary_random" "Ending at: `date`"
 }
