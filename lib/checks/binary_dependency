@@ -35,22 +35,27 @@ binary_dependency_permissions () {
 	library="${1}"
 	privfilename="${2}"
 	filetype="${3}"
-	echo "library beginning: $library (privfilename: $privfilename)"
+	echo "library beginning: $library (privfilename: $privfilename)" # FIXME remove debug line
 	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
-		echo "filename: ${filename}"
+		echo "filename: ${filename}" # FIXME remove debug line
+		# TODO for each vulnerable file it would be really useful to know HOW the program is run (setuid, from inetd, etc.) and WHO by (root:root, ptm:user, etc.)
+		#      I think we will always know this because the concept of a file being "privileged" implies that we know how it is run + who by
 		case "${permissions}" in
 			????????w?)
 				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 			;;
 			?????w????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
+				# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
+				#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
+				if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME what if groupid is really short, like "a"?  The grep will match too much.  Note id outputs a single line.
 				then
 					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 				else
 					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 				fi
 			;;
+			# TODO need to check for write access by non-root users.  This will allow privesc from the user with write access to the user who runs the program which uses this lib.
 		esac
 	done
 }
@@ -63,6 +68,7 @@ binary_dependency_main () {
 			if [ ! -e "${library}" ]
 			then
 				stdio_message_warn "binary_dependency" "${filetype} ${filename} depends on ${library}, but this does not exist"
+				# TODO This is only a security issue if an attacker can create it.  Check parent paths for write access.
 				continue
 			fi
 
