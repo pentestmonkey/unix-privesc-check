@@ -37,7 +37,7 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC020 || TODO || Can connect to local postgres database as \"postgres\" without a password || ||
 || UPC021 || TODO || Can connect to local postgres database as \"pgsql\" without a password || ||
 || UPC022 || TODO || This system is an NFS client.  Check for nosuid and nodev options. || ||
-|| UPC023 || setuid, setgid (partially) || SetUID/SetGID shell script, may be vulnerable to race attacks || lib/misc/privileged and all binary_* checks do exhaustive checks on setuid/setgid files, but not yet race condition specifically ||
+|| UPC023 || setuid, setgid (partially) || SetUID/SetGID shell script, may be vulnerable to race attacks || lib/misc/privileged and all `binary_` checks do exhaustive checks on setuid/setgid files, but not yet race condition specifically ||
 || UPC024 || credentials || Cleartext subversion passsword file: $FILE || ||
 || UPC025 || ssh_agent, ssh_key || Encrypted private SSH key found in $KEY || ||
 || UPC026 || ssh_agent, ssh_key || Unencrypted private SSH key found in $KEY || ||
