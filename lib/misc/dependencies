@@ -24,7 +24,7 @@
 . lib/misc/stdio
 
 dependencies_check () {
-	# TODO the principal is solid, but at the moment it only caters for Linux
+	# TODO the principle is solid, but at the moment it only caters for Linux
 	#if [ -z "`which objdump`" -o -z "`which strings`" ]
 	#then
 	#	stdio_message_error "dependencies" "missing mandatory tool (objdump or strings), install binutils and rerun"
