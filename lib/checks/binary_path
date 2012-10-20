@@ -27,7 +27,7 @@
 . lib/misc/binary
 
 binary_path_init () {
-	stdio_message_log "binary_path" "Starting"
+	stdio_message_log "binary_path" "Starting at: `date`"
 }
 
 binary_path_main () {
@@ -42,5 +42,5 @@ binary_path_main () {
 }
 
 binary_path_fini () {
-	stdio_message_log "binary_path" "Ending"
+	stdio_message_log "binary_path" "Ending at: `date`"
 }
