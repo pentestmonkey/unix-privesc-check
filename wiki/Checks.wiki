@@ -33,11 +33,11 @@ drwxr-xr-x 8 root root 4096 2012-10-18 19:47 enabled
 
 == binary_banned ==
 
-Check if privileged files call banned (and potentially dangerous) functions.  Based on Microsoft's banned API list as parsed by tools/generate_banned.sh.
+Check if privileged programs (e.g. SetUID, those run as root) call banned (and potentially dangerous) functions.  Based on Microsoft's banned API list as parsed by tools/generate_banned.sh.
 
 == binary_change_privileges ==
 
-Check if privileged files drop their privileges.
+Check if privileged programs (e.g. SetUID, those run as root) drop their privileges.
 
 Based on ideas found at http://people.redhat.com/sgrubb/security/
 
