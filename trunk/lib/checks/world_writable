@@ -25,7 +25,7 @@
 . lib/misc/file
 
 world_writable_init () {
-	stdio_message_log "world_writable" "Starting"
+	stdio_message_log "world_writable" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -61,5 +61,5 @@ world_writable_main () {
 }
 
 world_writable_fini () {
-	stdio_message_log "world_writable" "Ending"
+	stdio_message_log "world_writable" "Ending at: `date`"
 }

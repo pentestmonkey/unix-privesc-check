@@ -25,7 +25,7 @@
 . lib/misc/file
 
 setuid_init () {
-	stdio_message_log "setuid" "Starting"
+	stdio_message_log "setuid" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -41,5 +41,5 @@ setuid_main () {
 }
 
 setuid_fini () {
-	stdio_message_log "setuid" "Ending"
+	stdio_message_log "setuid" "Ending at: `date`"
 }

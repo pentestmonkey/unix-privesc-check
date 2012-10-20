@@ -25,7 +25,7 @@
 . lib/misc/shadow
 
 shadow_hashes_init () {
-	stdio_message_log "shadow_hashes" "Starting"
+	stdio_message_log "shadow_hashes" "Starting at: `date`"
 }
 
 shadow_hashes_main () {
@@ -40,5 +40,5 @@ shadow_hashes_main () {
 }
 
 shadow_hashes_fini () {
-	stdio_message_log "shadow_hashes" "Ending"
+	stdio_message_log "shadow_hashes" "Ending at: `date`"
 }

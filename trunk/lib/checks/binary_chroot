@@ -27,7 +27,7 @@
 . lib/misc/binary
 
 binary_chroot_init () {
-	stdio_message_log "binary_chroot" "Starting"
+	stdio_message_log "binary_chroot" "Starting at: `date`"
 }
 
 binary_chroot_main () {
@@ -45,5 +45,5 @@ binary_chroot_main () {
 }
 
 binary_chroot_fini () {
-	stdio_message_log "binary_chroot" "Ending"
+	stdio_message_log "binary_chroot" "Ending at: `date`"
 }

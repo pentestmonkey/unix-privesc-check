@@ -25,7 +25,7 @@
 . lib/misc/passwd
 
 passwd_hashes_init () {
-	stdio_message_log "passwd_hashes" "Starting"
+	stdio_message_log "passwd_hashes" "Starting at: `date`"
 }
 
 passwd_hashes_main () {
@@ -51,5 +51,5 @@ passwd_hashes_main () {
 }
 
 passwd_hashes_fini () {
-	stdio_message_log "passwd_hashes" "Ending"
+	stdio_message_log "passwd_hashes" "Ending at: `date`"
 }

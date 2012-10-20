@@ -27,7 +27,7 @@
 . lib/misc/file
 
 ssh_agent_init () {
-	stdio_message_log "ssh_agent" "Starting"
+	stdio_message_log "ssh_agent" "Starting at: `date`"
 }
 
 ssh_agent_main () {
@@ -47,5 +47,5 @@ ssh_agent_main () {
 }
 
 ssh_agent_fini () {
-	stdio_message_log "ssh_agent" "Ending"
+	stdio_message_log "ssh_agent" "Ending at: `date`"
 }

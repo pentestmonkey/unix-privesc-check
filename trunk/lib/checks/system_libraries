@@ -29,7 +29,7 @@
 . lib/misc/process
 
 system_libraries_init () {
-	stdio_message_log "system_libraries" "Starting"
+	stdio_message_log "system_libraries" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -99,5 +99,5 @@ system_libraries_main () {
 }
 
 system_libraries_fini () {
-	stdio_message_log "system_libraries" "Ending"
+	stdio_message_log "system_libraries" "Ending at: `date`"
 }

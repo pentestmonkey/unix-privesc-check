@@ -25,7 +25,7 @@
 . lib/misc/file
 
 key_material_init () {
-	stdio_message_log "key_material" "Starting"
+	stdio_message_log "key_material" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -42,5 +42,5 @@ key_material_main () {
 }
 
 key_material_fini () {
-	stdio_message_log "key_material" "Ending"
+	stdio_message_log "key_material" "Ending at: `date`"
 }

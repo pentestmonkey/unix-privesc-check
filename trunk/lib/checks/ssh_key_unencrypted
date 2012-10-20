@@ -25,7 +25,7 @@
 . lib/misc/file
 
 ssh_key_unencrypted_init () {
-	stdio_message_log "ssh_key_unencrypted" "Starting"
+	stdio_message_log "ssh_key_unencrypted" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -48,5 +48,5 @@ ssh_key_unencrypted_main () {
 }
 
 ssh_key_unencrypted_fini () {
-	stdio_message_log "ssh_key_unencrypted" "Ending"
+	stdio_message_log "ssh_key_unencrypted" "Ending at: `date`"
 }

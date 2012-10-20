@@ -27,7 +27,7 @@
 . lib/misc/binary
 
 binary_change_privileges_init () {
-	stdio_message_log "binary_change_privileges" "Starting"
+	stdio_message_log "binary_change_privileges" "Starting at: `date`"
 }
 
 binary_change_privileges_main () {
@@ -42,5 +42,5 @@ binary_change_privileges_main () {
 }
 
 binary_change_privileges_fini () {
-	stdio_message_log "binary_change_privileges" "Ending"
+	stdio_message_log "binary_change_privileges" "Ending at: `date`"
 }

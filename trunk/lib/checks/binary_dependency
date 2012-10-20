@@ -28,7 +28,7 @@
 . lib/misc/linker
 
 binary_dependency_init () {
-	stdio_message_log "binary_dependency" "Starting"
+	stdio_message_log "binary_dependency" "Starting: `date`"
 }
 
 binary_dependency_permissions () {
@@ -83,5 +83,5 @@ binary_dependency_main () {
 }
 
 binary_dependency_fini () {
-	stdio_message_log "binary_dependency" "Ending"
+	stdio_message_log "binary_dependency" "Ending: `date`"
 }

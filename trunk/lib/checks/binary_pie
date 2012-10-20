@@ -27,7 +27,7 @@
 . lib/misc/binary
 
 binary_pie_init () {
-	stdio_message_log "binary_pie" "Starting"
+	stdio_message_log "binary_pie" "Starting at: `date`"
 }
 
 binary_pie_main () {
@@ -41,5 +41,5 @@ binary_pie_main () {
 }
 
 binary_pie_fini () {
-	stdio_message_log "binary_pie" "Ending"
+	Stdio_message_log "binary_pie" "Ending at: `date`"
 }

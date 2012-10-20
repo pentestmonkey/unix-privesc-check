@@ -26,7 +26,7 @@
 . lib/misc/binary
 
 binary_ssp_init () {
-	stdio_message_log "binary_ssp" "Starting"
+	stdio_message_log "binary_ssp" "Starting at: `date`"
 }
 
 binary_ssp_main () {
@@ -40,5 +40,5 @@ binary_ssp_main () {
 }
 
 binary_ssp_fini () {
-	stdio_message_log "binary_ssp" "Ending"
+	stdio_message_log "binary_ssp" "Ending at: `date`"
 }
