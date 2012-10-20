@@ -25,35 +25,35 @@ linker_list_dependencies () {
 	filename="${1}"
 	if [ "`uname`" = "AIX" ]
 	then
-		ldd "${filename}" | grep -v "needs:" | while read filename
+		ldd "${filename}" | grep -v "needs:" | while read library
 		do
-			case "${filename}" in
+			case "${library}" in
 				/*)
-					filename="`printf -- \"${filename}\" | sed \"s/(.*//g\"`"
-					linker_list_dependencies "${filename}"
-					printf -- "${filename}\n"
+					library="`printf -- \"${library}\" | sed \"s/(.*//g\"`"
+					linker_list_dependencies "${library}"
+					printf -- "${library}\n"
 					;;
 			esac
 		done | sort | uniq
 	else
-		ldd "${filename}" | while read _ _ filename _
+		ldd "${filename}" | while read _ _ library _
 		do
-			case "${filename}" in
+			case "${library}" in
 				/*)
-					linker_list_dependencies "${filename}"
-					printf -- "${filename}\n"
+					linker_list_dependencies "${library}"
+					printf -- "${library}\n"
 					;;
 			esac
 		done | sort | uniq
 
 		# this is for cases where the first column of the ldd is not a symlink (for example a ldd /bin/umount has amongst its libraries also /lib/ld-linux.so.2 (0xb76e6000), not symlinked)
-		ldd "${filename}" | while read filename _ _ _
+		ldd "${filename}" | while read library _ _ _
 		do
-			case "${filename}" in
+			case "${library}" in
 				/*)
 					# do not be recursive here - it causes an error on ldd /lib/ld-linux.so.2 (loader cannot load itself)
-					#linker_list_dependencies "${filename}"
-					printf -- "${filename}\n"
+					#linker_list_dependencies "${library}"
+					printf -- "${library}\n"
 					;;
 			esac
 		done | sort | uniq
