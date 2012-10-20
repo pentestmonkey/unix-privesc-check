@@ -111,9 +111,8 @@ file_show_real_filename () {
 
 file_show_symlinked_filename () {
 	pattern="${1}"
-	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
-	egrep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
-	# FIXME The symlink we are passed may point to another symlink.  Very common for libraries.  The problem broke our ldd checks.
+	# leave grep here otherwise libraries with ++ in the name will not be grepped properly (i.e. /usr/lib/i386-linux-gnu/libstdc++.so.6.0.16)
+	grep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
 	do
 		case "${linkedfilename}" in
 			/*)
