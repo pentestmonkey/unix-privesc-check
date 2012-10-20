@@ -150,4 +150,14 @@ file_parent_traverse () {
 	done
 }
 
+file_is_textual () {
+	filename="${1}"
+	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
+
 file_check_or_generate_cache
