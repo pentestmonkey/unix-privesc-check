@@ -24,12 +24,12 @@
 . lib/misc/stdio
 . lib/misc/file
 
-ssh_key_unencrypted_init () {
-	stdio_message_log "ssh_key_unencrypted" "Starting at: `date`"
+ssh_key_init () {
+	stdio_message_log "ssh_key" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
-ssh_key_unencrypted_main () {
+ssh_key_main () {
 	# TODO we should expand this list
 	# * parse the local SSH server configuration file /etc/ssh/ssh_config 
 	#   and add to the pattern the value of IdentityFile option
@@ -41,12 +41,14 @@ ssh_key_unencrypted_main () {
 		do
 			if [ "`file_matches_string "${filename}" "ENCRYPTED"`" -ne 1 ]
 			then
-				stdio_message_warn "ssh_key_unencrypted" "${filename} is unencrypted"
+				stdio_message_warn "ssh_key" "${filename} is unencrypted"
+			else
+				stdio_message_log "ssh_key" "${filename} is encrypted"
 			fi
 		done
 	done
 }
 
-ssh_key_unencrypted_fini () {
-	stdio_message_log "ssh_key_unencrypted" "Ending at: `date`"
+ssh_key_fini () {
+	stdio_message_log "ssh_key" "Ending at: `date`"
 }
