@@ -1,3 +1,19 @@
+2012-10-20 unix-privesc-check trunk
+
+* 
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-10-19 unix-privesc-check trunk
+
+* Re-engineered check lib/checks/binary_rpath
+* Fixed the file_parent_traverse function call in lib/checks/binary_writable
+  and lib/checks/system_libraries
+* Fixed some more checks' descriptions
+* Bug fix: Syntax fix in lib/misc/binary
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
 2012-10-18 unix-privesc-check trunk
 
 * Tidied up upc.sh, added an additional error check
