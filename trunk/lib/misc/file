@@ -66,7 +66,7 @@ file_list_by_filename () {
 
 file_show_perms () {
 	pattern="${1}"
-	# patterns must always take the form " /path/*/find" i.e. regular expressions
+	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
@@ -76,7 +76,7 @@ file_show_perms () {
 
 file_show_non_symlink_perms () {
 	pattern="${1}"
-	# patterns must always take the form " /path/*/find" i.e. regular expressions
+	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		case "${permissions}" in
