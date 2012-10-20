@@ -30,8 +30,8 @@ linker_list_dependencies () {
 			case "${library}" in
 				/*)
 					library="`printf -- \"${library}\" | sed \"s/(.*//g\"`"
-					linker_list_dependencies "${library}"
 					printf -- "${library}\n"
+					linker_list_dependencies "${library}"
 					;;
 			esac
 		done | sort | uniq
@@ -40,8 +40,8 @@ linker_list_dependencies () {
 		do
 			case "${library}" in
 				/*)
-					linker_list_dependencies "${library}"
 					printf -- "${library}\n"
+					linker_list_dependencies "${library}"
 					;;
 			esac
 		done | sort | uniq
@@ -51,9 +51,9 @@ linker_list_dependencies () {
 		do
 			case "${library}" in
 				/*)
+					printf -- "${library}\n"
 					# do not be recursive here - it causes an error on ldd /lib/ld-linux.so.2 (loader cannot load itself)
 					#linker_list_dependencies "${library}"
-					printf -- "${library}\n"
 					;;
 			esac
 		done | sort | uniq
