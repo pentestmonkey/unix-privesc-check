@@ -33,7 +33,7 @@ ssh_agent_init () {
 ssh_agent_main () {
 	process_list "ssh-agent" | while read processid 
 	do
-		stdio_message_log "ssh_agent" "ssh-agent running as `process_show_userid ${processid}` (`process_show_command ${processid}`)"
+		stdio_message_log "ssh_agent" "ssh-agent is running as `process_show_userid ${processid}` (`process_show_command ${processid}`)"
 		ssh_agent_list `process_show_parentid ${processid}` ${processid} | while read filename
 		do
 			stdio_message_warn "ssh_agent" "ssh-agent uses key from ${filename}"

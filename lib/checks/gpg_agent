@@ -31,7 +31,7 @@ gpg_agent_init () {
 gpg_agent_main () {
 	process_list "gpg-agent" | while read processid 
 	do
-		stdio_message_warn "gpg_agent" "gpg-agent running as `process_show_userid ${processid}` (`process_show_command ${processid}`)"
+		stdio_message_warn "gpg_agent" "gpg-agent is running as `process_show_userid ${processid}` (`process_show_command ${processid}`)"
 	done
 }
 
