@@ -41,6 +41,7 @@ linker_list_dependencies () {
 			case "${library}" in
 				/*)
 					printf -- "${library}\n"
+					# this recursion is very costly and slows down a lot the checks that call this function when they depend upon 10+ libraries (i.e. /usr/games/gnomine depends upon 48 libraries)
 					linker_list_dependencies "${library}"
 					;;
 				not)
