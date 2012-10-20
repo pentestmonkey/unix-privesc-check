@@ -31,36 +31,6 @@ binary_dependency_init () {
 	stdio_message_log "binary_dependency" "Starting: `date`"
 }
 
-binary_dependency_permissions () {
-	filename="${1}"
-	permissions="${2}"
-	userid="${3}"
-	groupid="${4}"
-	privfilename="${5}"
-	filetype="${6}"
-	case "${permissions}" in
-		????????w?)
-			stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-		;;
-		?????w????)
-			# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
-			#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
-			if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME what if groupid is really short, like "a"?  The grep will match too much.  Note id outputs a single line.
-			then
-				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
-			else
-				stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
-			fi
-		;;
-		??w???????)
-			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
-			then
-				stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
-			fi
-		;;
-	esac
-}
-
 binary_dependency_traverse () {
 	pattern="${1}"
 	privfilename="${2}"
@@ -103,14 +73,34 @@ binary_dependency_traverse () {
 	done
 }
 
-binary_dependency_wrapper () {
+binary_dependency_permissions () {
 	library="${1}"
 	privfilename="${2}"
 	filetype="${3}"
 	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
 		#echo "Checking permissions for filename ${filename} ($permissions)"
-		binary_dependency_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${privfilename}" "${filetype}"
+		case "${permissions}" in
+			????????w?)
+				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			;;
+			?????w????)
+				# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
+				#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
+				if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME what if groupid is really short, like "a"?  The grep will match too much.  Note id outputs a single line.
+				then
+					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				else
+					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				fi
+			;;
+			??w???????)
+				if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+				then
+					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
+				fi
+			;;
+		esac
 	done
 }
 
@@ -147,10 +137,10 @@ binary_dependency_main () {
 				if [ -n "${linkedlibrary}" ]
 				then
 					#stdio_message_debug "binary_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
-					binary_dependency_wrapper "${linkedlibrary}" "${filename}" "${filetype}"
+					binary_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
 				fi
 			else
-				binary_dependency_wrapper "${library}" "${filename}" "${filetype}"
+				binary_dependency_permissions "${library}" "${filename}" "${filetype}"
 			fi
 		done
 	done
