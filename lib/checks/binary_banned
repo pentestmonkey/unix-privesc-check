@@ -27,7 +27,7 @@
 . lib/misc/binary
 
 binary_banned_init () {
-	stdio_message_log "binary_banned" "Starting"
+	stdio_message_log "binary_banned" "Starting at: `date`"
 }
 
 binary_banned_main () {
@@ -42,5 +42,5 @@ binary_banned_main () {
 }
 
 binary_banned_fini () {
-	stdio_message_log "binary_banned" "Ending"
+	stdio_message_log "binary_banned" "Ending at: `date`"
 }

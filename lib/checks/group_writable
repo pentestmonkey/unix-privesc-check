@@ -25,7 +25,7 @@
 . lib/misc/file
 
 group_writable_init () {
-	stdio_message_log "group_writable" "Starting"
+	stdio_message_log "group_writable" "Starting at: `date`"
 }
 
 group_writable_permissions () {
@@ -65,5 +65,5 @@ group_writable_main () {
 }
 
 group_writable_fini () {
-	stdio_message_log "group_writable" "Ending"
+	stdio_message_log "group_writable" "Ending: `date`"
 }

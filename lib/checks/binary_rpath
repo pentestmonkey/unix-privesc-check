@@ -29,7 +29,7 @@
 . lib/misc/binary
 
 binary_rpath_init () {
-	stdio_message_log "binary_rpath" "Starting"
+	stdio_message_log "binary_rpath" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -101,5 +101,5 @@ binary_rpath_main () {
 }
 
 binary_rpath_fini () {
-	stdio_message_log "binary_rpath" "Ending"
+	stdio_message_log "binary_rpath" "Ending at: `date`"
 }

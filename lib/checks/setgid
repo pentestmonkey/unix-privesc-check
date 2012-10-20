@@ -25,7 +25,7 @@
 . lib/misc/file
 
 setgid_init () {
-	stdio_message_log "setgid" "Starting"
+	stdio_message_log "setgid" "Starting: `date`"
 	file_check_or_generate_cache
 }
 
@@ -41,5 +41,5 @@ setgid_main () {
 }
 
 setgid_fini () {
-	stdio_message_log "setgid" "Ending"
+	stdio_message_log "setgid" "Ending: `date`"
 }

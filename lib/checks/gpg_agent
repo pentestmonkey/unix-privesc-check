@@ -25,7 +25,7 @@
 . lib/misc/process
 
 gpg_agent_init () {
-	stdio_message_log "gpg_agent" "Starting"
+	stdio_message_log "gpg_agent" "Starting at: `date`"
 }
 
 gpg_agent_main () {
@@ -36,5 +36,5 @@ gpg_agent_main () {
 }
 
 gpg_agent_fini () {
-	stdio_message_log "gpg_agent" "Ending"
+	stdio_message_log "gpg_agent" "Ending at: `date`"
 }

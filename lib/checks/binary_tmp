@@ -27,7 +27,7 @@
 . lib/misc/binary
 
 binary_tmp_init () {
-	stdio_message_log "binary_tmp" "Starting"
+	stdio_message_log "binary_tmp" "Starting at: `date`"
 }
 
 binary_tmp_main () {
@@ -49,5 +49,5 @@ binary_tmp_main () {
 }
 
 binary_tmp_fini () {
-	stdio_message_log "binary_tmp" "Ending"
+	stdio_message_log "binary_tmp" "Ending at: `date`"
 }

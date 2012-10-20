@@ -25,7 +25,7 @@
 . lib/misc/file
 
 jar_init () {
-	stdio_message_log "jar" "Starting"
+	stdio_message_log "jar" "Starting at: `date`"
 	file_check_or_generate_cache
 }
 
@@ -38,5 +38,5 @@ jar_main () {
 }
 
 jar_fini () {
-	stdio_message_log "jar" "Ending"
+	stdio_message_log "jar" "Ending at: `date`"
 }
