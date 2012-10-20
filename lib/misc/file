@@ -112,7 +112,7 @@ file_show_real_filename () {
 file_show_symlinked_filename () {
 	pattern="${1}"
 	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
-	egrep -- "${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
+	egrep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
 	do
 		case "${linkedfilename}" in
 			/*)
