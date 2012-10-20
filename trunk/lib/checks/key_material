@@ -19,7 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# List potentially sensible files
+# List potentially sensitive files
 
 . lib/misc/stdio
 . lib/misc/file
