@@ -38,8 +38,6 @@ binary_writable_permissions () {
 	groupid="${4}"
 	privfilename="${5}"
 	filetype="${6}"
-	# TODO check for write access by non-root users
-	# TODO state who the program is run as - i.e. who you can escallate *to*
 	case "${permissions}" in
 		????????w?)
 			stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
@@ -47,9 +45,15 @@ binary_writable_permissions () {
 		?????w????)
 			if [ -n "`id -G -n | grep ${groupid}`" ]
 			then
-				stdio_message_warn "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
-				stdio_message_log "binary_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				stdio_message_log "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+			fi
+		;;
+		??w???????)
+			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+			then
+				stdio_message_log "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
 			fi
 		;;
 	esac
@@ -73,9 +77,8 @@ binary_writable_main () {
 		# the privileged file might not exist for example when inetd calls it, but the executable has been uninstalled/removed (and inetd configuration not aligned)
 		if [ ! -e "${filename}" ]
 		then
-			# TODO this is only a security issue if attacker can create the file.  Check parent paths.
 			stdio_message_debug "binary_writable" "${filetype} ${filename} does not exist"
-			binary_writable_wrapper "${filename}"
+			binary_writable_wrapper "${filename}" "${filetype}"
 			continue
 		fi
 
