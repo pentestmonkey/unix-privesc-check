@@ -63,8 +63,10 @@ binary_dependency_permissions () {
 binary_dependency_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
+		# echo "Processing exe ${filename}"
 		linker_list_dependencies "${filename}" | while read library
 		do
+			# echo "Processing lib ${library}"
 			if [ ! -e "${library}" ]
 			then
 				stdio_message_warn "binary_dependency" "${filetype} ${filename} depends on ${library}, but this does not exist"
@@ -80,6 +82,8 @@ binary_dependency_main () {
 				then
 					#stdio_message_debug "binary_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
 					binary_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
+				else
+					# echo "We failed to handle symlink-to-symlink for: ${library}" # uncomment this to see a bug # FIXME
 				fi
 			else
 				binary_dependency_permissions "${library}" "${filename}" "${filetype}"
