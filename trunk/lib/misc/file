@@ -53,10 +53,10 @@ file_list_by_perm () {
 	done
 }
 
-# TODO this will only work for files, not dirs - mostly what we want I think
 file_list_by_filename () {
 	pattern="${1}"
 	# patterns must always take the form " /path/*/find" i.e. regular expressions
+	# this will only work for files, not dirs - mostly what we want I think
 	egrep -- "^-.*${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
