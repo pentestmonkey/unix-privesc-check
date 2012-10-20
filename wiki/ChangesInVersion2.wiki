@@ -1,0 +1,61 @@
+= Changes to unix-privesc-check in Version 2=
+
+The SVN tag "r2_0" onwards (and trunk) contain a completely new codebase for unix-privesc-check.
+
+It is modular and coded much more cleanly.  It contains a significant number of checks that were not present in v1 of the codebase.
+
+= Which Version Should I Use? =
+
+Until version 2 has been debugged and stabilised, you should probably use both versions.
+
+Version 2 will perform some extra checks.  It is also more regularly maintained.
+
+Version 1 contains some checks that have not been ported across.  It is more mature and stable.
+
+= Comparison of Features =
+
+|| UPCv1 ID || UPCv2 Check Name || Description of Check || Comment ||
+|| UPC001 || TODO || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || ||
+|| UPC002 || TODO || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || ||
+|| UPC003 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set) || ||
+|| UPC004 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE || ||
+|| UPC005 || TODO || $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE || ||
+|| UPC006 || TODO || $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE || ||
+|| UPC007 || TODO || $O_MESSAGE_STACK World read is set for $O_FILE || ||
+|| UPC008 || TODO || /etc/passwd allows external authentcation: || ||
+|| UPC009 || TODO || NIS is used for authentication on this system || ||
+|| UPC010 || TODO || LDAP is used for authentication on this system || ||
+|| UPC011 || TODO || NIS is used for authentication on this system || ||
+|| UPC012 || TODO || LDAP is used for authentication on this system || ||
+|| UPC013 || TODO || There seem to be some password hashes in /etc/passwd || ||
+|| UPC014 || TODO || The following accounts have no password: || ||
+|| UPC015 || TODO || User $USER doesn't have a password || ||
+|| UPC016 || TODO || User $USER doesn't have a password || ||
+|| UPC017 || TODO || Sudo is configured.  Manually check nothing unsafe is allowed: || ||
+|| UPC018 || TODO || Some users can use sudo without a password: || ||
+|| UPC019 || TODO || Postgres trust configured in $DIR/pg_hba.conf: $LINE || ||
+|| UPC020 || TODO || Can connect to local postgres database as \"postgres\" without a password || ||
+|| UPC021 || TODO || Can connect to local postgres database as \"pgsql\" without a password || ||
+|| UPC022 || TODO || This system is an NFS client.  Check for nosuid and nodev options. || ||
+|| UPC023 || TODO || SetUID/SetGID shell script, may be vulnerable to race attacks || ||
+|| UPC024 || TODO || Cleartext subversion passsword file: $FILE || ||
+|| UPC025 || TODO || Encrypted private SSH key found in $KEY || ||
+|| UPC026 || TODO || Unencrypted private SSH key found in $KEY || ||
+|| UPC027 || TODO || Public SSH Key Found in $HOMEDIR/.ssh/authorized_keys || ||
+|| UPC028 || TODO || There are SSH agents running on this system: || ||
+|| UPC030 || TODO || There are GPG agents running on this system: || ||
+|| UPC031 || TODO || No NX || ||
+|| UPC032 || TODO || No NX logging || ||
+|| UPC033 || TODO || Auditing not enabled || ||
+|| UPC034 || TODO || No NX || ||
+|| UPC035 || TODO || NX set to logging only || ||
+|| UPC036 || TODO || No ASLR || ||
+|| UPC037 || TODO || Conservative ASLR || ||
+|| UPC038 || TODO || mmap allows map to 0 || ||
+|| UPC039 || TODO || SELinux does not enforce || ||
+|| UPC040 || TODO || NX not enabled || ||
+|| UPC041 || TODO || SSP not enabled || ||
+|| UPC042 || TODO || SSP not enabled || ||
+|| UPC043 || TODO || fscaps shell script, may be vulnerable to race attacks || ||
+
+TODO list checks in UPCv2 that are not present in UPCv1.
