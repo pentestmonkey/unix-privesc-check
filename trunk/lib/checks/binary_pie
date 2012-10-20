@@ -41,5 +41,5 @@ binary_pie_main () {
 }
 
 binary_pie_fini () {
-	Stdio_message_log "binary_pie" "Ending at: `date`"
+	stdio_message_log "binary_pie" "Ending at: `date`"
 }
