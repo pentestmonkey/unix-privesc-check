@@ -1,0 +1,62 @@
+= Use Cases for unix-privesc-check =
+
+Unix-privesc-check support several use cases ("types"):
+
+<pre>
+# ./upc.sh --help
+usage: ./upc.sh
+Identifies potential privilege escalation paths.
+
+	--help	display this help and exit
+	--type	select from one of the following check types:
+		all
+		attack_surface
+		quick
+		sdl
+		test
+</pre>
+
+Each "type" causes unix-privesc-check to run one or more modules.
+
+The "types" are simply directories:
+<pre>
+# ls -l lib/checks/enabled/
+total 20
+drwxr-xr-x 3 root root 4096 2012-10-18 19:47 all
+drwxr-xr-x 3 root root 4096 2012-10-18 19:47 attack_surface
+drwxr-xr-x 3 root root 4096 2012-10-18 19:47 quick
+drwxr-xr-x 3 root root 4096 2012-10-18 19:47 sdl
+drwxr-xr-x 3 root root 4096 2012-10-18 19:47 test
+</pre>
+
+And the contents of each directory are the modules that will be run:
+<pre>
+# ls -l lib/checks/enabled/all/
+total 0
+lrwxrwxrwx 1 root root 19 2012-10-18 19:47 binary_banned -> ../../binary_banned
+lrwxrwxrwx 1 root root 30 2012-10-18 19:47 binary_change_privileges -> ../../binary_change_privileges
+lrwxrwxrwx 1 root root 19 2012-10-18 19:47 binary_chroot -> ../../binary_chroot
+lrwxrwxrwx 1 root root 23 2012-10-18 19:47 binary_dependency -> ../../binary_dependency
+lrwxrwxrwx 1 root root 16 2012-10-18 19:47 binary_pie -> ../../binary_pie
+lrwxrwxrwx 1 root root 18 2012-10-18 19:47 binary_rpath -> ../../binary_rpath
+lrwxrwxrwx 1 root root 16 2012-10-18 19:47 binary_ssp -> ../../binary_ssp
+lrwxrwxrwx 1 root root 16 2012-10-18 19:47 binary_tmp -> ../../binary_tmp
+lrwxrwxrwx 1 root root 17 2012-10-18 19:47 credentials -> ../../credentials
+lrwxrwxrwx 1 root root 15 2012-10-18 19:47 gpg_agent -> ../../gpg_agent
+lrwxrwxrwx 1 root root 20 2012-10-18 19:47 group_writable -> ../../group_writable
+lrwxrwxrwx 1 root root  9 2012-10-18 19:47 jar -> ../../jar
+lrwxrwxrwx 1 root root 18 2012-10-18 19:47 key_material -> ../../key_material
+lrwxrwxrwx 1 root root 19 2012-10-18 19:47 passwd_hashes -> ../../passwd_hashes
+lrwxrwxrwx 1 root root 12 2012-10-18 19:47 setgid -> ../../setgid
+lrwxrwxrwx 1 root root 12 2012-10-18 19:47 setuid -> ../../setuid
+lrwxrwxrwx 1 root root 19 2012-10-18 19:47 shadow_hashes -> ../../shadow_hashes
+lrwxrwxrwx 1 root root 15 2012-10-18 19:47 ssh_agent -> ../../ssh_agent
+lrwxrwxrwx 1 root root 25 2012-10-18 19:47 ssh_key_unencrypted -> ../../ssh_key_unencrypted
+lrwxrwxrwx 1 root root 22 2012-10-18 19:47 system_libraries -> ../../system_libraries
+lrwxrwxrwx 1 root root 20 2012-10-18 19:47 world_writable -> ../../world_writable
+</pre>
+
+Run a particular "type" like this:
+<pre>
+./upc.sh --type all
+</pre>
