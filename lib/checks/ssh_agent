@@ -61,7 +61,9 @@ ssh_agent_main () {
 			ssh_agent_permissions "${filename}"
 			if [ "`file_matches_string "${filename}" "ENCRYPTED"`" -ne 1 ]
 			then
-				stdio_message_warn "ssh_key_unencrypted" "${filename} is unencrypted"
+				stdio_message_warn "ssh_key" "${filename} is unencrypted"
+			else
+				stdio_message_log "ssh_key" "${filename} is encrypted"
 			fi
 		done	
 	done
