@@ -28,9 +28,8 @@ group_writable_init () {
 	stdio_message_log "group_writable" "Starting at: `date`"
 }
 
-group_writable_permissions () {
-	pattern="${1}"
-	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
+group_writable_main () {
+	file_show_non_symlink_perms "^.....w.... " | while read filename permissions userid groupid
 	do
 		case "${permissions}" in
 			?????w????)
@@ -42,25 +41,6 @@ group_writable_permissions () {
 				fi
 			;;
 		esac
-	done
-}
-
-group_writable_main () {
-	file_list_by_perm "^.....w.... " | while read filename
-	do
-		if [ -h "${filename}" ]
-		then
-			linkedfilename="`file_show_symlinked_filename "${filename}"`"
-
-			if [ -e "${linkedfilename}" ]
-			then
-				#stdio_message_debug "group_writable" "${filename} is a symlink to ${linkedfilename}"
-				group_writable_permissions "${linkedfilename}"
-			fi
-		elif [ -e "${filename}" ]
-		then
-			group_writable_permissions "${filename}"
-		fi
 	done
 }
 
