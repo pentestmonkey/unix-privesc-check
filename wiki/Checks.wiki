@@ -43,7 +43,7 @@ Based on ideas found at http://people.redhat.com/sgrubb/security/
 
 == binary_chroot ==
 
-Check if privileged files calling chroot() function call also chdir() function.
+Check if privileged programs (e.g. SetUID, those run as root) calling chroot() function call also chdir() function.
 
 Based on ideas found at http://people.redhat.com/sgrubb/security/
 
