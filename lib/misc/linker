@@ -36,12 +36,15 @@ linker_list_dependencies () {
 			esac
 		done | sort | uniq
 	else
-		ldd "${filename}" | while read _ _ library _
+		ldd "${filename}" | while read relativelibrary _ library _
 		do
 			case "${library}" in
 				/*)
 					printf -- "${library}\n"
 					linker_list_dependencies "${library}"
+					;;
+				not)
+					printf -- "${relativelibrary}\n"
 					;;
 			esac
 		done | sort | uniq
