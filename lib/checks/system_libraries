@@ -38,39 +38,46 @@ system_libraries_permissions () {
 	permissions="${2}"
 	userid="${3}"
 	groupid="${4}"
+	systemfilename="${5}"
 	case "${permissions}" in
 		????????w?)
-			stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			stdio_message_warn "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 		;;
 		?????w????)
 			if [ -n "`id -G -n | grep ${groupid}`" ]
 			then
-				stdio_message_warn "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				stdio_message_warn "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
-				stdio_message_log "system_libraries" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				stdio_message_log "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+			fi
+		;;
+		??w???????)
+			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+			then
+				stdio_message_log "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
 			fi
 		;;
 	esac
 }
 
 system_libraries_traverse () {
-	pattern="${1}"
-	file_parent_traverse "${pattern}" | while read filepath
+	systemfilename="${1}"
+	file_parent_traverse "${systemfilename}" | while read filepath
 	do
 		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
 		do
-			system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+			system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${systemfilename}"
 		done
 	done
 }
 
 system_libraries_wrapper () {
-	pattern="${1}"
-	file_show_non_symlink_perms " ${pattern}" | while read filename permissions userid groupid
+	systemfilename="${1}"
+	file_show_non_symlink_perms " ${systemfilename}" | while read filename permissions userid groupid
 	do
-		system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}"
+		system_libraries_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${systemfilename}"
 	done
-	system_libraries_traverse "${pattern}"
+	system_libraries_traverse "${systemfilename}"
 }
 
 system_libraries_main () {
@@ -78,7 +85,7 @@ system_libraries_main () {
 	do
 		if [ ! -e "${filename}" ]
 		then
-			stdio_message_warn "system_libraries" "${filename} does not exist"
+			stdio_message_warn "system_libraries" "${filename} does not exist, checking parent path directories' permissions"
 			system_libraries_traverse "${filename}"
 			continue
 		fi
