@@ -64,7 +64,7 @@ validate_is_filename () {
 		then
 			printf "1\n"
 		else
-			stdio_message_error "validate" "filename ${value} does not exist"
+			stdio_message_error "validate" "${value} is not a file"
 			printf "0\n"
 		fi
 	else
