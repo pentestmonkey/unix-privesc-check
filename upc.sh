@@ -24,11 +24,10 @@
 header() {
 	VERSION="2.1"
 	SVNVERSION="$Revision$" # Don't change this line.  Auto-updated.
-	SVNVNUM=`echo $SVNVERSION | sed 's/[^0-9]//g'`
-	if [ -n $SVNVNUM ]; then
-		VERSION="$VERSION-svn-$SVNVNUM"
+	SVNVNUM="`echo $SVNVERSION | sed \"s/[^0-9]//g\"`"
+	if [ -n "${SVNVNUM}" ]; then
+		VERSION="${VERSION}-svn-${SVNVNUM}"
 	fi
-
 	printf "unix-privesc-check v${VERSION} ( http://code.google.com/p/unix-privesc-check )\n\n"
 }
 
@@ -89,9 +88,7 @@ do
 	esac
 	shift
 done
-
 header
-
 if [ -n "${CHECKS}" ]
 then
 	for checkfilename in `printf "${CHECKS}" | tr -d " " | tr "," " "`

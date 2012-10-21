@@ -1,8 +1,15 @@
 2012-10-20 unix-privesc-check trunk
 
-* 
+*
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-10-21 unix-privesc-check trunk
+
+* Bug fix: Changed $VERSION to ${VERSION} etc in upc.sh
+* Removed old TODOs from lib/checks/set[ug]id
+
+-- Tim Brown <timb@nth-dimension.org.uk>
 
 2012-10-19 unix-privesc-check trunk
 
