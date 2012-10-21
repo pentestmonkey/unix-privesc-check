@@ -185,4 +185,15 @@ file_is_textual () {
 	fi
 }
 
+file_is_readable () {
+	filename="${1}"
+	if [ -e "${filename}" -a -r "${filename}" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+
+}
+
 file_check_or_generate_cache
