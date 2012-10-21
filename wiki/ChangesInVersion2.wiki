@@ -14,7 +14,7 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 
 = Comparison of Features =
 
-|| UPCv1 ID || UPCv2 Check Name || Description of Check || Comment ||
+|| *UPCv1 ID* || *UPCv2 Check Name* || *Description of Check* || *Comment* ||
 || UPC001 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init /etc and more yet ||
 || UPC002 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
 || UPC003 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set) || ||
