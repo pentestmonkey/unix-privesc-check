@@ -22,10 +22,12 @@
 # List group-writable and world-writable privileged files (their parent
 # directories too) and processes
 
-. lib/misc/stdio
 . lib/misc/file
-. lib/misc/privileged
+. lib/misc/group
 . lib/misc/linker
+. lib/misc/privileged
+. lib/misc/stdio
+. lib/misc/user
 
 binary_writable_init () {
 	stdio_message_log "binary_writable" "Starting"
@@ -43,7 +45,7 @@ binary_writable_permissions () {
 			stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 		;;
 		?????w????)
-			if [ -n "`id -G -n | grep ${groupid}`" ]
+			if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 			then
 				stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
@@ -51,9 +53,9 @@ binary_writable_permissions () {
 			fi
 		;;
 		??w???????)
-			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+			if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 			then
-				stdio_message_log "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
+				stdio_message_log "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
 		;;
 	esac
