@@ -26,7 +26,6 @@
 
 world_writable_init () {
 	stdio_message_log "world_writable" "Starting at: `date`"
-	file_check_or_generate_cache
 }
 
 world_writable_main () {

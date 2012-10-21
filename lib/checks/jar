@@ -26,7 +26,6 @@
 
 jar_init () {
 	stdio_message_log "jar" "Starting at: `date`"
-	file_check_or_generate_cache
 }
 
 jar_permissions () {
