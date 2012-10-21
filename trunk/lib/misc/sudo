@@ -54,10 +54,19 @@ sudo_list () {
 		else
 			passwd="nopasswd"
 		fi
+		# Examples of ${settings} (sudo -l relevant lines):
+		#    /usr/bin/su operator
+		#    NOPASSWD: /usr/bin/test
+		#    /sbin/, (foobar) /usr/sbin, (foobar) /usr/local/apps/check.pl
+		#    /usr/sbin/lpc, /usr/bin/lprm
+		# All of the above cases are correctly handled here
 		# TODO this does not consider the common case (i.e. in Ubuntu) where a user can run all commands and the sudo -l output is "    (root) NOPASSWD: ALL"
 		parse_extract_absolute_filepaths "${settings}" | while read filepath
 		do
 			case "${filepath}" in
+				/*/$)
+					printf -- "${privilegeduser} ${passwd} ${filepath}*\n"
+					;;
 				/*)
 					printf -- "${privilegeduser} ${passwd} ${filepath}\n"
 					;;
