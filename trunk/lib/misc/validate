@@ -55,20 +55,3 @@ validate_is_number () {
 		printf "0\n"
 	fi
 }
-
-validate_is_filename () {
-	value="${1}"
-	if [ "`validate_is_regex \"${value}\" \".*\"`" -eq 1 ]
-	then
-		if [ -f "${value}" ]
-		then
-			printf "1\n"
-		else
-			stdio_message_error "validate" "${value} is not a file"
-			printf "0\n"
-		fi
-	else
-		stdio_message_error "validate" "invalid filename: ${value}"
-		printf "0\n"
-	fi
-}
