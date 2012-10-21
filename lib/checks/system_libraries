@@ -22,9 +22,11 @@
 # List group-writable and world-writable system libraries and their
 # parent directories
 
-. lib/misc/stdio
 . lib/misc/file
+. lib/misc/group
 . lib/misc/linker
+. lib/misc/stdio
+. lib/misc/user
 
 system_libraries_init () {
 	stdio_message_log "system_libraries" "Starting at: `date`"
@@ -41,7 +43,7 @@ system_libraries_permissions () {
 			stdio_message_warn "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 			;;
 		?????w????)
-			if [ -n "`id -G -n | grep ${groupid}`" ]
+			if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 			then
 				stdio_message_warn "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
@@ -49,9 +51,9 @@ system_libraries_permissions () {
 			fi
 			;;
 		??w???????)
-			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+			if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 			then
-				stdio_message_log "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
+				stdio_message_log "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
 			;;
 	esac

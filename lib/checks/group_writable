@@ -21,8 +21,9 @@
 #
 # List group-writable files
 
-. lib/misc/stdio
 . lib/misc/file
+. lib/misc/group
+. lib/misc/stdio
 
 group_writable_init () {
 	stdio_message_log "group_writable" "Starting at: `date`"
@@ -33,7 +34,7 @@ group_writable_main () {
 	do
 		case "${permissions}" in
 			?????w????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
+				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 				then
 					stdio_message_warn "group_writable" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 				else

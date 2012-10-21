@@ -22,10 +22,12 @@
 # Check for write permissions over privileged files and processes'
 # linked libraries
 
-. lib/misc/stdio
 . lib/misc/file
-. lib/misc/privileged
+. lib/misc/group
 . lib/misc/linker
+. lib/misc/privileged
+. lib/misc/stdio
+. lib/misc/user
 
 binary_dependency_init () {
 	stdio_message_log "binary_dependency" "Starting: `date`"
@@ -56,7 +58,7 @@ binary_dependency_traverse () {
 				?????w????)
 					# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
 					#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
-					if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME what if groupid is really short, like "a"?  The grep will match too much.  Note id outputs a single line.
+					if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 					then
 						stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 					else
@@ -64,9 +66,9 @@ binary_dependency_traverse () {
 					fi
 					;;
 				??w???????)
-					if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+					if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 					then
-						stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
+						stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 					fi
 					;;
 			esac
@@ -89,7 +91,7 @@ binary_dependency_permissions () {
 			?????w????)
 				# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
 				#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
-				if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME what if groupid is really short, like "a"?  The grep will match too much.  Note id outputs a single line.
+				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 				then
 					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 				else
@@ -97,9 +99,9 @@ binary_dependency_permissions () {
 				fi
 				;;
 			??w???????)
-				if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+				if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 				then
-					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
+					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 				fi
 				;;
 		esac

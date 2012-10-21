@@ -21,8 +21,9 @@
 #
 # List unencrypted SSH client private keys
 
-. lib/misc/stdio
 . lib/misc/file
+. lib/misc/group
+. lib/misc/stdio
 
 ssh_key_init () {
 	stdio_message_log "ssh_key" "Starting at: `date`"
@@ -37,7 +38,7 @@ ssh_key_permissions () {
 				stdio_message_warn "ssh_key" "key ${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
 				;;
 			????r?????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
+				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 				then
 					stdio_message_warn "ssh_key" "key ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
 				else

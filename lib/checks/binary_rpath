@@ -23,10 +23,12 @@
 # directories too) and processes that trust other filepaths (with RPATH
 # variable)
 
-. lib/misc/stdio
+. lib/misc/binary
 . lib/misc/file
+. lib/misc/group
 . lib/misc/privileged
-. lib/misc/linker
+. lib/misc/stdio
+. lib/misc/user
 
 binary_rpath_init () {
 	stdio_message_log "binary_rpath" "Starting at: `date`"
@@ -44,7 +46,7 @@ binary_rpath_permissions () {
 			stdio_message_warn "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 			;;
 		?????w????)
-			if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME grep could match too much
+			if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 			then
 				stdio_message_warn "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
@@ -52,9 +54,9 @@ binary_rpath_permissions () {
 			fi
 			;;
 		??w???????)
-			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
+			if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 			then
-				stdio_message_log "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
+				stdio_message_log "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
 			;;
 	esac
