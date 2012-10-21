@@ -57,3 +57,5 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC041 || TODO || SSP not enabled || ||
 || UPC042 || TODO || SSP not enabled || ||
 || UPC043 || TODO || fscaps shell script, may be vulnerable to race attacks || ||
+
+TODO: Also list in the table above any new features in UPCv2 which are absent from UPCv1.
