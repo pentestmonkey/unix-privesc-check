@@ -23,6 +23,7 @@
 
 . lib/misc/file
 . lib/misc/parse
+. lib/misc/validate
 
 sudo_check_sudoers () {
 	if [ "`file_is_readable_file \"/etc/sudoers\"`" -eq 1 ]
@@ -35,6 +36,7 @@ sudo_check_sudoers () {
 
 sudo_is_password_required () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	if [ -z "`sudo -l | egrep -- \"${pattern}\" | egrep \"NOPASSWD\"`" ]
 	then
 		printf -- "1\n"
