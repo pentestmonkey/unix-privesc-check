@@ -37,9 +37,18 @@ user_is_trusted () {
 }
 
 user_is_root () {
+	if [ "`user_show_user_id`" = "0" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
+
+user_is_user_root () {
 	username="${1}"
 	[ "`validate_is_string \"${username}\"`" ] || false
-	if [ "`user_show_user_id`" = "0" ]
+	if [ "${username}" = "root" ]
 	then
 		printf -- "1\n"
 	else
