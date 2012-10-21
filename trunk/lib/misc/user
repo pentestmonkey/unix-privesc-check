@@ -21,10 +21,10 @@
 #
 # Supports: Linux
 
-if [ -z "${groupincluded}" ]
+if [ -z "${userincluded}" ]
 then
 
-groupincluded=1
+userincluded=1
 
 . lib/misc/validate
 . lib/misc/passwd
