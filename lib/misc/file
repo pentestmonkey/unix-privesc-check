@@ -52,7 +52,7 @@ file_check_or_generate_cache () {
 file_list_by_perm () {
 	# patterns must always take the form "^.......... " i.e. regular expressions. for example "^...s...... |^....S...... " will select setuid binaries 
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		printf -- "${filename}\n"
@@ -62,7 +62,7 @@ file_list_by_perm () {
 file_list_by_filename () {
 	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	# this will only work for files, not dirs - mostly what we want I think
 	egrep -- "^-.*${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
@@ -74,7 +74,7 @@ file_list_by_filename () {
 file_show_perms () {
 	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
@@ -85,7 +85,7 @@ file_show_perms () {
 file_show_non_symlink_perms () {
 	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		case "${permissions}" in
@@ -101,7 +101,7 @@ file_show_non_symlink_perms () {
 
 file_show_real_filename () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
 	case "${pattern}" in
 		/*)
@@ -121,7 +121,7 @@ file_show_real_filename () {
 
 file_show_symlinked_filename () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	echo "file_show_symlinked_filename called for ${pattern}" 1>&2
 	# leave grep here otherwise libraries with ++ in the name will not be grepped properly (i.e. /usr/lib/i386-linux-gnu/libstdc++.so.6.0.16)
 	grep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
@@ -157,7 +157,7 @@ file_matches_string () {
 	filename="${1}"
 	pattern="${2}"
 	file_is_regular_file "${filename}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`egrep \"${pattern}\" \"${filename}\"`" ]
 	then
 		printf -- "1\n"

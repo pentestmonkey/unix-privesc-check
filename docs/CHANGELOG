@@ -14,6 +14,8 @@
 * Bug fix: validation_matches_regex test was wrong, should be -n
   not -r in lib/misc/validation
 * Bug fix: Added inclusion checks to prevent multiple inclusions
+* Bug fix: Changed lib/misc/* to catch data returned by
+  validate_is_*
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 

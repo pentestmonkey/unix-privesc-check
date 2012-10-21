@@ -30,7 +30,7 @@ processincluded=1
 
 process_list () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
 		printf -- "${processid}\n"
@@ -39,7 +39,7 @@ process_list () {
 
 process_show_userid () {
 	pattern="${1}"
-	validate_is_number "${pattern}"
+	[ "`validate_is_number \"${pattern}\"`" ] || false
 	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
 		if [ "${processid}" -eq "${pattern}" ]
@@ -51,7 +51,7 @@ process_show_userid () {
 
 process_show_parentid () {
 	pattern="${1}"
-	validate_is_number "${pattern}"
+	[ "`validate_is_number \"${pattern}\"`" ] || false
 	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
 		if [ "${processid}" -eq "${pattern}" ]
@@ -63,7 +63,7 @@ process_show_parentid () {
 
 process_show_command () {
 	pattern="${1}"
-	validate_is_number "${pattern}"
+	[ "`validate_is_number \"${pattern}\"`" ] || false
 	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
 	do
 		if [ "${processid}" -eq "${pattern}" ]

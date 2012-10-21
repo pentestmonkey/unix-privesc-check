@@ -37,7 +37,7 @@ inetd_list () {
 
 inetd_show_command () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
 		if [ "${portnumber}-${protocol}" = "${pattern}" ]
@@ -49,7 +49,7 @@ inetd_show_command () {
 
 inetd_show_userid () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
 		if [ "${portnumber}-${protocol}" = "${pattern}" ]
@@ -61,7 +61,7 @@ inetd_show_userid () {
 
 inetd_show_arguments () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	egrep -v "^#|^$" "/etc/inetd.conf" | while read portnumber sockettype protocol flags userid command arguments argumentsarguments
 	do
 		if [ "${portnumber}-${protocol}" = "${pattern}" ]
