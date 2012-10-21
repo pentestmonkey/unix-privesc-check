@@ -19,6 +19,11 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
+if [ -z "${privilegedincluded}" ]
+then
+
+privilegedincluded=1
+
 . lib/misc/stdio
 . lib/misc/file
 . lib/misc/inetd
@@ -103,3 +108,5 @@ privileged_list () {
 # TODO privileged_list will ONLY work for files.  That's probably what we want, but might want to look at dirs later.
 
 privileged_check_or_generate_cache
+
+fi

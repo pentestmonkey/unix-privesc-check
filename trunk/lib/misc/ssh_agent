@@ -21,6 +21,11 @@
 #
 # Supports: Linux
 
+if [ -z "${ssh_agentincluded}" ]
+then
+
+ssh_agentincluded=1
+
 . lib/misc/validate
 
 ssh_agent_list () {
@@ -45,3 +50,5 @@ ssh_agent_list () {
 		unset SSH_AUTH_SOCK
 	done
 }
+
+fi
