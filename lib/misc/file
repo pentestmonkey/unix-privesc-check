@@ -116,7 +116,12 @@ file_show_symlinked_filename () {
 	do
 		case "${linkedfilename}" in
 			/*)
-				printf -- "${linkedfilename}\n"
+				if [ -h "${linkedfilename}" ]
+				then
+					file_show_symlinked_filename "${linkedfilename}"
+				else
+					printf -- "${linkedfilename}\n"
+				fi
 				;;
 			*)
 				if [ -n "${linkedfilename}" ]
