@@ -60,9 +60,12 @@ privileged_check_or_generate_cache () {
 				printf -- "inetd-argument ${realfilename} ${userid}\n"
 			done
 		done >>"${privilegedcachefilename}"
-		sudo_list | while read privilegeduser passwd command
+		sudo_list | while read privilegeduser passwd privilegedfilename
 		do
-			printf -- "sudo-${passwd} ${command} ${privilegeduser}\n"
+			file_show_real_filename "${privilegedfilename}" | while read realfilename
+			do
+				printf -- "sudo-${passwd} ${realfilename} ${privilegeduser}\n"
+			done
 		done >>"${privilegedcachefilename}"
 		process_list ".*" | while read processid
 		do
