@@ -31,7 +31,7 @@ binaryincluded=1
 
 binary_list_rpath () {
 	filename="${1}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	if [ "`uname`" = "AIX" ]
 	then
 		dumpflag=0
@@ -91,7 +91,7 @@ binary_list_rpath () {
 
 binary_pie() {
 	filename="${1}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	if [ "`uname`" = "Linux" ]
 	then
 		if [ -n "`objdump -x "${filename}" | head -5 | grep "DYNAMIC"`" ]
@@ -108,7 +108,7 @@ binary_pie() {
 binary_matches_string () {
 	filename="${1}"
 	pattern="${2}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`strings "${filename}" | egrep "${pattern}"`" ]
 	then
@@ -121,7 +121,7 @@ binary_matches_string () {
 binary_matches_function () {
 	filename="${1}"
 	pattern="${2}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`objdump -T "${filename}" | egrep "${pattern}"`" ]
 	then
@@ -134,7 +134,7 @@ binary_matches_function () {
 binary_banned_api () {
 	filename="${1}"
 	pattern="${2}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	printf "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
 }
