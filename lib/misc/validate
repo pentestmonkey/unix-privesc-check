@@ -31,11 +31,11 @@ validateincluded=1
 validate_matches_regex () {
 	value="${1}"
 	regex="${2}"
-	if [ -n "`printf \"${value}\" | egrep \"$regex\"`" ]
+	if [ -n "`printf -- \"${value}\" | egrep -- \"$regex\"`" ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -43,10 +43,10 @@ validate_is_string () {
 	value="${1}"
 	if [ "`validate_matches_regex \"${value}\" \".*\"`" -eq 1 ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
 		stdio_message_error "validate" "invalid string"
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -54,10 +54,10 @@ validate_is_number () {
 	value="${1}"
 	if [ "`validate_matches_regex \"${value}\" \"^[0-9]+$\"`" -eq 1 ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
 		stdio_message_error "validate" "invalid number: ${value}"
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -65,10 +65,10 @@ validate_is_boolean () {
 	value="${1}"
 	if [ "`validate_is_regex \"${value}\" \"^[0-1]$\"`" -eq 1 ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
 		stdio_message_error "validate" "invalid boolean: ${value}"
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
