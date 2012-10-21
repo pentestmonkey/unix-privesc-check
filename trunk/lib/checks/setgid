@@ -34,7 +34,6 @@ setgid_main () {
 	do
 		file_show_non_symlink_perms " ${filename}$" | while read filename permissions userid groupid
 		do
-			# TODO we should validate these
 			stdio_message_warn "setgid" "${filename} is setgid (${userid}, ${groupid}): ${permissions}"
 		done
 	done
