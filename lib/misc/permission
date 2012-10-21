@@ -96,7 +96,7 @@ permission_is_group_executable () {
 
 permission_is_world_readable () {
 	permissions="${1}"
-#	[ "`validate_is_string \"${permissions}\"`" ] || false
+	[ "`validate_is_string \"${permissions}\"`" ] || false
 	if [ -n "`printf -- \"${permissions}\" | egrep -- \"^.......r..$\"`" ]
 	then
 		printf -- "1\n"
