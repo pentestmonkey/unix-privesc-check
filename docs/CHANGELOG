@@ -18,6 +18,7 @@
   validate_is_*
 * Removed unnecessary calls to file_check_or_generate_cache in
   lib/misc/checks/*
+* Updated symlinks for different types of scan
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
