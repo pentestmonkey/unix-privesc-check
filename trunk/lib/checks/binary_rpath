@@ -42,7 +42,7 @@ binary_rpath_permissions () {
 	case "${permissions}" in
 		????????w?)
 			stdio_message_warn "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-		;;
+			;;
 		?????w????)
 			if [ -n "`id -G -n | grep ${groupid}`" ] # FIXME grep could match too much
 			then
@@ -50,13 +50,13 @@ binary_rpath_permissions () {
 			else
 				stdio_message_log "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 			fi
-		;;
+			;;
 		??w???????)
 			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
 			then
 				stdio_message_log "binary_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
 			fi
-		;;
+			;;
 	esac
 }
 

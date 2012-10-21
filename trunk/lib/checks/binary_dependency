@@ -52,7 +52,7 @@ binary_dependency_traverse () {
 			case "${permissions}" in
 				????????w?)
 					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-				;;
+					;;
 				?????w????)
 					# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
 					#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
@@ -62,13 +62,13 @@ binary_dependency_traverse () {
 					else
 						stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 					fi
-				;;
+					;;
 				??w???????)
 					if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
 					then
 						stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
 					fi
-				;;
+					;;
 			esac
 		done
 	done
@@ -85,7 +85,7 @@ binary_dependency_permissions () {
 		case "${permissions}" in
 			????????w?)
 				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-			;;
+				;;
 			?????w????)
 				# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
 				#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
@@ -95,13 +95,13 @@ binary_dependency_permissions () {
 				else
 					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 				fi
-			;;
+				;;
 			??w???????)
 				if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
 				then
 					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
 				fi
-			;;
+				;;
 		esac
 	done
 }

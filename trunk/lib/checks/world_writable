@@ -34,7 +34,7 @@ world_writable_main () {
 		case "${permissions}" in
 			????????w?)
 				stdio_message_warn "world_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-			;;
+				;;
 		esac
 	done
 }

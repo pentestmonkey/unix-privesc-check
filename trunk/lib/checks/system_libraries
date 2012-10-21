@@ -39,7 +39,7 @@ system_libraries_permissions () {
 	case "${permissions}" in
 		????????w?)
 			stdio_message_warn "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
-		;;
+			;;
 		?????w????)
 			if [ -n "`id -G -n | grep ${groupid}`" ]
 			then
@@ -47,13 +47,13 @@ system_libraries_permissions () {
 			else
 				stdio_message_log "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 			fi
-		;;
+			;;
 		??w???????)
 			if [ -n "`printf -- \"${userid}\" | grep -v \"^root$\"`" ]
 			then
 				stdio_message_log "system_libraries" "(${systemfilename}) ${filename} is owned by user ${userid} (group ${groupid}) (non-root user) (${permissions})"
 			fi
-		;;
+			;;
 	esac
 }
 

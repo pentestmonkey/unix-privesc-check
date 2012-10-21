@@ -38,7 +38,7 @@ binary_tmp_main () {
 		then
 			if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -eq 1 ]
 			then
-				# Note XXX is part of template filename that is replaced by mkstemp, etc.
+				# XXX is part of template filename that is replaced by mkstemp, etc.
 				# Without an XXX, we assume the filename is likely to be predictable
 				if [ "`binary_matches_string "${filename}" "XXX"`" -ne 1 ]
 				then
