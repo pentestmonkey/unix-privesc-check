@@ -25,7 +25,7 @@
 
 linker_list_dependencies () {
 	filename="${1}"
-	validate_is_filename "${filename}"
+	file_is_regular_file "${filename}"
 	if [ "`uname`" = "AIX" ]
 	then
 		ldd "${filename}" | grep -v "needs:" | while read library

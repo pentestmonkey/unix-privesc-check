@@ -25,7 +25,7 @@
 . lib/misc/parse
 
 sudo_check_sudoers () {
-	if [ "`file_is_readable \"/etc/sudoers\"`" -eq 1 ]
+	if [ "`file_is_readable_file \"/etc/sudoers\"`" -eq 1 ]
 	then
 		printf -- "1\n"
 	else

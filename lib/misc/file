@@ -152,7 +152,7 @@ file_show_symlinked_filename () {
 file_matches_string () {
 	filename="${1}"
 	pattern="${2}"
-	validate_is_filename "${filename}"
+	file_is_regular_file "${filename}"
 	validate_is_string "${pattern}"
 	if [ -n "`egrep \"${pattern}\" \"${filename}\"`" ]
 	then
@@ -164,7 +164,7 @@ file_matches_string () {
 
 file_parent_traverse () {
 	filename="${1}"
-	validate_is_filename "${filename}"
+	file_is_regular_file "${filename}"
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
 	do
@@ -176,7 +176,7 @@ file_parent_traverse () {
 
 file_is_textual () {
 	filename="${1}"
-	validate_is_filename "${filename}"
+	file_is_regular_file "${filename}"
 	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
 	then
 		printf -- "1\n"
@@ -185,7 +185,29 @@ file_is_textual () {
 	fi
 }
 
-file_is_readable () {
+file_exists_file () {
+	filename="${1}"
+	if [ -e "${filename}" ]
+	then
+		printf -- "1\n"
+	else
+		stdio_message_error "file" "${filename} does not exist"
+		printf -- "0\n"
+	fi
+}
+
+file_is_regular_file () {
+	filename="${1}"
+	if [ -f "${filename}" ]
+	then
+		printf -- "1\n"
+	else
+		stdio_message_error "file" "${filename} is not a regular file"
+		printf -- "0\n"
+	fi
+}
+
+file_is_readable_file () {
 	filename="${1}"
 	if [ -e "${filename}" -a -r "${filename}" ]
 	then
@@ -193,7 +215,6 @@ file_is_readable () {
 	else
 		printf -- "0\n"
 	fi
-
 }
 
 file_check_or_generate_cache
