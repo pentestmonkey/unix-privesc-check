@@ -1,4 +1,4 @@
-2012-10-20 unix-privesc-check trunk
+2012-10-21 unix-privesc-check trunk
 
 *
 
@@ -8,6 +8,8 @@
 
 * Bug fix: Changed $VERSION to ${VERSION} etc in upc.sh
 * Removed old TODOs from lib/checks/set[ug]id
+* Bug fix: Removed symlink exclusion in lib/misc/file cache
+  generation
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
@@ -28,7 +30,7 @@
 * Bug fix: No longer considers "enabled" as a check
 * Changed lib/misc/privileged to split out cache generation so that it
   happens on inclusion
-* Bug fix: Removed unitentional trailing space from file cache
+* Bug fix: Removed unintentional trailing space from file cache
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
