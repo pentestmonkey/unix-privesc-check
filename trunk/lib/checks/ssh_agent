@@ -25,47 +25,27 @@
 . lib/misc/process
 . lib/misc/ssh_agent
 . lib/misc/file
+. lib/checks/ssh_key
 
 ssh_agent_init () {
 	stdio_message_log "ssh_agent" "Starting at: `date`"
 }
 
-ssh_agent_permissions () {
-	filename="${1}"
-	file_show_non_symlink_perms " ${filename}$" | while read filename permissions userid groupid
-	do
-		case "${permissions}" in
-			???????r??)
-				stdio_message_warn "ssh_agent" "key ${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
-			;;
-			????r?????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
-				then
-					stdio_message_warn "ssh_agent" "key ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
-				else
-					stdio_message_log "ssh_agent" "key ${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
-				fi
-			;;
-		esac
-	done
-
-}
-
 ssh_agent_main () {
-	process_list "ssh-agent" | while read processid 
+	process_list "ssh-agent" | while read processid
 	do
 		stdio_message_log "ssh_agent" "ssh-agent is running as `process_show_userid ${processid}` (`process_show_command ${processid}`)"
 		ssh_agent_list `process_show_parentid ${processid}` ${processid} | while read filename
 		do
 			stdio_message_debug "ssh_agent" "ssh-agent uses key from ${filename}"
-			ssh_agent_permissions "${filename}"
+			ssh_key_permissions "${filename}"
 			if [ "`file_matches_string "${filename}" "ENCRYPTED"`" -ne 1 ]
 			then
 				stdio_message_warn "ssh_key" "${filename} is unencrypted"
 			else
 				stdio_message_log "ssh_key" "${filename} is encrypted"
 			fi
-		done	
+		done
 	done
 }
 
