@@ -21,11 +21,9 @@
 #
 # Supports: AIX, Solaris, Linux
 
-. lib/misc/stdio
-
 parse_extract_absolute_filepaths () {
-	text="${1}"
-	echo "${text}" | egrep -o "/[a-z|A-Z|0-9|/|-|_]*" | while read filepath
+	pattern="${1}"
+	printf -- "${pattern}" | egrep -o "/[a-z|A-Z|0-9|/|-|_]*" | while read filepath
 	do
 		printf -- "${filepath}\n"
 	done
