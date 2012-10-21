@@ -28,7 +28,6 @@
 
 system_libraries_init () {
 	stdio_message_log "system_libraries" "Starting at: `date`"
-	file_check_or_generate_cache
 }
 
 system_libraries_permissions () {

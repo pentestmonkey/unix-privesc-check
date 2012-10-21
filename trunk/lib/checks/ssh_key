@@ -26,7 +26,6 @@
 
 ssh_key_init () {
 	stdio_message_log "ssh_key" "Starting at: `date`"
-	file_check_or_generate_cache
 }
 
 ssh_key_permissions () {

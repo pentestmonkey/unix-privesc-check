@@ -30,7 +30,6 @@
 
 binary_rpath_init () {
 	stdio_message_log "binary_rpath" "Starting at: `date`"
-	file_check_or_generate_cache
 }
 
 binary_rpath_permissions () {

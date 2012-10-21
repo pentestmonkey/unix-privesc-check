@@ -26,7 +26,6 @@
 
 setgid_init () {
 	stdio_message_log "setgid" "Starting: `date`"
-	file_check_or_generate_cache
 }
 
 setgid_main () {
