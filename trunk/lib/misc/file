@@ -156,7 +156,7 @@ file_show_symlinked_filename () {
 file_matches_string () {
 	filename="${1}"
 	pattern="${2}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`egrep \"${pattern}\" \"${filename}\"`" ]
 	then
@@ -168,7 +168,7 @@ file_matches_string () {
 
 file_parent_traverse () {
 	filename="${1}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
 	do
@@ -180,7 +180,7 @@ file_parent_traverse () {
 
 file_is_textual () {
 	filename="${1}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
 	then
 		printf -- "1\n"

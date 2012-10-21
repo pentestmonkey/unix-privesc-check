@@ -30,7 +30,7 @@ linkerincluded=1
 
 linker_list_dependencies () {
 	filename="${1}"
-	file_is_regular_file "${filename}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	if [ "`uname`" = "AIX" ]
 	then
 		ldd "${filename}" | grep -v "needs:" | while read library
