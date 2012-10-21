@@ -31,32 +31,32 @@ stdioincluded=1
 stdio_message_log () {
 	check="${1}"
 	message="${2}"
-	validate_is_string "${check}"
-	validate_is_string "${message}"
+	[ "`validate_is_string \"${check}\"`" ] || false
+	[ "`validate_is_string \"${message}\"`" ] || false
 	stdio_format_message "I" "${check}" "${message}"
 }
 
 stdio_message_warn () {
 	check="${1}"
 	message="${2}"
-	validate_is_string "${check}"
-	validate_is_string "${message}"
+	[ "`validate_is_string \"${check}\"`" ] || false
+	[ "`validate_is_string \"${message}\"`" ] || false
 	stdio_format_message "W" "${check}" "${message}"
 }
 
 stdio_message_debug () {
 	check="${1}"
 	message="${2}"
-	validate_is_string "${check}"
-	validate_is_string "${message}"
+	[ "`validate_is_string \"${check}\"`" ] || false
+	[ "`validate_is_string \"${message}\"`" ] || false
 	stdio_format_message "D" "${check}" "${message}" >&2
 }
 
 stdio_message_error () {
 	check="${1}"
 	message="${2}"
-	validate_is_string "${check}"
-	validate_is_string "${message}"
+	[ "`validate_is_string \"${check}\"`" ] || false
+	[ "`validate_is_string \"${message}\"`" ] || false
 	stdio_format_message "E" "${check}" "${message}" >&2
 }
 
@@ -64,9 +64,9 @@ stdio_format_message () {
 	type="${1}"
 	check="${2}"
 	message="${3}"
-	validate_is_string "${type}"
-	validate_is_string "${check}"
-	validate_is_string "${message}"
+	[ "`validate_is_string \"${type}\"`" ] || false
+	[ "`validate_is_string \"${check}\"`" ] || false
+	[ "`validate_is_string \"${message}\"`" ] || false
 	printf "${type}: [${check}] ${message}\n"
 }
 

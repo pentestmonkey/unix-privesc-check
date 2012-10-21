@@ -30,7 +30,7 @@ ssh_agentincluded=1
 
 ssh_agent_list () {
 	parentprocessid="${1}"
-	validate_is_number "${parentprocessid}"
+	[ "```validate_is_number \"${parentprocessid}\"`" ] || false
 	# when ssh-agent parent process id is 10571, the temporary agent file is
 	# /tmp/ssh-???????10570/agent.10570 (not 10571) - tested on Ubuntu 12.04
 	processid="`expr ${2} - 1`"

@@ -41,7 +41,7 @@ sudo_check_sudoers () {
 
 sudo_is_password_required () {
 	pattern="${1}"
-	validate_is_string "${pattern}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -z "`sudo -l | egrep -- \"${pattern}\" | egrep \"NOPASSWD\"`" ]
 	then
 		printf -- "1\n"
