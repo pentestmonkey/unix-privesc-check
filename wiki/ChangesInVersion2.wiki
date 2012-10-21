@@ -15,13 +15,13 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 = Comparison of Features =
 
 || UPCv1 ID || UPCv2 Check Name || Description of Check || Comment ||
-|| UPC001 || TODO || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || ||
-|| UPC002 || TODO || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || ||
+|| UPC001 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init /etc and more yet ||
+|| UPC002 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
 || UPC003 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set) || ||
-|| UPC004 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE || ||
-|| UPC005 || TODO || $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE || ||
-|| UPC006 || TODO || $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE || ||
-|| UPC007 || TODO || $O_MESSAGE_STACK World read is set for $O_FILE || ||
+|| UPC004 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK World write is set for $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
+|| UPC005 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
+|| UPC006 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
+|| UPC007 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK World read is set for $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
 || UPC008 || passwd_hashes || /etc/passwd allows external authentcation: || ||
 || UPC009 || TODO || NIS is used for authentication on this system || ||
 || UPC010 || TODO || LDAP is used for authentication on this system || ||
