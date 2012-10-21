@@ -21,8 +21,11 @@
 #
 # Supports: Linux, AIX
 
+. lib/misc/validate
+
 linker_list_dependencies () {
 	filename="${1}"
+	validate_is_filename "${filename}"
 	if [ "`uname`" = "AIX" ]
 	then
 		ldd "${filename}" | grep -v "needs:" | while read library
