@@ -16,6 +16,8 @@
 * Bug fix: Added inclusion checks to prevent multiple inclusions
 * Bug fix: Changed lib/misc/* to catch data returned by
   validate_is_*
+* Removed unnecessary calls to file_check_or_generate_cache in
+  lib/misc/checks/*
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
