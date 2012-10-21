@@ -29,7 +29,7 @@ passwd_hashes_init () {
 }
 
 passwd_hashes_main () {
-	passwd_list ".*" | while read username
+	passwd_list | while read username
 	do
 		if [ "${username}" = "+" ]
 		then
