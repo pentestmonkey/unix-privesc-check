@@ -37,6 +37,7 @@ binary_dependency_traverse () {
 	filetype="${3}"
 	library="${4}"
 	pathtype="${5}"
+	echo "binary_dependency_traverse called for ${library}"
 	file_parent_traverse "${pattern}" | while read filename
 	do
 		# /etc/ld.so.conf.d/ files can contain files which we are not interested here, only directories
@@ -77,9 +78,10 @@ binary_dependency_permissions () {
 	library="${1}"
 	privfilename="${2}"
 	filetype="${3}"
+	echo "binary_dependency_permissions called for ${library}"
 	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
-		#echo "Checking permissions for filename ${filename} ($permissions)"
+		echo "Checking permissions for filename ${filename} ($permissions)"
 		case "${permissions}" in
 			????????w?)
 				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
@@ -107,13 +109,14 @@ binary_dependency_permissions () {
 binary_dependency_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
-		#echo "Processing ${filetype} ${filename}"
+		echo "Processing ${filetype} ${filename}"
 		linker_list_dependencies "${filename}" | while read library
 		do
-			#echo "Processing library ${library}"
+			echo "Processing library ${library}"
 			# when the library needed by the program does not exist, ldd returns "not found" - i.e. "	libname.so.2 => not found", however the following if condition is cautious and checks both if the file exist and if the ldd output returned not found (hence the linker library returned the library relative path (relativelibrary)
 			if [ ! -e "${library}" -o -n "`printf -- \"${library}\" | grep -v \"^/\"`" ]
 			then
+				#echo "-e ${library}"
 				case "${library}" in
 					# if the library is a absolute file path, we check for write permissions on its parent directories
 					/*)
@@ -128,18 +131,26 @@ binary_dependency_main () {
 						;;
 				esac
 				continue
+			#else
+				#echo "Not -e ${library}"
 			fi
+
 
 			if [ -h "${library}" ]
 			then
 				linkedlibrary="`file_show_symlinked_filename "${library}"`"
+				echo "linkedlibrary=${linkedlibrary}"
 
 				if [ -n "${linkedlibrary}" ]
 				then
 					#stdio_message_debug "binary_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
+					#echo "-h ${library} and -n ${linkedlibrary}"
 					binary_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
+				else
+					echo "-h ${library} but not -n ${linkedlibrary}"
 				fi
 			else
+				#echo "Not -h ${library}"
 				binary_dependency_permissions "${library}" "${filename}" "${filetype}"
 			fi
 		done

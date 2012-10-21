@@ -111,9 +111,16 @@ file_show_real_filename () {
 
 file_show_symlinked_filename () {
 	pattern="${1}"
+	echo "file_show_symlinked_filename called for ${pattern}" 1>&2
 	# leave grep here otherwise libraries with ++ in the name will not be grepped properly (i.e. /usr/lib/i386-linux-gnu/libstdc++.so.6.0.16)
 	grep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
+	# FIXME The grep above is not always effective.  Example: if file_show_symlinked_filename is passed "/lib64/ld-linux-x86-64.so.2"
+	#       "/lib64/ld-linux-x86-64.so.2" does not appear in files_cache.temp
+	#       Why? Because /lib64 is a symlink to /lib.  The "find" therefore never recurses through /lib64.
+	#       I have enabled lots of debug statements.  To recreate the bug, run ./upc.sh --check binary_dependency
+	#       and look for "linkedlibrary=" in the output - i.e. the linkedlibrary is empty.
 	do
+		# echo "file_show_symlinked_filename in loop with ${linkedfilename}" 1>&2
 		case "${linkedfilename}" in
 			/*)
 				if [ -h "${linkedfilename}" ]
@@ -121,12 +128,14 @@ file_show_symlinked_filename () {
 					file_show_symlinked_filename "${linkedfilename}"
 				else
 					printf -- "${linkedfilename}\n"
+					#printf -- "file_show_symlinked_filename returning ${linkedfilename}\n" 1>&2
 				fi
 				;;
 			*)
 				if [ -n "${linkedfilename}" ]
 				then
 					printf -- "`dirname \"${filename}\"`/${linkedfilename}\n"
+					#printf -- "file_show_symlinked_filename returning `dirname \"${filename}\"`/${linkedfilename}\n" 1>&2
 				fi
 				;;
 		esac
