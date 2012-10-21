@@ -67,7 +67,7 @@
 
 * Added check lib/checks/binary_writable
 * Bug fix: Proper use of dirname in file_show_symlinked_filename function
-* Bug fix: Replaced stdin redirection with cat for inetd configuration
+* Bug fix: Replaced STDIN redirection with cat for inetd configuration
   files parsing in lib/misc/linker
 * Bug fix: Avoid escaping a path with an asterisk in lib/misc/ssh_agent
 * Refactored check lib/checks/system_libraries code
