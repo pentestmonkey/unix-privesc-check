@@ -21,6 +21,11 @@
 #
 # Supports: Linux, AIX
 
+if [ -z "${linkerincluded}" ]
+then
+
+linkerincluded=1
+
 . lib/misc/validate
 
 linker_list_dependencies () {
@@ -99,3 +104,5 @@ linker_list_system_filenames () {
 		fi
 	fi
 }
+
+fi

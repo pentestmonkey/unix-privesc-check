@@ -21,12 +21,17 @@
 #
 # Supports: Linux, AIX, Solaris, HP-UX
 
+if [ -z "${validateincluded}" ]
+then
+
+validateincluded=1
+
 . lib/misc/stdio
 
-validate_is_regex () {
+validate_matches_regex () {
 	value="${1}"
 	regex="${2}"
-	if [ -r "`printf \"${value}\" | egrep \"$regex\"`" ]
+	if [ -n "`printf \"${value}\" | egrep \"$regex\"`" ]
 	then
 		printf "1\n"
 	else
@@ -36,7 +41,7 @@ validate_is_regex () {
 
 validate_is_string () {
 	value="${1}"
-	if [ "`validate_is_regex \"${value}\" \".*\"`" -eq 1 ]
+	if [ "`validate_matches_regex \"${value}\" \".*\"`" -eq 1 ]
 	then
 		printf "1\n"
 	else
@@ -47,7 +52,7 @@ validate_is_string () {
 
 validate_is_number () {
 	value="${1}"
-	if [ "`validate_is_regex \"${value}\" \"^[0-9]+$\"`" -eq 1 ]
+	if [ "`validate_matches_regex \"${value}\" \"^[0-9]+$\"`" -eq 1 ]
 	then
 		printf "1\n"
 	else
@@ -66,3 +71,5 @@ validate_is_boolean () {
 		printf "0\n"
 	fi
 }
+
+fi

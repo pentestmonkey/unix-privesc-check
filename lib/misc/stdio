@@ -21,6 +21,11 @@
 #
 # Supports: Linux, AIX, Solaris, HP-UX
 
+if [ -z "${stdioincluded}" ]
+then
+
+stdioincluded=1
+
 . lib/misc/validate
 
 stdio_message_log () {
@@ -64,3 +69,5 @@ stdio_format_message () {
 	validate_is_string "${message}"
 	printf "${type}: [${check}] ${message}\n"
 }
+
+fi

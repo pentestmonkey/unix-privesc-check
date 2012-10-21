@@ -21,6 +21,11 @@
 #
 # Supports: Linux
 
+if [ -z "${inetdincluded}" ]
+then
+
+inetdincluded=1
+
 . lib/misc/validate
 
 inetd_list () {
@@ -65,3 +70,5 @@ inetd_show_arguments () {
 		fi
 	done
 }
+
+fi

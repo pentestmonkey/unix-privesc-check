@@ -21,11 +21,15 @@
 #
 # Supports: AIX, Solaris, Linux
 
-. lib/misc/stdio
-. lib/misc/validate
+if [ -z "${fileincluded}" ]
+then
 
+fileincluded=1
 filecachefilename="files_cache.temp"
 filecacherootpath="/"
+
+. lib/misc/stdio
+. lib/misc/validate
 
 file_check_or_generate_cache () {
 	if [ ! -f "${filecachefilename}" ]
@@ -219,3 +223,5 @@ file_is_readable_file () {
 }
 
 file_check_or_generate_cache
+
+fi

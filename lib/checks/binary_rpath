@@ -24,9 +24,9 @@
 # variable)
 
 . lib/misc/stdio
-. lib/misc/privileged
 . lib/misc/file
-. lib/misc/binary
+. lib/misc/privileged
+. lib/misc/linker
 
 binary_rpath_init () {
 	stdio_message_log "binary_rpath" "Starting at: `date`"

@@ -25,8 +25,6 @@
 . lib/misc/stdio
 . lib/misc/file
 . lib/misc/linker
-. lib/misc/inetd
-. lib/misc/process
 
 system_libraries_init () {
 	stdio_message_log "system_libraries" "Starting at: `date`"

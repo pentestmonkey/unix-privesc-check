@@ -21,6 +21,11 @@
 #
 # Supports: Linux
 
+if [ -z "${sudoincluded}" ]
+then
+
+sudoincluded=1
+
 . lib/misc/file
 . lib/misc/parse
 . lib/misc/validate
@@ -74,3 +79,5 @@ sudo_list () {
 		done
 	done
 }
+
+fi

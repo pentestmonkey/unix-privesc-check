@@ -21,6 +21,11 @@
 #
 # Supports: Linux, AIX, Solaris
 
+if [ -z "${binaryincluded}" ]
+then
+
+binaryincluded=1
+
 . lib/misc/dependencies
 . lib/misc/validate
 
@@ -133,3 +138,5 @@ binary_banned_api () {
 	validate_is_string "${pattern}"
 	printf "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
 }
+
+fi

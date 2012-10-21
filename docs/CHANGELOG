@@ -9,6 +9,11 @@
 * Added lib/misc/validation and modified lib/misc/* to use it.
   The aim is to sanity check that libraries are being called
   correctly.  We can improve this over time
+* Bug fix: Renamed validation_is_regex to validation_matches_regex
+  in lib/misc/validation
+* Bug fix: validation_matches_regex test was wrong, should be -n
+  not -r in lib/misc/validation
+* Bug fix: Added inclusion checks to prevent multiple inclusions
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 

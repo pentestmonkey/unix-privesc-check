@@ -21,6 +21,11 @@
 #
 # Supports: AIX, Solaris, Linux
 
+if [ -z "${parseincluded}" ]
+then
+
+parseincluded=1
+
 . lib/misc/validate
 
 parse_extract_absolute_filepaths () {
@@ -31,3 +36,5 @@ parse_extract_absolute_filepaths () {
 		printf -- "${filepath}\n"
 	done
 }
+
+fi

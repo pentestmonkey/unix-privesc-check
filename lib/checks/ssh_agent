@@ -25,7 +25,7 @@
 . lib/misc/process
 . lib/misc/ssh_agent
 . lib/misc/file
-. lib/checks/ssh_key
+. lib/misc/ssh_key
 
 ssh_agent_init () {
 	stdio_message_log "ssh_agent" "Starting at: `date`"

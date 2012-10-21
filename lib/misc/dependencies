@@ -21,6 +21,11 @@
 #
 # Supports: Linux, Solaris
 
+if [ -z "${dependenciesincluded}" ]
+then
+
+dependenciesincluded=1
+
 . lib/misc/stdio
 
 dependencies_check () {
@@ -34,3 +39,5 @@ dependencies_check () {
 }
 
 dependencies_check
+
+fi

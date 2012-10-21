@@ -21,6 +21,11 @@
 #
 # Supports: Linux
 
+if [ -z "${processincluded}" ]
+then
+
+processincluded=1
+
 . lib/misc/validate
 
 process_list () {
@@ -67,3 +72,5 @@ process_show_command () {
 		fi
 	done
 }
+
+fi
