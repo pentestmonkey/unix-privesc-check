@@ -21,46 +21,20 @@
 #
 # List potentially sensitive files
 
-. lib/misc/stdio
 . lib/misc/file
+. lib/misc/group
+. lib/misc/stdio
+. lib/misc/user
 
 key_material_init () {
 	stdio_message_log "key_material" "Starting at: `date`"
 }
 
-key_material_permissions () {
-	pattern="${1}"
-	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
-	do
-		case "${permissions}" in
-			???????r??)
-				stdio_message_warn "key_material" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
-				;;
-			????r?????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
-				then
-					stdio_message_warn "key_material" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
-				else
-					stdio_message_log "key_material" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
-				fi
-				;;
-			?r????????)
-				if [ -n "`id -u -n | grep ${userid}`" ]
-				then
-					stdio_message_debug "key_material" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
-				else
-					stdio_message_debug "key_material" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
-				fi
-				;;
-		esac
-	done
-}
-
 key_material_main () {
 	# TODO we should expand this list
-	for pattern in " *\.crt" " *\.cer" " *\.pem" " *\.p12" " *\.keystore" " *\.key"
+	for pattern in "*\.crt" "*\.cer" "*\.pem" "*\.p12" "*\.keystore" "*\.key"
 	do
-		file_list_by_filename "${pattern}$" | while read filename
+		file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
 		do
 			# exclude Firefox certificates
 			case "${filename}" in
@@ -69,18 +43,27 @@ key_material_main () {
 				;;
 			esac
 
-			if [ -h "${filename}" ]
-			then
-				linkedfilename="`file_show_symlinked_filename "${filename}"`"
-
-				if [ -n "${linkedfilename}" ]
-				then
-					#stdio_message_debug "key_material" "${filename} is a symlink to ${linkedfilename}"
-					key_material_permissions "${linkedfilename}"
-				fi
-			else
-				key_material_permissions "${filename}"
-			fi
+			case "${permissions}" in
+				???????r??)
+					stdio_message_warn "key_material" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
+					;;
+				????r?????)
+					if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
+					then
+						stdio_message_warn "key_material" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
+					else
+						stdio_message_log "key_material" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
+					fi
+					;;
+				?r????????)
+					if [ "`user_is_user_name \"${userid}\"`" -eq 1 ]
+					then
+						stdio_message_log "key_material" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
+					else
+						stdio_message_debug "key_material" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
+					fi
+					;;
+			esac
 		done
 	done
 }

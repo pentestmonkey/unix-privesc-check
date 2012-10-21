@@ -21,23 +21,24 @@
 #
 # List all jar files
 
-. lib/misc/stdio
 . lib/misc/file
+. lib/misc/group
+. lib/misc/stdio
+. lib/misc/user
 
 jar_init () {
 	stdio_message_log "jar" "Starting at: `date`"
 }
 
-jar_permissions () {
-	pattern="${1}"
-	file_show_non_symlink_perms " ${pattern}$" | while read filename permissions userid groupid
+jar_main () {
+	file_show_non_symlink_perms " *\.jar$" | while read filename permissions userid groupid
 	do
 		case "${permissions}" in
 			???????r??)
 				stdio_message_warn "jar" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
 				;;
 			????r?????)
-				if [ -n "`id -G -n | grep ${groupid}`" ]
+				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 				then
 					stdio_message_warn "jar" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
 				else
@@ -45,32 +46,14 @@ jar_permissions () {
 				fi
 				;;
 			?r????????)
-				if [ -n "`id -u -n | grep ${userid}`" ]
+				if [ "`user_is_user_name \"${userid}\"`" -eq 1 ]
 				then
-					stdio_message_debug "jar" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
+					stdio_message_log "jar" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
 				else
 					stdio_message_debug "jar" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
 				fi
 				;;
 		esac
-	done
-}
-
-jar_main () {
-	file_list_by_filename " *\.jar$" | while read filename
-	do
-		if [ -h "${filename}" ]
-		then
-			linkedfilename="`file_show_symlinked_filename "${filename}"`"
-
-			if [ -n "${linkedfilename}" ]
-			then
-				#stdio_message_debug "jar" "${filename} is a symlink to ${linkedfilename}"
-				jar_permissions "${linkedfilename}"
-			fi
-		else
-			jar_permissions "${filename}"
-		fi
 	done
 }
 
