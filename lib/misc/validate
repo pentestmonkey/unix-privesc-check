@@ -55,3 +55,14 @@ validate_is_number () {
 		printf "0\n"
 	fi
 }
+
+validate_is_boolean () {
+	value="${1}"
+	if [ "`validate_is_regex \"${value}\" \"^[0-1]$\"`" -eq 1 ]
+	then
+		printf "1\n"
+	else
+		stdio_message_error "validate" "invalid boolean: ${value}"
+		printf "0\n"
+	fi
+}
