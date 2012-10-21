@@ -46,9 +46,9 @@ file_check_or_generate_cache () {
 }
 
 file_list_by_perm () {
+	# patterns must always take the form "^.......... " i.e. regular expressions. for example "^...s...... |^....S...... " will select setuid binaries 
 	pattern="${1}"
 	validate_is_string "${pattern}"
-	# patterns must always take the form "^.......... " i.e. regular expressions. for example "^...s...... |^....S...... " will select setuid binaries 
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		printf -- "${filename}\n"
@@ -56,9 +56,9 @@ file_list_by_perm () {
 }
 
 file_list_by_filename () {
+	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	pattern="${1}"
 	validate_is_string "${pattern}"
-	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	# this will only work for files, not dirs - mostly what we want I think
 	egrep -- "^-.*${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
@@ -68,9 +68,9 @@ file_list_by_filename () {
 }
 
 file_show_perms () {
+	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	pattern="${1}"
 	validate_is_string "${pattern}"
-	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		# TODO what if pattern matches on symlink? we may still revert to glob() style checking
@@ -79,9 +79,9 @@ file_show_perms () {
 }
 
 file_show_non_symlink_perms () {
+	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	pattern="${1}"
 	validate_is_string "${pattern}"
-	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
 		case "${permissions}" in
@@ -213,6 +213,7 @@ file_is_readable_file () {
 	then
 		printf -- "1\n"
 	else
+		stdio_message_error "file" "${filename} is not readable"
 		printf -- "0\n"
 	fi
 }
