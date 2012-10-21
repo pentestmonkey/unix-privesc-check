@@ -21,6 +21,8 @@
 * Updated symlinks for different types of scan
 * Removed tools/banned.h
 * Tidied up formatting
+* Fixed AIX specific bug with checking users don't have a password
+  of ! in lib/checks/passwd_hashes
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
