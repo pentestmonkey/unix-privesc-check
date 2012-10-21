@@ -39,7 +39,7 @@ user_is_trusted () {
 user_is_root () {
 	username="${1}"
 	[ "`validate_is_string \"${username}\"`" ] || false
-	if [ -n "`groups \"${username}\" | egrep -- \"root\"`" ]
+	if [ "`user_show_user_id`" = "0" ]
 	then
 		printf -- "1\n"
 	else
@@ -50,7 +50,7 @@ user_is_root () {
 user_is_user_id () {
 	userid="${1}"
 	[ "`validate_is_number \"${userid}\"`" ] || false
-	if [ -n "`user_show_user_id | egrep -- \"^${userid}$\"`" ]
+	if [ "`user_show_user_id`" = "${userid}" ]
 	then
 		printf -- "1\n"
 	else
@@ -61,7 +61,7 @@ user_is_user_id () {
 user_is_user_name () {
 	username="${1}"
 	[ "`validate_is_string \"${username}\"`" ] || false
-	if [ -n "`id -u -n | egrep -- \"^${username}$\"`" ]
+	if [ "`user_show_user_name`" = "${username}" ]
 	then
 		printf -- "1\n"
 	else
@@ -81,14 +81,18 @@ user_is_in_group_id () {
 user_is_in_group_name () {
 	username="${1}"
 	group="${2}"
+	ret="0"
 	[ "`validate_is_string \"${username}\"`" ] || false
 	[ "`validate_is_string \"${group}\"`" ] || false
-	if [ -n "`groups \"${username}\" | egrep -- \"${group}\"`" ]
-	then
-		printf -- "1\n"
-	else
-		printf -- "0\n"
-	fi
+	groups "${username}" | while read usergroup
+	do
+		if [ "${usergroup}" = "${group}" ]
+		then
+			ret="1"
+			break
+		fi
+	done
+	printf -- "${ret}\n"
 }
 
 user_show_user_id () {
@@ -97,22 +101,6 @@ user_show_user_id () {
 
 user_show_user_name () {
 	printf -- "`id -u -n`\n"
-}
-
-user_show_group_id () {
-	printf -- "`id -g`\n"
-}
-
-user_show_group_ids () {
-	printf -- "`id -G`\n"
-}
-
-user_show_group_name () {
-	printf -- "`id -g -n`\n"
-}
-
-user_show_group_names () {
-	printf -- "`id -G -n`\n"
 }
 
 user_match_user_name () {
