@@ -1,8 +1,16 @@
-2012-10-21 unix-privesc-check trunk
+2012-10-?? unix-privesc-check trunk
 
-*
+<place holder for BDA>
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-10-22 unix-privesc-check trunk
+
+* Added lib/misc/validation and modified lib/misc/* to use it.
+  The aim is to sanity check that libraries are being called
+  correctly.  We can improve this over time
+
+-- Tim Brown <timb@nth-dimension.org.uk>
 
 2012-10-21 unix-privesc-check trunk
 

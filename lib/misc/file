@@ -22,6 +22,7 @@
 # Supports: AIX, Solaris, Linux
 
 . lib/misc/stdio
+. lib/misc/validate
 
 filecachefilename="files_cache.temp"
 filecacherootpath="/"
@@ -46,6 +47,7 @@ file_check_or_generate_cache () {
 
 file_list_by_perm () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	# patterns must always take the form "^.......... " i.e. regular expressions. for example "^...s...... |^....S...... " will select setuid binaries 
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
@@ -55,6 +57,7 @@ file_list_by_perm () {
 
 file_list_by_filename () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	# patterns must always take the form " /path/*/find" i.e. regular expressions
 	# this will only work for files, not dirs - mostly what we want I think
 	egrep -- "^-.*${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
@@ -66,6 +69,7 @@ file_list_by_filename () {
 
 file_show_perms () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
@@ -76,6 +80,7 @@ file_show_perms () {
 
 file_show_non_symlink_perms () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	# patterns must always take the form " /path/*/find" (permission are allowed too i.e. "^........w. ") regular expressions
 	egrep -- "${pattern}" "${filecachefilename}" | while read permissions userid groupid filename _
 	do
@@ -92,6 +97,7 @@ file_show_non_symlink_perms () {
 
 file_show_real_filename () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	# TODO we could be smarter about this, but for now, which should suffice.. alternatives could include whereis, locate etc
 	case "${pattern}" in
 		/*)
@@ -111,6 +117,7 @@ file_show_real_filename () {
 
 file_show_symlinked_filename () {
 	pattern="${1}"
+	validate_is_string "${pattern}"
 	echo "file_show_symlinked_filename called for ${pattern}" 1>&2
 	# leave grep here otherwise libraries with ++ in the name will not be grepped properly (i.e. /usr/lib/i386-linux-gnu/libstdc++.so.6.0.16)
 	grep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
@@ -145,6 +152,8 @@ file_show_symlinked_filename () {
 file_matches_string () {
 	filename="${1}"
 	pattern="${2}"
+	validate_is_filename "${filename}"
+	validate_is_string "${pattern}"
 	if [ -n "`egrep \"${pattern}\" \"${filename}\"`" ]
 	then
 		printf -- "1\n"
@@ -155,6 +164,7 @@ file_matches_string () {
 
 file_parent_traverse () {
 	filename="${1}"
+	validate_is_filename "${filename}"
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
 	do
@@ -166,6 +176,7 @@ file_parent_traverse () {
 
 file_is_textual () {
 	filename="${1}"
+	validate_is_filename "${filename}"
 	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
 	then
 		printf -- "1\n"
