@@ -26,7 +26,7 @@
 parse_extract_absolute_filepaths () {
 	pattern="${1}"
 	validate_is_string "${pattern}"
-	printf -- "${pattern}" | egrep -o "/[a-z|A-Z|0-9|/|-|_]*" | while read filepath
+	printf -- "${pattern}" | egrep -o "/[a-z|A-Z|0-9|/|-|_|.]*" | while read filepath
 	do
 		printf -- "${filepath}\n"
 	done
