@@ -50,6 +50,7 @@ usage() {
 	printf "\n"
 	printf "\t--help\tdisplay this help and exit\n"
 	printf "\t--version\tdisplay version and exit\n"
+	printf "\t--color\tenable output coloring\n"
 	printf "\t--type\tselect from one of the following check types:\n"
 	for checktype in lib/checks/enabled/*
 	do
@@ -68,6 +69,7 @@ usage() {
 
 CHECKS=""
 CHECKTYPE="all"
+COLORING="0"
 while [ -n "${1}" ]
 do
 	case "${1}" in
@@ -85,6 +87,8 @@ do
 			shift
 			CHECKS="${1}"
 			;;
+		--color)
+			COLORING="1"
 	esac
 	shift
 done

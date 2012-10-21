@@ -33,7 +33,7 @@ stdio_message_log () {
 	message="${2}"
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	stdio_format_message "I" "${check}" "${message}"
+	stdio_format_message "32" "I" "${check}" "${message}"
 }
 
 stdio_message_warn () {
@@ -41,7 +41,7 @@ stdio_message_warn () {
 	message="${2}"
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	stdio_format_message "W" "${check}" "${message}"
+	stdio_format_message "33" "W" "${check}" "${message}"
 }
 
 stdio_message_debug () {
@@ -49,7 +49,7 @@ stdio_message_debug () {
 	message="${2}"
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	stdio_format_message "D" "${check}" "${message}" >&2
+	stdio_format_message "35" "D" "${check}" "${message}" >&2
 }
 
 stdio_message_error () {
@@ -57,17 +57,24 @@ stdio_message_error () {
 	message="${2}"
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	stdio_format_message "E" "${check}" "${message}" >&2
+	stdio_format_message "31" "E" "${check}" "${message}" >&2
 }
 
 stdio_format_message () {
-	type="${1}"
-	check="${2}"
-	message="${3}"
+	color="${1}"
+	type="${2}"
+	check="${3}"
+	message="${4}"
 	[ "`validate_is_string \"${type}\"`" ] || false
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	printf "${type}: [${check}] ${message}\n"
+	[ "`validate_is_number \"${color}\"`" ] || false
+	if [ "${COLORING}" -eq 1 ]
+	then
+		printf "\033[${color}m${type}: [${check}] ${message}\033[m\n"
+	else
+		printf "${type}: [${check}] ${message}\n"
+	fi
 }
 
 fi
