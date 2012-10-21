@@ -23,6 +23,7 @@
 . lib/misc/file
 . lib/misc/inetd
 . lib/misc/process
+. lib/misc/sudo
 
 privilegedcachefilename="privileged_cache.temp"
 
@@ -58,6 +59,10 @@ privileged_check_or_generate_cache () {
 				userid="`inetd_show_userid \"${portnumberprotocol}\"`"
 				printf -- "inetd-argument ${realfilename} ${userid}\n"
 			done
+		done >>"${privilegedcachefilename}"
+		sudo_list | while read privilegeduser passwd command
+		do
+			printf -- "sudo-${passwd} ${command} ${privilegeduser}\n"
 		done >>"${privilegedcachefilename}"
 		process_list ".*" | while read processid
 		do
