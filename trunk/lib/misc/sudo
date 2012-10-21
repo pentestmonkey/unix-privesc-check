@@ -60,7 +60,7 @@ sudo_list () {
 			passwd="nopasswd"
 		fi
 		# Examples of ${settings} (sudo -l relevant lines):
-		#    /usr/bin/su operator
+		#    /bin/su operator
 		#    NOPASSWD: /usr/bin/test
 		#    /sbin/, (foobar) /usr/sbin, (foobar) /usr/local/apps/check.pl
 		#    /usr/sbin/lpc, /usr/bin/lprm
