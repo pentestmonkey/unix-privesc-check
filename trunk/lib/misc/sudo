@@ -1,0 +1,65 @@
+#!/bin/sh
+# $Revision$
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# (c) Tim Brown, 2012
+# <mailto:timb@nth-dimension.org.uk>
+# <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
+#
+# Supports: Linux
+
+. lib/misc/file
+. lib/misc/parse
+
+sudo_check_sudoers () {
+	if [ "`file_is_readable \"/etc/sudoers\"`" -eq 1 ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
+
+sudo_is_password_required () {
+	pattern="${1}"
+	if [ -z "`sudo -l | egrep -- \"${pattern}\" | egrep \"NOPASSWD\"`" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
+
+sudo_list () {
+	sudo -l | egrep -v "^#|^$" | egrep -- "^    \(" | tr -d "(" | tr -d ")" | while read privilegeduser settings
+	do
+		if [ "`sudo_is_password_required \"${settings}\"`" -eq 1 ]
+		then
+			passwd="passwd"
+		else
+			passwd="nopasswd"
+		fi
+		# TODO this does not consider the common case (i.e. in Ubuntu) where a user can run all commands and the sudo -l output is "    (root) NOPASSWD: ALL"
+		parse_extract_absolute_filepaths "${settings}" | while read filepath
+		do
+			case "${filepath}" in
+				/*)
+					printf -- "${privilegeduser} ${passwd} ${filepath}\n"
+					;;
+			esac
+		done
+	done
+}
