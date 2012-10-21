@@ -23,6 +23,7 @@ lib/misc/*:
 * Code in here is meant to be ported to new platforms
   * OS specific code should be minimised
 * Don't read _ if there's a chance the data may be useful later
+* Validate your input using lib/misc/validate
 
 lib/checks/*:
 
