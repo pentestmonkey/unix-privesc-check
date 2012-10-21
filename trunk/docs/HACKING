@@ -5,6 +5,7 @@ General:
   * "Bug fix:" should be used to identify minor changes due to
     coding errors
 * Quote correctly
+  * Use double-quotes, not single-quotes
 * Variable names should be descriptive
 * Reference variables as ${variablename}
 * "printf --" unless you have reason not to
