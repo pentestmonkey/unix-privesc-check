@@ -39,7 +39,7 @@ group_writable_main () {
 				else
 					stdio_message_log "group_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 				fi
-			;;
+				;;
 		esac
 	done
 }

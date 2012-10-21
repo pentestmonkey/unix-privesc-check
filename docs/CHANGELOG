@@ -20,6 +20,7 @@
   lib/misc/checks/*
 * Updated symlinks for different types of scan
 * Removed tools/banned.h
+* Tidied up formatting
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 

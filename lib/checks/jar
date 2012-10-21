@@ -35,7 +35,7 @@ jar_permissions () {
 		case "${permissions}" in
 			???????r??)
 				stdio_message_warn "jar" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
-			;;
+				;;
 			????r?????)
 				if [ -n "`id -G -n | grep ${groupid}`" ]
 				then
@@ -43,7 +43,7 @@ jar_permissions () {
 				else
 					stdio_message_log "jar" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
 				fi
-			;;
+				;;
 			?r????????)
 				if [ -n "`id -u -n | grep ${userid}`" ]
 				then
@@ -51,7 +51,7 @@ jar_permissions () {
 				else
 					stdio_message_debug "jar" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
 				fi
-			;;
+				;;
 		esac
 	done
 }

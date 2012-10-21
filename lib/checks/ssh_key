@@ -35,7 +35,7 @@ ssh_key_permissions () {
 		case "${permissions}" in
 			???????r??)
 				stdio_message_warn "ssh_key" "key ${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
-			;;
+				;;
 			????r?????)
 				if [ -n "`id -G -n | grep ${groupid}`" ]
 				then
@@ -43,7 +43,7 @@ ssh_key_permissions () {
 				else
 					stdio_message_log "ssh_key" "key ${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
 				fi
-			;;
+				;;
 		esac
 	done
 
