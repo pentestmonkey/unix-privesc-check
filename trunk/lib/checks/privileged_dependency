@@ -56,8 +56,6 @@ binary_dependency_traverse () {
 					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 					;;
 				?????w????)
-					# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
-					#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
 					if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 					then
 						stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
@@ -89,8 +87,6 @@ binary_dependency_permissions () {
 				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 				;;
 			?????w????)
-				# TODO need option to supress this warning for empty groups.  Why?  pentesters+auditors might not care on existing servers (not exploitable).  However, if auditing
-				#      a base-build where future group members aren't clear yet, the auditor WILL care.  Hence we need group-write for empty groups to be supressable.
 				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 				then
 					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
