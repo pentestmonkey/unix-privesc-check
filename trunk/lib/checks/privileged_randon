@@ -25,20 +25,20 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_random_init () {
-	stdio_message_log "binary_random" "Starting at: `date`"
+privileged_random_init () {
+	stdio_message_log "privileged_random" "Starting at: `date`"
 }
 
-binary_random_main () {
+privileged_random_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_function "${filename}" "random|srand"`" -eq 1 ]
 		then
-			stdio_message_warn "binary_random" "${filetype} ${filename} (${usergroupid}) and uses random()/srand()"
+			stdio_message_warn "privileged_random" "${filetype} ${filename} (${usergroupid}) and uses random()/srand()"
 		fi
 	done
 }
 
-binary_random_fini () {
-	stdio_message_log "binary_random" "Ending at: `date`"
+privileged_random_fini () {
+	stdio_message_log "privileged_random" "Ending at: `date`"
 }

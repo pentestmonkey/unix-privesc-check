@@ -26,21 +26,21 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_path_init () {
-	stdio_message_log "binary_path" "Starting at: `date`"
+privileged_path_init () {
+	stdio_message_log "privileged_path" "Starting at: `date`"
 }
 
-binary_path_main () {
+privileged_path_main () {
 	# TODO scan also bash scripts
 	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_string "${filename}" "PATH="`" -eq 1 ]
 		then
-			stdio_message_warn "binary_path" "${filetype} ${filename} (${usergroupid}) and may set PATH unsafely"
+			stdio_message_warn "privileged_path" "${filetype} ${filename} (${usergroupid}) and may set PATH unsafely"
 		fi
 	done
 }
 
-binary_path_fini () {
-	stdio_message_log "binary_path" "Ending at: `date`"
+privileged_path_fini () {
+	stdio_message_log "privileged_path" "Ending at: `date`"
 }

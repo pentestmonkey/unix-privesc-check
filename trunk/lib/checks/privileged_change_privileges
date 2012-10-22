@@ -26,22 +26,22 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_change_privileges_init () {
-	stdio_message_log "binary_change_privileges" "Starting at: `date`"
+privileged_change_privileges_init () {
+	stdio_message_log "privileged_change_privileges" "Starting at: `date`"
 }
 
-binary_change_privileges_main () {
+privileged_change_privileges_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		# TODO this needs cleaning up
 		match="`binary_matches_function "${filename}" "setuid|setgid|seteuid|setegid|setresuid|setresgid|setreuid|setregid|initgroups|setgroups|setcap|setfsuid|setfsgid"`"
 		if [ $match -ne 1 ]
 		then
-			stdio_message_warn "binary_change_privileges" "${filetype} ${filename} (${usergroupid}) and does not attempt to change privileges"
+			stdio_message_warn "privileged_change_privileges" "${filetype} ${filename} (${usergroupid}) and does not attempt to change privileges"
 		fi
 	done
 }
 
-binary_change_privileges_fini () {
-	stdio_message_log "binary_change_privileges" "Ending at: `date`"
+privileged_change_privileges_fini () {
+	stdio_message_log "privileged_change_privileges" "Ending at: `date`"
 }

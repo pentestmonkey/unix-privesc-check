@@ -26,11 +26,11 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_chroot_init () {
-	stdio_message_log "binary_chroot" "Starting at: `date`"
+privileged_chroot_init () {
+	stdio_message_log "privileged_chroot" "Starting at: `date`"
 }
 
-binary_chroot_main () {
+privileged_chroot_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		match="`binary_matches_function "${filename}" "chroot"`"
@@ -38,12 +38,12 @@ binary_chroot_main () {
 		then
 			if [ "`binary_matches_function "${filename}" "chdir"`" -ne 1 ]
 			then
-				stdio_message_warn "binary_chroot" "${filetype} ${filename} (${usergroupid}) and may use chroot() unsafely - no chdir() call"
+				stdio_message_warn "privileged_chroot" "${filetype} ${filename} (${usergroupid}) and may use chroot() unsafely - no chdir() call"
 			fi
 		fi
 	done
 }
 
-binary_chroot_fini () {
-	stdio_message_log "binary_chroot" "Ending at: `date`"
+privileged_chroot_fini () {
+	stdio_message_log "privileged_chroot" "Ending at: `date`"
 }

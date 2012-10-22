@@ -29,17 +29,17 @@
 . lib/misc/stdio
 . lib/misc/user
 
-binary_dependency_init () {
-	stdio_message_log "binary_dependency" "Starting: `date`"
+privileged_dependency_init () {
+	stdio_message_log "privileged_dependency" "Starting: `date`"
 }
 
-binary_dependency_traverse () {
+privileged_dependency_traverse () {
 	pattern="${1}"
 	privfilename="${2}"
 	filetype="${3}"
 	library="${4}"
 	pathtype="${5}"
-	echo "binary_dependency_traverse called for ${library}"
+	echo "privileged_dependency_traverse called for ${library}"
 	file_parent_traverse "${pattern}" | while read filename
 	do
 		# /etc/ld.so.conf.d/ files can contain files which we are not interested here, only directories
@@ -53,20 +53,20 @@ binary_dependency_traverse () {
 			#echo "Checking permissions of filepath ${filepath} ($permissions)"
 			case "${permissions}" in
 				????????w?)
-					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+					stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 					;;
 				?????w????)
 					if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 					then
-						stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+						stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 					else
-						stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+						stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 					fi
 					;;
 				??w???????)
 					if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 					then
-						stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
+						stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 					fi
 					;;
 			esac
@@ -74,37 +74,37 @@ binary_dependency_traverse () {
 	done
 }
 
-binary_dependency_permissions () {
+privileged_dependency_permissions () {
 	library="${1}"
 	privfilename="${2}"
 	filetype="${3}"
-	echo "binary_dependency_permissions called for ${library}"
+	echo "privileged_dependency_permissions called for ${library}"
 	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
 		echo "Checking permissions for filename ${filename} ($permissions)"
 		case "${permissions}" in
 			????????w?)
-				stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 				;;
 			?????w????)
 				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 				then
-					stdio_message_warn "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+					stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 				else
-					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+					stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 				fi
 				;;
 			??w???????)
 				if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 				then
-					stdio_message_log "binary_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
+					stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 				fi
 				;;
 		esac
 	done
 }
 
-binary_dependency_main () {
+privileged_dependency_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		echo "Processing ${filetype} ${filename}"
@@ -118,13 +118,13 @@ binary_dependency_main () {
 				case "${library}" in
 					# if the library is a absolute file path, we check for write permissions on its parent directories
 					/*)
-						binary_dependency_traverse "${library}" "${filename}" "${filetype}" "${library}" "parent path"
+						privileged_dependency_traverse "${library}" "${filename}" "${filetype}" "${library}" "parent path"
 						;;
 					# if the library is a relative file path, we check for write permissions on all system libraries file paths
 					*)
 						linker_list_system_filenames | while read filepath
 						do
-							binary_dependency_traverse "${filepath}" "${filename}" "${filetype}" "${library}" "system library path"
+							privileged_dependency_traverse "${filepath}" "${filename}" "${filetype}" "${library}" "system library path"
 						done
 						;;
 				esac
@@ -141,20 +141,20 @@ binary_dependency_main () {
 
 				if [ -n "${linkedlibrary}" ]
 				then
-					#stdio_message_debug "binary_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
+					#stdio_message_debug "privileged_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
 					#echo "-h ${library} and -n ${linkedlibrary}"
-					binary_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
+					privileged_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
 				else
 					echo "-h ${library} but not -n ${linkedlibrary}"
 				fi
 			else
 				#echo "Not -h ${library}"
-				binary_dependency_permissions "${library}" "${filename}" "${filetype}"
+				privileged_dependency_permissions "${library}" "${filename}" "${filetype}"
 			fi
 		done
 	done
 }
 
-binary_dependency_fini () {
-	stdio_message_log "binary_dependency" "Ending: `date`"
+privileged_dependency_fini () {
+	stdio_message_log "privileged_dependency" "Ending: `date`"
 }

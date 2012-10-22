@@ -25,20 +25,20 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_ssp_init () {
-	stdio_message_log "binary_ssp" "Starting at: `date`"
+privileged_ssp_init () {
+	stdio_message_log "privileged_ssp" "Starting at: `date`"
 }
 
-binary_ssp_main () {
+privileged_ssp_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_function "${filename}" "__stack_chk_fail"`" -ne 1 ]
 		then
-			stdio_message_warn "binary_ssp" "${filetype} ${filename} (${usergroupid}) and is not compiled with SSP (Stack Smashing Protector)"
+			stdio_message_warn "privileged_ssp" "${filetype} ${filename} (${usergroupid}) and is not compiled with SSP (Stack Smashing Protector)"
 		fi
 	done
 }
 
-binary_ssp_fini () {
-	stdio_message_log "binary_ssp" "Ending at: `date`"
+privileged_ssp_fini () {
+	stdio_message_log "privileged_ssp" "Ending at: `date`"
 }

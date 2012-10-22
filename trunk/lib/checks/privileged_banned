@@ -26,21 +26,21 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_banned_init () {
-	stdio_message_log "binary_banned" "Starting at: `date`"
+privileged_banned_init () {
+	stdio_message_log "privileged_banned" "Starting at: `date`"
 }
 
-binary_banned_main () {
+privileged_banned_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		banned_apis="`binary_banned_api "${filename}" "alloca|gets|memcpy|scanf|sprintf|sscanf|strcat|StrCat|strcpy|StrCpy|strlen|StrLen|strncat|StrNCat|strncpy|StrNCpy|strtok|swprintf|vsnprintf|vsprintf|vswprintf|wcscat|wcscpy|wcslen|wcsncat|wcsncpy|wcstok|wmemcpy"`"
 		if [ -n "${banned_apis}" ]
 		then
-			stdio_message_warn "binary_banned" "${filetype} ${filename} (${usergroupid}) and uses banned APIs ($banned_apis)"
+			stdio_message_warn "privileged_banned" "${filetype} ${filename} (${usergroupid}) and uses banned APIs ($banned_apis)"
 		fi
 	done
 }
 
-binary_banned_fini () {
-	stdio_message_log "binary_banned" "Ending at: `date`"
+privileged_banned_fini () {
+	stdio_message_log "privileged_banned" "Ending at: `date`"
 }

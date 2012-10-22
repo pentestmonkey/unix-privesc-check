@@ -26,20 +26,20 @@
 . lib/misc/privileged
 . lib/misc/binary
 
-binary_pie_init () {
-	stdio_message_log "binary_pie" "Starting at: `date`"
+privileged_pie_init () {
+	stdio_message_log "privileged_pie" "Starting at: `date`"
 }
 
-binary_pie_main () {
+privileged_pie_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_pie "${filename}"`" -ne 1 ]
 		then
-			stdio_message_warn "binary_pie" "${filetype} ${filename} (${usergroupid}) and is not compiled with PIE (Position Independent Executable)"
+			stdio_message_warn "privileged_pie" "${filetype} ${filename} (${usergroupid}) and is not compiled with PIE (Position Independent Executable)"
 		fi
 	done
 }
 
-binary_pie_fini () {
-	stdio_message_log "binary_pie" "Ending at: `date`"
+privileged_pie_fini () {
+	stdio_message_log "privileged_pie" "Ending at: `date`"
 }
