@@ -15,10 +15,10 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 = Comparison of Features =
 
 || *UPCv1 ID* || *UPCv2 Check Name* || *Description of Check* || *Comment* ||
-|| UPC001 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init /etc and more yet ||
-|| UPC002 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
+|| UPC001 || privileged_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init /etc and more yet ||
+|| UPC002 || privileged_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
 || UPC003 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set) || ||
-|| UPC004 || binary_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK World write is set for $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
+|| UPC004 || privileged_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK World write is set for $O_FILE || we need to add to lib/misc/privileges sudo, crontab, xinetd, init, /etc and more yet ||
 || UPC005 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
 || UPC006 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
 || UPC007 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK World read is set for $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
@@ -37,7 +37,7 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC020 || TODO || Can connect to local postgres database as \"postgres\" without a password || ||
 || UPC021 || TODO || Can connect to local postgres database as \"pgsql\" without a password || ||
 || UPC022 || TODO || This system is an NFS client.  Check for nosuid and nodev options. || ||
-|| UPC023 || setuid, setgid (partially) || SetUID/SetGID shell script, may be vulnerable to race attacks || lib/misc/privileged and all `binary_` checks do exhaustive checks on setuid/setgid files, but not yet race condition specifically ||
+|| UPC023 || setuid, setgid (partially) || SetUID/SetGID shell script, may be vulnerable to race attacks || lib/misc/privileged and all `privileged_` checks do exhaustive checks on setuid/setgid files, but not yet race condition specifically ||
 || UPC024 || credentials || Cleartext subversion passsword file: $FILE || ||
 || UPC025 || ssh_agent, ssh_key || Encrypted private SSH key found in $KEY || ||
 || UPC026 || ssh_agent, ssh_key || Unencrypted private SSH key found in $KEY || ||
@@ -55,7 +55,7 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC039 || TODO || SELinux does not enforce || ||
 || UPC040 || TODO || NX not enabled || ||
 || UPC041 || TODO || SSP not enabled || ||
-|| UPC042 || TODO || SSP not enabled || ||
+|| UPC042 || privileged_ssp || SSP not enabled || ||
 || UPC043 || TODO || fscaps shell script, may be vulnerable to race attacks || ||
 
 TODO: Also list in the table above any new features in UPCv2 which are absent from UPCv1.
