@@ -53,8 +53,8 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC037 || TODO || Conservative ASLR || ||
 || UPC038 || TODO || mmap allows map to 0 || ||
 || UPC039 || TODO || SELinux does not enforce || ||
-|| UPC040 || TODO || NX not enabled || ||
-|| UPC041 || TODO || SSP not enabled || ||
+|| UPC040 || privileged_nx || NX not enabled || ||
+|| UPC041 || privileged_ssp || SSP not enabled || ||
 || UPC042 || privileged_ssp || SSP not enabled || ||
 || UPC043 || TODO || fscaps shell script, may be vulnerable to race attacks || ||
 
