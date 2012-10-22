@@ -116,6 +116,16 @@ permission_is_world_writable () {
 	fi
 }
 
+permission_is_world_writable_sticky_bit () {
+	permissions="${1}"
+	[ "`validate_is_string \"${permissions}\"`" ] || false
+	if [ -n "`printf -- \"${permissions}\" | egrep -- \"^........wt$\"`" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
 permission_is_world_executable () {
 	permissions="${1}"
 	[ "`validate_is_string \"${permissions}\"`" ] || false
