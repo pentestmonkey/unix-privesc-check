@@ -105,6 +105,36 @@ binary_pie() {
 	fi
 }
 
+binary_nx() {
+	filename="${1}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	if [ "`uname`" = "Linux" ]
+	then
+		isstackline="0"
+		oldifs="${IFS}"
+		IFS="\n"
+		objdump -x "${filename}" | head -30 | while read line
+		do
+			if [ "${isstackline}" -eq 1 ]
+			then
+				if [ -n "`printf -- \"${line}\" | egrep -- \" rw-$\"`" ]
+				then
+					printf -- "1\n"
+				else
+					printf "0\n"
+				fi
+				break
+			elif [ -n "`printf -- \"${line}\" | grep "STACK "`" ]
+			then
+				isstackline="1"
+			fi
+		done
+		IFS="${oldifs}"
+	else
+		printf "0\n"
+	fi
+}
+
 binary_matches_string () {
 	filename="${1}"
 	pattern="${2}"
