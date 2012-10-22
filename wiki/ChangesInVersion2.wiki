@@ -17,33 +17,33 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || *UPCv1 ID* || *UPCv2 Check Name* || *Description of Check* || *Comment* ||
 || UPC001 || privileged_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can write to $O_FILE || we need to add to lib/misc/privileges crontab, xinetd, init /etc and more yet ||
 || UPC002 || privileged_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE || we need to add to lib/misc/privileges crontab, xinetd, init, /etc and more yet ||
-|| UPC003 || TODO || $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set) || ||
+|| UPC003 || privileged_writable, world_writable and others || $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set) || ||
 || UPC004 || privileged_writable, group_writable, world_writable (partially) || $O_MESSAGE_STACK World write is set for $O_FILE || we need to add to lib/misc/privileges crontab, xinetd, init, /etc and more yet ||
 || UPC005 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK The user $O_FILE_USER can read $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
 || UPC006 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
 || UPC007 || credentials, jar, key_material (partially) || $O_MESSAGE_STACK World read is set for $O_FILE || we need to add read checks over other users' home directories, /etc, more sensitive files yet ||
-|| UPC008 || passwd_hashes || /etc/passwd allows external authentcation: || ||
+|| UPC008 || passwd_hashes || /etc/passwd allows external authentcation || ||
 || UPC009 || TODO || NIS is used for authentication on this system || ||
 || UPC010 || TODO || LDAP is used for authentication on this system || ||
 || UPC011 || TODO || NIS is used for authentication on this system || ||
 || UPC012 || TODO || LDAP is used for authentication on this system || ||
 || UPC013 || passwd_hashes || There seem to be some password hashes in /etc/passwd || ||
-|| UPC014 || passwd_hashes || The following accounts have no password: || ||
+|| UPC014 || passwd_hashes || The following accounts have no password || ||
 || UPC015 || shadow_hashes || User $USER doesn't have a password || ||
 || UPC016 || shadow_hashes || User $USER doesn't have a password || ||
-|| UPC017 || TODO || Sudo is configured.  Manually check nothing unsafe is allowed: || ||
-|| UPC018 || TODO || Some users can use sudo without a password: || ||
-|| UPC019 || TODO || Postgres trust configured in $DIR/pg_hba.conf: $LINE || ||
+|| UPC017 || TODO || Sudo is configured.  Manually check nothing unsafe is allowed || ||
+|| UPC018 || TODO || Some users can use sudo without a password || ||
+|| UPC019 || TODO || Postgres trust configured in $DIR/pg_hba.conf $LINE || ||
 || UPC020 || TODO || Can connect to local postgres database as \"postgres\" without a password || ||
 || UPC021 || TODO || Can connect to local postgres database as \"pgsql\" without a password || ||
 || UPC022 || TODO || This system is an NFS client.  Check for nosuid and nodev options. || ||
 || UPC023 || setuid, setgid (partially) || SetUID/SetGID shell script, may be vulnerable to race attacks || lib/misc/privileged and all `privileged_` checks do exhaustive checks on setuid/setgid files, but not yet race condition specifically ||
-|| UPC024 || credentials || Cleartext subversion passsword file: $FILE || ||
+|| UPC024 || credentials || Cleartext subversion passsword file $FILE || ||
 || UPC025 || ssh_agent, ssh_key || Encrypted private SSH key found in $KEY || ||
 || UPC026 || ssh_agent, ssh_key || Unencrypted private SSH key found in $KEY || ||
 || UPC027 || credentials || Public SSH Key Found in $HOMEDIR/.ssh/authorized_keys || We only list identified authorized_keys file, do not parse its content ||
-|| UPC028 || ssh_agent || There are SSH agents running on this system: || ||
-|| UPC030 || gpg_agent || There are GPG agents running on this system: || ||
+|| UPC028 || ssh_agent || There are SSH agents running on this system || ||
+|| UPC030 || gpg_agent || There are GPG agents running on this system || ||
 || UPC031 || system_nx || No NX || ||
 || UPC032 || system_nx || No NX logging || ||
 || UPC033 || system_nx || Auditing not enabled || ||
