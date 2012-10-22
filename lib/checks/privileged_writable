@@ -29,11 +29,11 @@
 . lib/misc/stdio
 . lib/misc/user
 
-binary_writable_init () {
-	stdio_message_log "binary_writable" "Starting"
+privileged_writable_init () {
+	stdio_message_log "privileged_writable" "Starting"
 }
 
-binary_writable_permissions () {
+privileged_writable_permissions () {
 	filename="${1}"
 	permissions="${2}"
 	userid="${3}"
@@ -42,52 +42,52 @@ binary_writable_permissions () {
 	filetype="${6}"
 	case "${permissions}" in
 		????????w?)
-			stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			stdio_message_warn "privileged_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 		;;
 		?????w????)
 			if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
 			then
-				stdio_message_warn "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
+				stdio_message_warn "privileged_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})"
 			else
-				stdio_message_log "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+				stdio_message_log "privileged_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
 			fi
 		;;
 		??w???????)
 			if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
 			then
-				stdio_message_log "binary_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
+				stdio_message_log "privileged_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
 		;;
 	esac
 }
 
-binary_writable_wrapper () {
+privileged_writable_wrapper () {
 	privfilename="${1}"
 	filetype="${2}"
 	file_parent_traverse "${privfilename}" | while read filepath
 	do
 		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
 		do
-			binary_writable_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${privfilename}" "${filetype}"
+			privileged_writable_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${privfilename}" "${filetype}"
 		done
 	done
 }
 
-binary_writable_main () {
+privileged_writable_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		# the privileged file might not exist for example when inetd calls it, but the executable has been uninstalled/removed (and inetd configuration not aligned)
 		if [ ! -e "${filename}" ]
 		then
-			stdio_message_debug "binary_writable" "${filetype} ${filename} does not exist"
-			binary_writable_wrapper "${filename}" "${filetype}"
+			stdio_message_debug "privileged_writable" "${filetype} ${filename} does not exist"
+			privileged_writable_wrapper "${filename}" "${filetype}"
 			continue
 		fi
 
-		binary_writable_wrapper "${filename}" "${filetype}"
+		privileged_writable_wrapper "${filename}" "${filetype}"
 	done
 }
 
-binary_writable_fini () {
-	stdio_message_log "binary_writable" "Ending"
+privileged_writable_fini () {
+	stdio_message_log "privileged_writable" "Ending"
 }
