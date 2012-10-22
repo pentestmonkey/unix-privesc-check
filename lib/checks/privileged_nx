@@ -20,7 +20,6 @@
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
 # Check for NX (NoExecute) support
-# Based on ideas found at http://people.redhat.com/sgrubb/security/
 
 . lib/misc/stdio
 . lib/misc/privileged
