@@ -44,16 +44,16 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC027 || credentials || Public SSH Key Found in $HOMEDIR/.ssh/authorized_keys || We only list identified authorized_keys file, do not parse its content ||
 || UPC028 || ssh_agent || There are SSH agents running on this system: || ||
 || UPC030 || gpg_agent || There are GPG agents running on this system: || ||
-|| UPC031 || TODO || No NX || ||
-|| UPC032 || TODO || No NX logging || ||
-|| UPC033 || TODO || Auditing not enabled || ||
-|| UPC034 || TODO || No NX || ||
-|| UPC035 || TODO || NX set to logging only || ||
-|| UPC036 || TODO || No ASLR || ||
-|| UPC037 || TODO || Conservative ASLR || ||
-|| UPC038 || TODO || mmap allows map to 0 || ||
-|| UPC039 || TODO || SELinux does not enforce || ||
-|| UPC040 || privileged_nx || NX not enabled || ||
+|| UPC031 || system_nx || No NX || ||
+|| UPC032 || system_nx || No NX logging || ||
+|| UPC033 || system_nx || Auditing not enabled || ||
+|| UPC034 || system_nx || No NX || ||
+|| UPC035 || system_nx || NX set to logging only || ||
+|| UPC036 || system_aslr || No ASLR || ||
+|| UPC037 || system_aslr || Conservative ASLR || ||
+|| UPC038 || system_mmap || mmap allows map to 0 || ||
+|| UPC039 || system_selinux || SELinux does not enforce || ||
+|| UPC040 || privileged_nx, system_nx || NX not enabled || ||
 || UPC041 || privileged_ssp || SSP not enabled || ||
 || UPC042 || privileged_ssp || SSP not enabled || ||
 || UPC043 || TODO || fscaps shell script, may be vulnerable to race attacks || ||
