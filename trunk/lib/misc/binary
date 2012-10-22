@@ -39,18 +39,18 @@ binary_list_rpath () {
 		do
 			if [ "${dumpflag}" -eq 1 ]
 			then
-				printf "${line}\n" | while read index base member
+				printf -- "${line}\n" | while read index base member
 				do
 					if [ "${index}" -eq 0 ]
 					then
-						printf "${base}\n" | tr ":" "\n" | while read filename
+						printf -- "${base}\n" | tr ":" "\n" | while read filename
 						do
-							printf "${filename}\n"
+							printf -- "${filename}\n"
 						done
 					fi
 				done
 			fi
-			if [ -n "`printf "${line}\n" | grep "INDEX"`" ]
+			if [ -n "`printf -- "${line}\n" | grep "INDEX"`" ]
 			then
 				dumpflag=1
 			fi
@@ -59,31 +59,31 @@ binary_list_rpath () {
 	then
 		dump -Lv "${filename}" | grep "RPATH" | while read _ header rpath
 		do
-			printf "${rpath}\n" | tr ":" "\n" | while read filename
+			printf -- "${rpath}\n" | tr ":" "\n" | while read filename
 			do
-				printf "${filename}\n"
+				printf -- "${filename}\n"
 			done
 		done | sort | uniq
 		dump -Lv "${filename}" | grep "RUNPATH" | while read _ header rpath
 		do
-			printf "${rpath}\n" | tr ":" "\n" | while read filename
+			printf -- "${rpath}\n" | tr ":" "\n" | while read filename
 			do
-				printf "${filename}\n"
+				printf -- "${filename}\n"
 			done
 		done | sort | uniq
 	else
 		objdump -x "${filename}" | grep -i "RPATH" | while read header rpath
 		do
-			printf "${rpath}\n" | tr ":" "\n" | while read filename
+			printf -- "${rpath}\n" | tr ":" "\n" | while read filename
 			do
-				printf "${filename}\n"
+				printf -- "${filename}\n"
 			done
 		done | sort | uniq
 		objdump -x "${filename}" | grep -i "RUNPATH" | while read header rpath
 		do
-			printf "${rpath}\n" | tr ":" "\n" | while read filename
+			printf -- "${rpath}\n" | tr ":" "\n" | while read filename
 			do
-				printf "${filename}\n"
+				printf -- "${filename}\n"
 			done
 		done | sort | uniq
 	fi
@@ -96,12 +96,12 @@ binary_pie() {
 	then
 		if [ -n "`objdump -x "${filename}" | head -5 | grep "DYNAMIC"`" ]
 		then
-			printf "1\n"
+			printf -- "1\n"
 		else
-			printf "0\n"
+			printf -- "0\n"
 		fi
 	else
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -121,7 +121,7 @@ binary_nx() {
 				then
 					printf -- "1\n"
 				else
-					printf "0\n"
+					printf -- "0\n"
 				fi
 				break
 			elif [ -n "`printf -- \"${line}\" | grep "STACK "`" ]
@@ -131,7 +131,7 @@ binary_nx() {
 		done
 		IFS="${oldifs}"
 	else
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -142,9 +142,9 @@ binary_matches_string () {
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`strings "${filename}" | egrep "${pattern}"`" ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -155,9 +155,9 @@ binary_matches_function () {
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`objdump -T "${filename}" | egrep "${pattern}"`" ]
 	then
-		printf "1\n"
+		printf -- "1\n"
 	else
-		printf "0\n"
+		printf -- "0\n"
 	fi
 }
 
@@ -166,7 +166,7 @@ binary_banned_api () {
 	pattern="${2}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
-	printf "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
+	printf -- "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
 }
 
 fi
