@@ -36,8 +36,6 @@ privileged_nx_main () {
 		if [ "`binary_nx "${filename}"`" -ne 1 ]
 		then
 			stdio_message_warn "privileged_nx" "${filetype} ${filename} (${usergroupid}) and is not compiled with NX (NoExecute)"
-		else
-			stdio_message_log "privileged_nx" "${filetype} ${filename} (${usergroupid}) and is compiled with NX (NoExecute)"
 		fi
 	done
 }
