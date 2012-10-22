@@ -25,6 +25,7 @@
 . lib/misc/file
 . lib/misc/group
 . lib/misc/linker
+. lib/misc/permission
 . lib/misc/privileged
 . lib/misc/stdio
 . lib/misc/user
@@ -53,7 +54,12 @@ privileged_dependency_traverse () {
 			#echo "Checking permissions of filepath ${filepath} ($permissions)"
 			case "${permissions}" in
 				????????w?)
-					stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+					if [ "`permission_is_world_writable_sticky_bit \"${permissions}\"`" -eq 1 ]
+					then
+						stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})"
+					else
+						stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+					fi
 					;;
 				?????w????)
 					if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
@@ -64,7 +70,7 @@ privileged_dependency_traverse () {
 					fi
 					;;
 				??w???????)
-					if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
+					if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
 					then
 						stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${library}, but this does not exist - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 					fi
@@ -84,7 +90,12 @@ privileged_dependency_permissions () {
 		echo "Checking permissions for filename ${filename} ($permissions)"
 		case "${permissions}" in
 			????????w?)
-				stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
+				then
+					stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})"
+				else
+					stdio_message_warn "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				fi
 				;;
 			?????w????)
 				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
@@ -95,7 +106,7 @@ privileged_dependency_permissions () {
 				fi
 				;;
 			??w???????)
-				if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
+				if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
 				then
 					stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 				fi

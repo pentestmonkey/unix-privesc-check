@@ -23,6 +23,7 @@
 
 . lib/misc/stdio
 . lib/misc/file
+. lib/misc/permission
 
 world_writable_init () {
 	stdio_message_log "world_writable" "Starting at: `date`"
@@ -33,7 +34,12 @@ world_writable_main () {
 	do
 		case "${permissions}" in
 			????????w?)
-				stdio_message_warn "world_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				if [ "`permission_is_world_writable_sticky_bit \"${permissions}\"`" -eq 1 ]
+				then
+					stdio_message_warn "world_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})"
+				else
+					stdio_message_warn "world_writable" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				fi
 				;;
 		esac
 	done

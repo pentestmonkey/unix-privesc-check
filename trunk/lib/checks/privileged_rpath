@@ -26,6 +26,7 @@
 . lib/misc/binary
 . lib/misc/file
 . lib/misc/group
+. lib/misc/permission
 . lib/misc/privileged
 . lib/misc/stdio
 . lib/misc/user
@@ -43,7 +44,12 @@ privileged_rpath_permissions () {
 	filetype="${6}"
 	case "${permissions}" in
 		????????w?)
-			stdio_message_warn "privileged_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			if [ "`permission_is_world_writable_sticky_bit \"${permissions}\"`" -eq 1 ]
+			then
+				stdio_message_log "privileged_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})"
+			else
+				stdio_message_warn "privileged_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+			fi
 			;;
 		?????w????)
 			if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
@@ -54,7 +60,7 @@ privileged_rpath_permissions () {
 			fi
 			;;
 		??w???????)
-			if [ "`user_is_user_root \"${userid}\"`" -eq 1 ]
+			if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
 			then
 				stdio_message_log "privileged_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
