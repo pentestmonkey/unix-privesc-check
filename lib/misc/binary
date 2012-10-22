@@ -105,6 +105,38 @@ binary_pie() {
 	fi
 }
 
+binary_relro_full() {
+	filename="${1}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	if [ "`uname`" = "Linux" ]
+	then
+		if [ -n "`objdump -x "${filename}" | grep "BIND_NOW"`" ]
+		then
+			printf -- "1\n"
+		else
+			printf -- "0\n"
+		fi
+	else
+		printf -- "0\n"
+	fi
+}
+
+binary_relro() {
+	filename="${1}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	if [ "`uname`" = "Linux" ]
+	then
+		if [ -n "`objdump -x "${filename}" | head -30 | grep "RELRO"`" ]
+		then
+			printf -- "1\n"
+		else
+			printf -- "0\n"
+		fi
+	else
+		printf -- "0\n"
+	fi
+}
+
 binary_nx() {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
