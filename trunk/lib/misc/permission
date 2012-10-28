@@ -126,6 +126,7 @@ permission_is_world_writable_sticky_bit () {
 		printf -- "0\n"
 	fi
 }
+
 permission_is_world_executable () {
 	permissions="${1}"
 	[ "`validate_is_string \"${permissions}\"`" ] || false
