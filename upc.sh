@@ -51,6 +51,7 @@ usage() {
 	printf "\t--help\tdisplay this help and exit\n"
 	printf "\t--version\tdisplay version and exit\n"
 	printf "\t--color\tenable output coloring\n"
+	printf "\t--verbose\tverbose level (0-2, default: 1)\n"
 	printf "\t--type\tselect from one of the following check types:\n"
 	for checktype in lib/checks/enabled/*
 	do
@@ -70,6 +71,7 @@ usage() {
 CHECKS=""
 CHECKTYPE="all"
 COLORING="0"
+VERBOSE="1"
 while [ -n "${1}" ]
 do
 	case "${1}" in
@@ -89,10 +91,20 @@ do
 			;;
 		--color)
 			COLORING="1"
+			;;
+		--verbose)
+			shift
+			VERBOSE="${1}"
+			;;
 	esac
 	shift
 done
 header
+if [ "${VERBOSE}" != "0" -a "${VERBOSE}" != "1" -a "${VERBOSE}" != "2" ]
+then
+	stdio_message_error "upc" "the provided verbose level ${VERBOSE} is invalid - use 0, 1 or 2 next time"
+	VERBOSE="1"
+fi
 if [ -n "${CHECKS}" ]
 then
 	for checkfilename in `printf "${CHECKS}" | tr -d " " | tr "," " "`
