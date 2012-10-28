@@ -122,7 +122,6 @@ file_show_real_filename () {
 file_show_symlinked_filename () {
 	pattern="${1}"
 	[ "`validate_is_string \"${pattern}\"`" ] || false
-	echo "file_show_symlinked_filename called for ${pattern}" 1>&2
 	# leave grep here otherwise libraries with ++ in the name will not be grepped properly (i.e. /usr/lib/i386-linux-gnu/libstdc++.so.6.0.16)
 	grep -- " ${pattern} ->" "${filecachefilename}" | while read permissions userid groupid filename _ linkedfilename
 	# FIXME The grep above is not always effective.  Example: if file_show_symlinked_filename is passed "/lib64/ld-linux-x86-64.so.2"
