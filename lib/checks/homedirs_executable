@@ -38,6 +38,7 @@ homedirs_executable_main () {
 		then
 			continue
 		fi
+		homedir="`passwd_show_homedir "${username}"`"
 		if [ -z "${homedir}" -o "${homedir}" = "/dev/null" ]
 		then
 			stdio_message_debug "homedirs_executable" "${username} has no home directory set"
