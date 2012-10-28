@@ -87,10 +87,11 @@ group_is_in_group_name () {
 	do
 		if [ "${usergroup}" = "${group}" ]
 		then
-			printf -- "1\n"
+			ret="1"
 			break
 		fi
 	done
+	printf -- "${ret}\n"
 }
 
 group_show_group_id () {
