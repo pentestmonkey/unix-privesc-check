@@ -31,7 +31,7 @@
 . lib/misc/user
 
 privileged_writable_init () {
-	stdio_message_log "privileged_writable" "Starting"
+	stdio_message_log "privileged_writable" "Starting: `date`"
 }
 
 privileged_writable_permissions () {
@@ -95,5 +95,5 @@ privileged_writable_main () {
 }
 
 privileged_writable_fini () {
-	stdio_message_log "privileged_writable" "Ending"
+	stdio_message_log "privileged_writable" "Ending at: `date`"
 }
