@@ -33,7 +33,10 @@ stdio_message_log () {
 	message="${2}"
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	stdio_format_message "32" "I" "${check}" "${message}"
+	if [ "${VERBOSE}" -ge 1 ]
+	then
+		stdio_format_message "32" "I" "${check}" "${message}"
+	fi
 }
 
 stdio_message_warn () {
@@ -49,7 +52,10 @@ stdio_message_debug () {
 	message="${2}"
 	[ "`validate_is_string \"${check}\"`" ] || false
 	[ "`validate_is_string \"${message}\"`" ] || false
-	stdio_format_message "35" "D" "${check}" "${message}" >&2
+	if [ "${VERBOSE}" -ge 2 ]
+	then
+		stdio_format_message "35" "D" "${check}" "${message}" >&2
+	fi
 }
 
 stdio_message_error () {
