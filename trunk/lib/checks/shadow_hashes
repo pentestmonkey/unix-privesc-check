@@ -36,6 +36,7 @@ shadow_hashes_main () {
 		then
 			stdio_message_warn "shadow_hashes" "${username} has no password set"
 		fi
+		# TODO add check for hashing function used (1, 2c, etc.)
 	done
 }
 
