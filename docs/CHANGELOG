@@ -1,6 +1,30 @@
-2012-10-?? unix-privesc-check trunk
+2012-10-28 unix-privesc-check trunk
 
-<place holder for BDA>
+* Added history_readable security check to list all readable .*_history
+  files
+* Added homedirs_executable and homedirs_writable security checks
+* Added system_configuration security check to list writable permissions on
+  system configuration files and directories
+* Added support for --verbose switch
+* Added passwd_show_homedir function to passwd library
+* Aligned test types (symlinks) to all recently developed security checks
+* Bug fix: in group_is_in_group_name function
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-10-22 unix-privesc-check trunk
+
+* Added privileged_nx security check
+* Added privileged_relro security check
+* Added kernel library
+* Added system_aslr security check
+* Added system_mmap security check
+* Added system_nx security check
+* Added system_selinux security check
+* Added permission_is_world_writable_sticky_bit function to permission
+  library
+* Added support to verify sticky bit against world-writable directories
+* Renamed banned_* security checks to privileged_*
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
@@ -28,12 +52,58 @@
 
 2012-10-21 unix-privesc-check trunk
 
+* Added library to parse patterns, for now implements only one function to
+  extract and return all absolute file paths, parse_extract_absolute_filepaths
+* Added sudo library
+* Added sudo support to privileged library
+* Added user library
+* Added group library
+* Added permission library
+* Added file_is_readable function to file library
+* Added two functions to file library: file_exists_file and
+  file_is_regular_file and 
+* Added validate_is_boolean function to validate library
+* Added support for --color switch to enable output coloring
+* Updated jar and key_material security checks: removed one cycle, minor
+  refactoring and use new user and group libraries
+* Ported all calls to id command throught the code to their relevant
+  user/group libraries functions
+* Bug fix: missing import bug in binary_rpath security check
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-10-21 unix-privesc-check trunk
+
 * Bug fix: Changed $VERSION to ${VERSION} etc in upc.sh
 * Removed old TODOs from lib/checks/set[ug]id
 * Bug fix: Removed symlink exclusion in lib/misc/file cache
   generation
 
 -- Tim Brown <timb@nth-dimension.org.uk>
+
+2012-10-20 unix-privesc-check trunk
+
+* Minor improvements to lib/misc/linker
+* Bug fix: avoid using file as variable name
+* Bug fix: use grep instead of egrep in one file function
+* Consolidated the stdout to clarify where the warning message throughout
+  binary_* checks
+* Improved key_material and jar checks to show more detailed stdout
+* Major speedup to group_writable and world_writable checks
+* Re-engineered binary_dependency check
+* Improved binary_rpath and binary_writable security checks to also verify
+  write access by non-root users
+* Refactored system_libraries check code
+* Added function to check for SSH key files permissions to ssh_agent
+  security check
+* Renamed ssh_key_unencrypted check to ssh_key
+* Consolidated ssh_agent and ssh_key checks to also show encrypted key files
+* Removed exclusions from credentials security check
+* Created file function file_is_textual
+* Improved file_show_symlinked_filename function to be recursive and always
+  return the real linked filename
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-10-19 unix-privesc-check trunk
 
