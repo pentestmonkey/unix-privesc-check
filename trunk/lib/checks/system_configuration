@@ -31,7 +31,7 @@ system_configuration_init () {
 }
 
 system_configuration_main () {
-	sensitive_config_files="/etc/passwd /etc/group /etc/master.passwd /etc/inittab /etc/inetd.conf /etc/xinetd.conf /etc/crontab /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
+	sensitive_config_files="/etc/passwd /etc/group /etc/master.passwd /etc/init.d /etc/inittab /etc/inetd.conf /etc/xinetd.conf /etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.weekly /etc/cron.monthly /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
 	file_show_non_symlink_perms " /etc" | while read filename permissions userid groupid
 	do
 		sensitive="0"
