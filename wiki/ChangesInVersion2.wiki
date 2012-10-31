@@ -31,8 +31,8 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC014 || passwd_hashes || The following accounts have no password || ||
 || UPC015 || shadow_hashes || User $USER doesn't have a password || ||
 || UPC016 || shadow_hashes || User $USER doesn't have a password || ||
-|| UPC017 || TODO || Sudo is configured.  Manually check nothing unsafe is allowed || ||
-|| UPC018 || TODO || Some users can use sudo without a password || ||
+|| UPC017 || sudo || Sudo is configured.  Manually check nothing unsafe is allowed || ||
+|| UPC018 || sudo || Some users can use sudo without a password || ||
 || UPC019 || TODO || Postgres trust configured in $DIR/pg_hba.conf $LINE || ||
 || UPC020 || TODO || Can connect to local postgres database as \"postgres\" without a password || ||
 || UPC021 || TODO || Can connect to local postgres database as \"pgsql\" without a password || ||
