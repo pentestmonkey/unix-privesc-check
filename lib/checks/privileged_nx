@@ -32,7 +32,7 @@ privileged_nx_init () {
 privileged_nx_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
-		if [ "`binary_nx "${filename}"`" -ne 1 ]
+		if [ "`binary_nx \"${filename}\"`" -ne 1 ]
 		then
 			stdio_message_warn "privileged_nx" "${filetype} ${filename} (${usergroupid}) and is not compiled with NX (NoExecute)"
 		fi
