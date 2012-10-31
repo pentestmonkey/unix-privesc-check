@@ -138,14 +138,14 @@ file_show_symlinked_filename () {
 					file_show_symlinked_filename "${linkedfilename}"
 				else
 					printf -- "${linkedfilename}\n"
-					#printf -- "file_show_symlinked_filename returning ${linkedfilename}\n" 1>&2
+					#stdio_message_debug "file" "file_show_symlinked_filename returning ${linkedfilename}"
 				fi
 				;;
 			*)
 				if [ -n "${linkedfilename}" ]
 				then
 					printf -- "`dirname \"${filename}\"`/${linkedfilename}\n"
-					#printf -- "file_show_symlinked_filename returning `dirname \"${filename}\"`/${linkedfilename}\n" 1>&2
+					#stdio_message_debug "file" "file_show_symlinked_filename returning `dirname \"${filename}\"`/${linkedfilename}"
 				fi
 				;;
 		esac
@@ -194,7 +194,7 @@ file_exists_file () {
 	then
 		printf -- "1\n"
 	else
-		stdio_message_error "file" "${filename} does not exist"
+		#stdio_message_error "file" "${filename} does not exist"
 		printf -- "0\n"
 	fi
 }
@@ -217,6 +217,16 @@ file_is_readable_file () {
 		printf -- "1\n"
 	else
 		stdio_message_error "file" "${filename} is not readable"
+		printf -- "0\n"
+	fi
+}
+
+file_is_directory () {
+	filename="${1}"
+	if [ -e "${filename}" -a -d "${filename}" ]
+	then
+		printf -- "1\n"
+	else
 		printf -- "0\n"
 	fi
 }
