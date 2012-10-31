@@ -24,10 +24,10 @@ then
 
 privilegedincluded=1
 
-. lib/misc/stdio
 . lib/misc/file
 . lib/misc/inetd
 . lib/misc/process
+. lib/misc/stdio
 . lib/misc/sudo
 
 privilegedcachefilename="privileged_cache.temp"
