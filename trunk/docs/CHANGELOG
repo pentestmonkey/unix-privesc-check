@@ -1,3 +1,11 @@
+2012-10-30 unix-privesc-check trunk
+
+* Added sudo security check to verify permissions on /etc/sudoers and its
+  entries
+  * Added functions to parse /etc/sudoers to sudo library
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
 2012-10-28 unix-privesc-check trunk
 
 * Added history_readable security check to list all readable .*_history
