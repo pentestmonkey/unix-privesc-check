@@ -32,7 +32,11 @@ binaryincluded=1
 binary_list_rpath () {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
-	if [ "`uname`" = "AIX" ]
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "\n"
+	elif [ "`uname`" = "AIX" ]
 	then
 		dumpflag=0
 		dump -Hv -X 32_64 "${filename}" | while read line
@@ -92,7 +96,11 @@ binary_list_rpath () {
 binary_pie() {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
-	if [ "`uname`" = "Linux" ]
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "1\n"
+	elif [ "`uname`" = "Linux" ]
 	then
 		if [ -n "`objdump -x "${filename}" | head -5 | grep "DYNAMIC"`" ]
 		then
@@ -108,7 +116,11 @@ binary_pie() {
 binary_relro_full() {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
-	if [ "`uname`" = "Linux" ]
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "1\n"
+	elif [ "`uname`" = "Linux" ]
 	then
 		if [ -n "`objdump -x "${filename}" | grep "BIND_NOW"`" ]
 		then
@@ -124,7 +136,11 @@ binary_relro_full() {
 binary_relro() {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
-	if [ "`uname`" = "Linux" ]
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "1\n"
+	elif [ "`uname`" = "Linux" ]
 	then
 		if [ -n "`objdump -x "${filename}" | head -30 | grep "RELRO"`" ]
 		then
@@ -140,7 +156,11 @@ binary_relro() {
 binary_nx() {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
-	if [ "`uname`" = "Linux" ]
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "1\n"
+	elif [ "`uname`" = "Linux" ]
 	then
 		isstackline="0"
 		oldifs="${IFS}"
@@ -185,7 +205,11 @@ binary_matches_function () {
 	pattern="${2}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
-	if [ -n "`objdump -T "${filename}" | egrep "${pattern}"`" ]
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "1\n"
+	elif [ -n "`objdump -T "${filename}" | egrep "${pattern}"`" ]
 	then
 		printf -- "1\n"
 	else
@@ -198,7 +222,13 @@ binary_banned_api () {
 	pattern="${2}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
-	printf -- "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
+	# skip textual files (bash scripts, python scripts, etc)
+	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
+	then
+		printf -- "\n"
+	else
+		printf -- "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
+	fi
 }
 
 fi
