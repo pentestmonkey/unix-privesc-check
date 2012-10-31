@@ -24,6 +24,7 @@ then
 
 privilegedincluded=1
 
+. lib/misc/cron
 . lib/misc/file
 . lib/misc/inetd
 . lib/misc/process
@@ -71,6 +72,40 @@ privileged_check_or_generate_cache () {
 			do
 				printf -- "sudo-${passwd} ${realfilename} ${privilegeduser}\n"
 			done
+		done >>"${privilegedcachefilename}"
+		if [ "`sudo_sudoers_check`" -eq 1 ]
+		then
+			sudo_sudoers_list | while read privilegeduser passwd privilegedfilename
+			do
+				file_show_real_filename "${privilegedfilename}" | while read realfilename
+				do
+					printf -- "sudoers-${passwd} ${realfilename} ${privilegeduser}\n"
+				done
+			done >>"${privilegedcachefilename}"
+		fi
+		cron_crontab_list | while read userid filename
+		do
+			file_show_real_filename "${filename}" | while read realfilename
+			do
+				printf -- "crontab ${realfilename} ${userid}\n"
+			done
+		done >>"${privilegedcachefilename}"
+		cron_system_list | while read userid filename
+		do
+			if [ "`file_is_readable_file \"${filename}\"`" -eq 1 ]
+			then
+				printf -- "cron-system ${filename} ${userid}\n"
+				cron_system_files_extract_paths | while read userid filepath
+				do
+					# avoid duplicates' file paths
+					if [ -n "`egrep \"^cron-system-path ${filepath} ${userid}\" ${privilegedcachefilename}`" ]
+					then
+						continue
+					else
+						printf -- "cron-system-path ${filepath} ${userid}\n"
+					fi
+				done
+			fi
 		done >>"${privilegedcachefilename}"
 		process_list ".*" | while read processid
 		do
