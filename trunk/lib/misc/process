@@ -26,6 +26,7 @@ then
 
 processincluded=1
 
+. lib/misc/parse
 . lib/misc/validate
 
 process_list () {
@@ -64,11 +65,30 @@ process_show_parentid () {
 process_show_command () {
 	pattern="${1}"
 	[ "`validate_is_number \"${pattern}\"`" ] || false
-	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command arguments
+	ps -aeo ruser,rgroup,pid,ppid,args | grep -v "PID" | grep "${pattern}" | grep -v "grep" | while read userid groupid processid parentid command argument _
 	do
 		if [ "${processid}" -eq "${pattern}" ]
 		then
-			printf -- "${command}\n"
+			if [ -n "`printf -- \"${command}\" | egrep -- \"awk|ruby|python|perl|/sh|bash|dash|ksh|csh|expect\"`" ]
+			then
+				case "${argument}" in
+					/*)
+						printf -- "${argument}\n"
+						;;
+					# for cases where the script has been executed following a cd into its parent path it will show in the ps output as follows:
+					#	foobar foobar  pid  ppid /bin/sh ./scriptname.sh
+					./*)
+						filepath="`parse_environ_cwd \"${processid}\"`"
+						if [ -n "${filepath}" ]
+						then
+							# the cut is to strip the './' as filepath is the absolute path
+							printf -- "${filepath}/`printf -- \"${argument}\" | cut -c3-`\n"
+						fi
+						;;
+				esac
+			else
+				printf -- "${command}\n"
+			fi
 		fi
 	done
 }
