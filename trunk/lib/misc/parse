@@ -26,6 +26,7 @@ then
 
 parseincluded=1
 
+. lib/misc/file
 . lib/misc/validate
 
 parse_extract_absolute_filepaths () {
