@@ -28,7 +28,6 @@ cronincluded=1
 
 . lib/misc/file
 . lib/misc/parse
-. lib/misc/validate
 . lib/misc/user
 
 cron_crontab_list () {
@@ -38,6 +37,28 @@ cron_crontab_list () {
 		#    0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
 		#    30 6 * * * id > /tmp/test
 		printf -- "`user_show_user_name` ${command}\n"
+	done
+}
+
+cron_crontabs_list () {
+	file_show_perms " /var/spool/cron/crontabs/" | while read filename permissions userid groupid
+	do
+		case "${permissions}" in
+			-?????????)
+				# ignore user's own crontab file as it is retrieved by cron_crontab_list function
+				if [ "${filename}" != "`user_show_user_name`" ]
+				then
+					printf -- "${userid} ${filename}\n"
+				fi
+				;;
+			l?????????)
+				printf -- "${userid} `file_show_symlinked_filename \"${filename}\"`\n"
+				;;
+			d?????????)
+				# ignore directories
+				continue
+				;;
+		esac
 	done
 }
 
@@ -59,7 +80,9 @@ cron_system_list () {
 	done
 }
 
-cron_system_files_extract_paths () {
+cron_file_extract_paths () {
+	filename="${1}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	parse_extract_absolute_filepaths "`cat -- \"${filename}\"`" | while read filepath
 	do
 		# do not return file paths that do not exist, are /dev/null or are within /proc
