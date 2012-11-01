@@ -42,7 +42,7 @@ passwd_hashes_main () {
 				then
 					stdio_message_warn "passwd_hashes" "${username} has no password set"
 				else
-					stdio_message_warn "passwd_hashes" "/etc/passwd may contain hash for ${username} (${hash})"
+					stdio_message_warn "passwd_hashes" "/etc/passwd contains password hash for ${username} (${hash})"
 				fi
 			fi
 		fi
