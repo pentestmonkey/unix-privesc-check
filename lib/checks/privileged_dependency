@@ -42,16 +42,14 @@ privileged_dependency_traverse () {
 	pathtype="${5}"
 	file_parent_traverse "${pattern}" | while read filename
 	do
-		#echo "Traversing path for pattern ${pattern}, privileged file ${filetype} is ${privfilename} and library is ${library}"
 		# /etc/ld.so.conf.d/ files can contain files which we are not interested here, only directories
 		if [ ! -d "${filename}" ]
 		then
 			continue
 		fi
-
 		file_show_non_symlink_perms " ${filename}$" | while read filepath permissions userid groupid
 		do
-			#echo "Checking permissions of filepath ${filepath} ($permissions), privileged file ${filetype} is ${privfilename} and library is ${library}"
+			#stdio_message_debug "privileged_dependency" "Checking permissions of ${pathtype} ${filepath} ($permissions) for privileged file ${filetype} is ${privfilename} and library is ${library}"
 			case "${permissions}" in
 				????????w?)
 					if [ "`permission_is_world_writable_sticky_bit \"${permissions}\"`" -eq 1 ]
@@ -89,7 +87,7 @@ privileged_dependency_permissions () {
 	filetype="${3}"
 	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
-		#echo "Checking permissions for filename ${filename} ($permissions), privileged file is ${privfilename}"
+		#stdio_message_debug "privileged_dependency" "Checking permissions for privileged file ${filetype} ${privfilename}'s library ${filename} ($permissions)"
 		case "${permissions}" in
 			????????w?)
 				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
@@ -120,20 +118,22 @@ privileged_dependency_permissions () {
 privileged_dependency_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
-		#echo "Processing privileged file ${filetype} ${filename}"
+		#stdio_message_debug "privileged_dependency" "Processing privileged file ${filetype} ${filename}"
 		linker_list_dependencies "${filename}" | while read library
 		do
-			#echo "Processing privileged file ${filename}'s library ${library}"
+			#stdio_message_debug "privileged_dependency" "Processing privileged file ${filetype} ${filename}'s library ${library}"
 			# when the library needed by the program does not exist, ldd returns "not found" - i.e. "	libname.so.2 => not found", however the following if condition is cautious and checks both if the file exist and if the ldd output returned "not found" (hence the linker library returned the library relative path (relativelibrary))
 			if [ ! -e "${library}" -o -n "`printf -- \"${library}\" | grep -v \"^/\"`" ]
 			then
 				case "${library}" in
 					# if the library is a absolute file path, we check for write permissions on its parent directories
 					/*)
+						#stdio_message_debug "privileged_dependency" "Library ${library} does not exist, traversing parent paths"
 						privileged_dependency_traverse "${library}" "${filename}" "${filetype}" "${library}" "parent path"
 						;;
 					# if the library is a relative file path, we check for write permissions on all system libraries file paths
 					*)
+						#stdio_message_debug "privileged_dependency" "Library ${library} does not exist, traversing system library paths"
 						linker_list_system_filenames | while read filepath
 						do
 							privileged_dependency_traverse "${filepath}" "${filename}" "${filetype}" "${library}" "system library path"
@@ -141,16 +141,12 @@ privileged_dependency_main () {
 						;;
 				esac
 				continue
-			fi
-
-
-			if [ -h "${library}" ]
+			elif [ -h "${library}" ]
 			then
 				linkedlibrary="`file_show_symlinked_filename "${library}"`"
-
 				if [ -n "${linkedlibrary}" ]
 				then
-					#stdio_message_debug "privileged_dependency" "${filetype} ${filename} depends on ${library}, a symlink to ${linkedlibrary}"
+					#stdio_message_debug "privileged_dependency" "Privileged file ${filetype} ${filename} depends on library ${library}, a symlink to ${linkedlibrary}"
 					privileged_dependency_permissions "${linkedlibrary}" "${filename}" "${filetype}"
 				fi
 			else
