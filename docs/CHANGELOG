@@ -1,3 +1,19 @@
+2012-10-31 unix-privesc-check trunk
+
+* Added cron library to parse /etc/cron*, /var/spool/cron/crontabs/*,
+  crontab -l and used it in privileged library
+* Enhanced process_show_command function to process /proc/PID/environ and
+  return script file path instead of ruby, perl, bash, etc
+* Added parse_environ_cwd function to parse /proc/PID/environ file and
+  extract the process current working directory
+* Added a preliminary check to all functions that call objdump to ensure
+  the file is not a textual file (like a bash script, etc)
+* Added other file paths to check for permissions in system_configuration
+  security check
+* Added file_is_directory function to file library
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
 2012-10-30 unix-privesc-check trunk
 
 * Added sudo security check to verify permissions on /etc/sudoers and its
