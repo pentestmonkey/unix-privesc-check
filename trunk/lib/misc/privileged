@@ -27,6 +27,7 @@ privilegedincluded=1
 . lib/misc/cron
 . lib/misc/file
 . lib/misc/inetd
+. lib/misc/inittab
 . lib/misc/process
 . lib/misc/stdio
 . lib/misc/sudo
@@ -66,6 +67,13 @@ privileged_check_or_generate_cache () {
 				printf -- "inetd-argument ${realfilename} ${userid}\n"
 			done
 		done >>"${privilegedcachefilename}"
+		inittab_list | while read userid filename
+		do
+			file_show_real_filename "${filename}" | while read realfilename
+			do
+				printf -- "inittab ${realfilename} ${userid}\n"
+			done
+		done >>"${privilegedcachefilename}"
 		sudo_list | while read privilegeduser passwd privilegedfilename
 		do
 			file_show_real_filename "${privilegedfilename}" | while read realfilename
@@ -73,16 +81,13 @@ privileged_check_or_generate_cache () {
 				printf -- "sudo-${passwd} ${realfilename} ${privilegeduser}\n"
 			done
 		done >>"${privilegedcachefilename}"
-		if [ "`sudo_sudoers_check`" -eq 1 ]
-		then
-			sudo_sudoers_list | while read privilegeduser passwd privilegedfilename
+		sudo_sudoers_list | while read privilegeduser passwd privilegedfilename
+		do
+			file_show_real_filename "${privilegedfilename}" | while read realfilename
 			do
-				file_show_real_filename "${privilegedfilename}" | while read realfilename
-				do
-					printf -- "sudoers-${passwd} ${realfilename} ${privilegeduser}\n"
-				done
-			done >>"${privilegedcachefilename}"
-		fi
+				printf -- "sudoers-${passwd} ${realfilename} ${privilegeduser}\n"
+			done
+		done >>"${privilegedcachefilename}"
 		cron_crontab_list | while read userid filename
 		do
 			file_show_real_filename "${filename}" | while read realfilename
