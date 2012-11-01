@@ -21,23 +21,27 @@
 #
 # List users with no password set
 
-. lib/misc/stdio
 . lib/misc/shadow
+. lib/misc/stdio
 
 shadow_hashes_init () {
 	stdio_message_log "shadow_hashes" "Starting at: `date`"
 }
 
 shadow_hashes_main () {
-	shadow_list | while read username
-	do
-		hash="`shadow_show_hash "${username}"`"
-		if [ -z "${hash}" ]
-		then
-			stdio_message_warn "shadow_hashes" "${username} has no password set"
-		fi
-		# TODO add check for hashing function used (1, 2c, etc.)
-	done
+	if [ "`shadow_file_check`" -eq 1 ]
+	then
+		stdio_message_warn "shadow_hashes" "password hashes file is readable"
+		shadow_list | while read username
+		do
+			hash="`shadow_show_hash "${username}"`"
+			if [ -z "${hash}" ]
+			then
+				stdio_message_warn "shadow_hashes" "${username} has no password set"
+			fi
+			# TODO add check for hashing function used (1, 2c, etc.)
+		done
+	fi
 }
 
 shadow_hashes_fini () {
