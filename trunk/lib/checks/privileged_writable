@@ -24,7 +24,6 @@
 
 . lib/misc/file
 . lib/misc/group
-. lib/misc/linker
 . lib/misc/permission
 . lib/misc/privileged
 . lib/misc/stdio
@@ -59,24 +58,15 @@ privileged_writable_permissions () {
 			fi
 		;;
 		??w???????)
-			if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
+			if [ "`user_is_user_root \"${userid}\"`" -ne 1 -a "`user_show_user_name`" = "${userid}" ]
+			then
+				stdio_message_debug "privileged_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (YOU) (group ${groupid}), non-root user (${permissions})"
+			elif [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
 			then
 				stdio_message_log "privileged_writable" "(${filetype} ${privfilename}) ${filename} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
 		;;
 	esac
-}
-
-privileged_writable_wrapper () {
-	privfilename="${1}"
-	filetype="${2}"
-	file_parent_traverse "${privfilename}" | while read filepath
-	do
-		file_show_non_symlink_perms " ${filepath}$" | while read filename permissions userid groupid
-		do
-			privileged_writable_permissions "${filename}" "${permissions}" "${userid}" "${groupid}" "${privfilename}" "${filetype}"
-		done
-	done
 }
 
 privileged_writable_main () {
@@ -86,11 +76,15 @@ privileged_writable_main () {
 		if [ ! -e "${filename}" ]
 		then
 			stdio_message_debug "privileged_writable" "${filetype} ${filename} does not exist"
-			privileged_writable_wrapper "${filename}" "${filetype}"
-			continue
 		fi
 
-		privileged_writable_wrapper "${filename}" "${filetype}"
+		file_parent_traverse "${filename}" | while read filepath
+		do
+			file_show_non_symlink_perms " ${filepath}$" | while read filepath permissions userid groupid
+			do
+				privileged_writable_permissions "${filepath}" "${permissions}" "${userid}" "${groupid}" "${filename}" "${filetype}"
+			done
+		done
 	done
 }
 

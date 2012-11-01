@@ -40,9 +40,9 @@ privileged_dependency_traverse () {
 	filetype="${3}"
 	library="${4}"
 	pathtype="${5}"
-	#echo "privileged_dependency_traverse called for ${library}"
 	file_parent_traverse "${pattern}" | while read filename
 	do
+		#echo "Traversing path for pattern ${pattern}, privileged file ${filetype} is ${privfilename} and library is ${library}"
 		# /etc/ld.so.conf.d/ files can contain files which we are not interested here, only directories
 		if [ ! -d "${filename}" ]
 		then
@@ -51,7 +51,7 @@ privileged_dependency_traverse () {
 
 		file_show_non_symlink_perms " ${filename}$" | while read filepath permissions userid groupid
 		do
-			#echo "Checking permissions of filepath ${filepath} ($permissions)"
+			#echo "Checking permissions of filepath ${filepath} ($permissions), privileged file ${filetype} is ${privfilename} and library is ${library}"
 			case "${permissions}" in
 				????????w?)
 					if [ "`permission_is_world_writable_sticky_bit \"${permissions}\"`" -eq 1 ]
@@ -70,7 +70,10 @@ privileged_dependency_traverse () {
 					fi
 					;;
 				??w???????)
-					if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
+					if [ "`user_is_user_root \"${userid}\"`" -ne 1 -a "`user_show_user_name`" = "${userid}" ]
+					then
+						stdio_message_debug "privileged_dependency" "${filetype} ${privfilename} depends on ${library} - ${pathtype} ${filepath} is owned by user ${userid} (YOU) (group ${groupid}), non-root user (${permissions})"
+					elif [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
 					then
 						stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${library} - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 					fi
@@ -84,10 +87,9 @@ privileged_dependency_permissions () {
 	library="${1}"
 	privfilename="${2}"
 	filetype="${3}"
-	#echo "privileged_dependency_permissions called for ${library}"
 	file_show_non_symlink_perms " ${library}$" | while read filename permissions userid groupid
 	do
-		#echo "Checking permissions for filename ${filename} ($permissions)"
+		#echo "Checking permissions for filename ${filename} ($permissions), privileged file is ${privfilename}"
 		case "${permissions}" in
 			????????w?)
 				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
@@ -118,10 +120,10 @@ privileged_dependency_permissions () {
 privileged_dependency_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
-		#echo "Processing ${filetype} ${filename}"
+		#echo "Processing privileged file ${filetype} ${filename}"
 		linker_list_dependencies "${filename}" | while read library
 		do
-			#echo "Processing library ${library}"
+			#echo "Processing privileged file ${filename}'s library ${library}"
 			# when the library needed by the program does not exist, ldd returns "not found" - i.e. "	libname.so.2 => not found", however the following if condition is cautious and checks both if the file exist and if the ldd output returned "not found" (hence the linker library returned the library relative path (relativelibrary))
 			if [ ! -e "${library}" -o -n "`printf -- \"${library}\" | grep -v \"^/\"`" ]
 			then

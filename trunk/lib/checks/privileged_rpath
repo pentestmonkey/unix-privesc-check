@@ -60,7 +60,10 @@ privileged_rpath_permissions () {
 			fi
 			;;
 		??w???????)
-			if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
+			if [ "`user_is_user_root \"${userid}\"`" -ne 1 -a "`user_show_user_name`" = "${userid}" ]
+			then
+				stdio_message_debug "privileged_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (YOU) (group ${groupid}), non-root user (${permissions})"
+			elif [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
 			then
 				stdio_message_log "privileged_rpath" "${filetype} ${privfilename} trusts ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 			fi
@@ -86,8 +89,11 @@ privileged_rpath_main () {
 	do
 		binary_list_rpath "${filename}" | while read filepath
 		do
+			if [ -z "${filepath}" ]
+			then
+				continue
 			# relative paths always end up at . with dirname
-			if [ "${filepath}" = "." -o "`printf -- \"${filepath}\" | egrep -- \"ORIGIN\"`" ]
+			elif [ "${filepath}" = "." -o "`printf -- \"${filepath}\" | egrep -- \"ORIGIN\"`" ]
 			then
 				stdio_message_warn "privileged_rpath" "${filetype} ${filename} trusts ${filepath} and this is relative"
 				continue
