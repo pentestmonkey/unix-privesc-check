@@ -216,7 +216,7 @@ file_is_readable_file () {
 	then
 		printf -- "1\n"
 	else
-		stdio_message_error "file" "${filename} is not readable"
+		#stdio_message_error "file" "${filename} is not readable"
 		printf -- "0\n"
 	fi
 }
