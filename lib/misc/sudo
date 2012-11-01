@@ -81,31 +81,34 @@ sudo_sudoers_check () {
 }
 
 sudo_sudoers_list () {
-	sudoers_entries="`egrep -v \"^#\" \"/etc/sudoers\" | egrep -v \"^[ \t]*$\" | egrep -v \"^[ \t]*Default\" | egrep -- \"=\"`"
-	# FIXME this printf fails when the an entry starts with percentage character (%) which is common for sudoers group
-	printf -- "${sudoers_entries}" | while read privilegeduser passwd settings
-	do
-		if [ -n "`printf -- \"${privilegeduser}\" | egrep -- \"_Alias\"`" ]
-		then
-			continue
-		fi
-		# TODO this does not consider command aliases (Cmnd_Alias setting)
-		if [ -z "`parse_extract_absolute_filepaths \"${settings}\"`" ]
-		then
-			printf -- "${privilegeduser} ${passwd} ${settings}\n"
-		fi
-		parse_extract_absolute_filepaths "${settings}" | while read filepath
+	if [ "`sudo_sudoers_check`" -eq 1 ]
+	then
+		sudoers_entries="`egrep -v \"^#\" \"/etc/sudoers\" | egrep -v \"^[ \t]*$\" | egrep -v \"^[ \t]*Default\" | egrep -- \"=\"`"
+		# FIXME this printf fails when the an entry starts with percentage character (%) which is common for sudoers group
+		printf -- "${sudoers_entries}" | while read privilegeduser passwd settings
 		do
-			case "${filepath}" in
-				/*/)
-					printf -- "${privilegeduser} ${passwd} ${filepath}*\n"
-					;;
-				/*)
-					printf -- "${privilegeduser} ${passwd} ${filepath}\n"
-					;;
-			esac
+			if [ -n "`printf -- \"${privilegeduser}\" | egrep -- \"_Alias\"`" ]
+			then
+				continue
+			fi
+			# TODO this does not consider command aliases (Cmnd_Alias setting)
+			if [ -z "`parse_extract_absolute_filepaths \"${settings}\"`" ]
+			then
+				printf -- "${privilegeduser} ${passwd} ${settings}\n"
+			fi
+			parse_extract_absolute_filepaths "${settings}" | while read filepath
+			do
+				case "${filepath}" in
+					/*/)
+						printf -- "${privilegeduser} ${passwd} ${filepath}*\n"
+						;;
+					/*)
+						printf -- "${privilegeduser} ${passwd} ${filepath}\n"
+						;;
+				esac
+			done
 		done
-	done
+	fi
 }
 
 fi
