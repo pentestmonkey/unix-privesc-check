@@ -205,7 +205,7 @@ file_is_regular_file () {
 	then
 		printf -- "1\n"
 	else
-		stdio_message_error "file" "${filename} is not a regular file"
+		#stdio_message_error "file" "${filename} is not a regular file"
 		printf -- "0\n"
 	fi
 }
