@@ -26,11 +26,12 @@ then
 
 linkerincluded=1
 
-. lib/misc/validate
+. lib/misc/file
 
 linker_list_dependencies () {
 	filename="${1}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_textual \"${filename}\"`" -eq 0 ] || false
 	if [ "`uname`" = "AIX" ]
 	then
 		ldd "${filename}" | grep -v "needs:" | while read library
@@ -39,7 +40,6 @@ linker_list_dependencies () {
 				/*)
 					library="`printf -- \"${library}\" | sed \"s/(.*//g\"`"
 					printf -- "${library}\n"
-					linker_list_dependencies "${library}"
 					;;
 			esac
 		done | sort | uniq
@@ -49,23 +49,18 @@ linker_list_dependencies () {
 			case "${library}" in
 				/*)
 					printf -- "${library}\n"
-					# this recursion is very costly and slows down a lot the checks that call this function when they depend upon 10+ libraries (i.e. /usr/games/gnomine depends upon 48 libraries)
-					linker_list_dependencies "${library}"
 					;;
 				not)
 					printf -- "${relativelibrary}\n"
 					;;
 			esac
 		done | sort | uniq
-
 		# this is for cases where the first column of the ldd is not a symlink (for example a ldd /bin/umount has amongst its libraries also /lib/ld-linux.so.2 (0xb76e6000), not symlinked)
 		ldd "${filename}" | while read library _ _ _
 		do
 			case "${library}" in
 				/*)
 					printf -- "${library}\n"
-					# do not be recursive here - it causes an error on ldd /lib/ld-linux.so.2 (loader cannot load itself)
-					#linker_list_dependencies "${library}"
 					;;
 			esac
 		done | sort | uniq
@@ -77,31 +72,29 @@ linker_list_system_filenames () {
 	then
 		printf -- "/lib\n"
 		printf -- "/usr/lib\n"
-	else
-		if [ "`uname`" = "Linux" ]
-		then
-			while read line
-			do
-				case "${line}" in
-					/*)
-						printf -- "${line}\n"
-						;;
-					include*)
-						printf -- "${line}\n" | while read _ filename
+	elif [ "`uname`" = "Linux" ]
+	then
+		while read line
+		do
+			case "${line}" in
+				/*)
+					printf -- "${line}\n"
+					;;
+				include*)
+					printf -- "${line}\n" | while read _ filename
+					do
+						cat ${filename} | while read line
 						do
-							cat ${filename} | while read line
-							do
-								case "${line}" in
-									/*)
-										printf -- "${line}\n"
-										;;
-								esac
-							done
+							case "${line}" in
+								/*)
+									printf -- "${line}\n"
+									;;
+							esac
 						done
-						;;
-				esac
-			done < "/etc/ld.so.conf" | sort | uniq
-		fi
+					done
+					;;
+			esac
+		done <"/etc/ld.so.conf" | sort | uniq
 	fi
 }
 
