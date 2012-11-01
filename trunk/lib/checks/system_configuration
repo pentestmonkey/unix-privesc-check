@@ -39,8 +39,7 @@ system_configuration_main () {
 	/etc/group
 	/etc/cron
 	/etc/fstab
-	/etc/inittab
-	/etc/init.d
+	/etc/init
 	/etc/rc
 	/etc/inetd
 	/etc/xinetd
