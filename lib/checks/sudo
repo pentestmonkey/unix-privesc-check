@@ -35,6 +35,7 @@ sudo_main () {
 		then
 			stdio_message_warn "sudo" "/etc/sudoers is readable and configured"
 
+			# TODO: if privilegeduser is a group (e.g. %admin), notify the user accordingly
 			sudo_sudoers_list | while read privilegeduser passwd filepath
 			do
 				asuser="`printf -- \"${passwd}\" | cut -f2 -d\"=\" | tr -d \"(\" | tr -d \")\"`"

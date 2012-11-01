@@ -89,7 +89,7 @@ sudo_sudoers_list () {
 		then
 			continue
 		fi
-		# this does not consider command aliases (Cmnd_Alias setting)
+		# TODO this does not consider command aliases (Cmnd_Alias setting)
 		if [ -z "`parse_extract_absolute_filepaths \"${settings}\"`" ]
 		then
 			printf -- "${privilegeduser} ${passwd} ${settings}\n"
