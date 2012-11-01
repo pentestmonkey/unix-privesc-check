@@ -31,14 +31,33 @@ system_configuration_init () {
 }
 
 system_configuration_main () {
-	sensitive_config_files="/etc/passwd /etc/group /etc/master.passwd /etc/init.d /etc/inittab /etc/inetd.conf /etc/xinetd.conf /etc/crontab /etc/cron.d /etc/cron.daily /etc/cron.weekly /etc/cron.monthly /etc/fstab /etc/profile /etc/sudoers /etc/hosts.equiv /etc/shosts.equiv"
+	sensitive_config_files="/etc/passwd
+	/etc/shadow
+	/etc/master.passwd
+	/etc/group
+	/etc/cron
+	/etc/fstab
+	/etc/inittab
+	/etc/init.d
+	/etc/rc
+	/etc/inetd
+	/etc/xinetd
+	/etc/bash.bashrc
+	/etc/profile
+	/etc/sudoers
+	/etc/hosts.equiv
+	/etc/shosts.equiv"
 	file_show_non_symlink_perms " /etc" | while read filename permissions userid groupid
 	do
 		sensitive="0"
-		if [ -n "`printf -- \"${sensitive_config_files}\" | egrep -- \"${filename}\"`" ]
-		then
-			sensitive="1"
-		fi
+		printf -- "${sensitive_config_files}\n" | while read sensitive_config_file
+		do
+			sensitive_config_file="`printf -- \"${sensitive_config_file}\" | tr -d \"\t\"`"
+			if [ -n "`printf -- \"${filename}\" | egrep -- \"^${sensitive_config_file}\"`" ]
+			then
+				sensitive="1"
+			fi
+		done
 		if [ "${sensitive}" -eq 1 ]
 		then
 			message="- sensitive file"
