@@ -31,7 +31,6 @@ privileged_tmp_init () {
 }
 
 privileged_tmp_main () {
-	# TODO scan also bash scripts
 	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]

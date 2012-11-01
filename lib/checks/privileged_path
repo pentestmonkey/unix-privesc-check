@@ -31,7 +31,6 @@ privileged_path_init () {
 }
 
 privileged_path_main () {
-	# TODO scan also bash scripts
 	privileged_list | while read filetype filename usergroupid
 	do
 		if [ "`binary_matches_string "${filename}" "PATH="`" -eq 1 ]
