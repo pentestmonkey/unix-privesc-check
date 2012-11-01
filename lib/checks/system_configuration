@@ -25,6 +25,7 @@
 . lib/misc/group
 . lib/misc/permission
 . lib/misc/stdio
+. lib/misc/user
 
 system_configuration_init () {
 	stdio_message_log "system_configuration" "Starting at: `date`"
@@ -34,6 +35,7 @@ system_configuration_main () {
 	sensitive_config_files="/etc/passwd
 	/etc/shadow
 	/etc/master.passwd
+	/etc/security/passwd
 	/etc/group
 	/etc/cron
 	/etc/fstab
@@ -68,7 +70,7 @@ system_configuration_main () {
 			????????w?)
 				if [ "`permission_is_world_writable_sticky_bit \"${permissions}\"`" -eq 1 ]
 				then
-					stdio_message_log "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})"
+					stdio_message_log "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable with sticky bit (${permissions})${message}"
 				else
 					stdio_message_warn "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})${message}"
 				fi
@@ -78,9 +80,18 @@ system_configuration_main () {
 				then
 					stdio_message_warn "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-writable (${permissions})${message}"
 				else
-					stdio_message_debug "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})"
+					stdio_message_debug "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is group-writable (${permissions})${message}"
 				fi
 				;;
+			??w???????)
+				if [ "`user_is_user_root \"${userid}\"`" -ne 1 -a "`user_show_user_name`" = "${userid}" ]
+				then
+					stdio_message_warn "system_configuration" "${filename} is owned by user ${userid} (YOU) (group ${groupid}), non-root user (${permissions})${message}"
+				elif [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
+				then
+					stdio_message_log "system_configuration" "${filename} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})${message}"
+				fi
+			;;
 		esac
 	done
 }
