@@ -35,7 +35,7 @@ binary_list_rpath () {
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
-		printf -- "\n"
+		printf -- ""
 	elif [ "`uname`" = "AIX" ]
 	then
 		dumpflag=0
