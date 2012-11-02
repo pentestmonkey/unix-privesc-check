@@ -29,6 +29,7 @@ cronincluded=1
 . lib/misc/file
 . lib/misc/parse
 . lib/misc/user
+. lib/misc/validate
 
 cron_crontab_list () {
 	crontab -l | egrep -v "^#|^$" | while read minute hour dom mon dow command arguments
@@ -62,15 +63,50 @@ cron_crontabs_list () {
 	done
 }
 
-cron_system_list () {
-	file_show_perms " /etc/cron" | while read filename permissions userid groupid
+cron_system_crontab_list () {
+	cat "/etc/crontab" | egrep -v "^#|^$" | egrep -v "run-parts " | while read minute hour dom mon dow user command arguments
 	do
+		# Example of /etc/crontab lines:
+		#    18 23	2 * *	luther	command args
+		#    19 21	3 * *	wu	dir > /tmp/dir
+		if [ -n "${user}" -a -n "${command}" ]
+		then
+			printf -- "${user} ${command}\n"
+		fi
+	done
+}
+
+cron_system_get_user () {
+	filepath="${1}"
+	[ "`validate_is_string \"${filepath}\"`" ] || false
+	filepath="`dirname \"${filepath}\"`"
+	cat "/etc/crontab" | egrep -v "^#|^$" | egrep -- "run-parts " | while read minute hour dom mon dow user command arguments
+	do
+		# Example of /etc/crontab lines:
+		#    17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+		#    25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+		if [ -n "`printf -- \"${arguments}\" | egrep -- \" ${filepath}\"`" ]
+		then
+			printf -- "${user}\n"
+			break
+		fi
+	done
+}
+
+cron_system_list () {
+	file_show_perms " /etc/cron\." | while read filename permissions _ _
+	do
+		userid="`cron_system_get_user \"${filename}\"`"
+		if [ -z "${userid}" ]
+		then
+			userid="root"
+		fi
 		case "${permissions}" in
 			-?????????)
-				printf -- "root ${filename}\n"
+				printf -- "${userid} ${filename}\n"
 				;;
 			l?????????)
-				printf -- "root `file_show_symlinked_filename \"${filename}\"`\n"
+				printf -- "${userid} `file_show_symlinked_filename \"${filename}\"`\n"
 				;;
 			d?????????)
 				# ignore directories
