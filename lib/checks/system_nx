@@ -36,7 +36,7 @@ system_nx_main () {
 		stdio_message_debug "system_nx" "The CPU supports NX"
 	fi
 	# TODO does uname return HP-UX or HPUX?
-	if [ "`uname`" = "Solaris" -o "`uname`" = "HP-UX" ]
+	if [ "`uname`" = "SunOS" -o "`uname`" = "HP-UX" ]
 	then
 		if [ "`kernel_nx_logging`" -eq 0 ]
 		then
@@ -45,7 +45,7 @@ system_nx_main () {
 			stdio_message_debug "system_nx" "The system logs NX violations"
 		fi
 	fi
-	if [ "`uname`" = "Solaris" ]
+	if [ "`uname`" = "SunOS" ]
 	then
 		if [ "`kernel_nx_audit`" -eq 0 ]
 		then

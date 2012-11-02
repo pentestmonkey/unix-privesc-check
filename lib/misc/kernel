@@ -62,7 +62,7 @@ kernel_nx() {
 		else
 			printf -- "0\n"
 		fi
-	elif [ "`uname`" = "Solaris" ]
+	elif [ "`uname`" = "SunOS" ]
 	then
 		if [ -n "`egrep -- \"noexec_user_stack\" /etc/system | egrep -v \"_log\" | egrep -- \"1\"`" ]
 		then
@@ -88,7 +88,7 @@ kernel_nx() {
 }
 
 kernel_nx_logging () {
-	if [ "`uname`" = "Solaris" ]
+	if [ "`uname`" = "SunOS" ]
 	then
 		if [ -n "`egrep -- \"noexec_user_stack_log\" /etc/system | egrep -- \"1\"`" ]
 		then
@@ -116,7 +116,7 @@ kernel_nx_logging () {
 }
 
 kernel_nx_audit () {
-	if [ "`uname`" = "Solaris" ]
+	if [ "`uname`" = "SunOS" ]
 	then
 		if [ -n "`egrep -- \"c2audit:audit_load\" /etc/system | egrep -- \"1\"`" ]
 		then
