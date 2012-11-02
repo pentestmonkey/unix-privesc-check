@@ -192,7 +192,19 @@ binary_matches_string () {
 	pattern="${2}"
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
-	# keep grep here, egrep does not work for regular expressions with ranges (e.g. "[{,},a-z,A-Z,0-9,_,-]*")
+	if [ -n "`strings \"${filename}\" | egrep -- \"${pattern}\"`" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
+
+binary_matches_string_grep () {
+	filename="${1}"
+	pattern="${2}"
+	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`strings \"${filename}\" | grep -- \"${pattern}\"`" ]
 	then
 		printf -- "1\n"

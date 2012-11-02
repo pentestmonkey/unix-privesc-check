@@ -37,7 +37,7 @@ privileged_environment_variables_main () {
 		if [ "`file_is_textual \"${filename}\"`" -ne 1 ]
 		then
 			continue
-		elif [ "`binary_matches_string \"${filename}\" \"\$[{,},a-z,A-Z,0-9,_,-]*\"`" -eq 1 ]
+		elif [ "`binary_matches_string_grep \"${filename}\" \"\$[{,},a-z,A-Z,0-9,_,-]*\"`" -eq 1 ]
 		then
 			stdio_message_warn "privileged_environment_variables" "${filetype} ${filename} (${usergroupid}) uses environment variables, verify that it does not use them unsafely"
 		fi
