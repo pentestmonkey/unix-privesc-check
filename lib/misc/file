@@ -141,6 +141,7 @@ file_show_symlinked_filename () {
 					#stdio_message_debug "file" "file_show_symlinked_filename returning ${linkedfilename}"
 				fi
 				;;
+			# TODO handle the case where symlinked file is a relative path (e.g. ../linkedfilename)
 			*)
 				if [ -n "${linkedfilename}" ]
 				then
