@@ -221,7 +221,7 @@ binary_matches_function () {
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
-		printf -- "1\n"
+		printf -- "0\n"
 	elif [ -n "`objdump -T "${filename}" | egrep "${pattern}"`" ]
 	then
 		printf -- "1\n"
@@ -238,7 +238,7 @@ binary_banned_api () {
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
-		printf -- "\n"
+		printf -- ""
 	else
 		printf -- "`objdump -T "${filename}" | egrep -o "${pattern}" | sort -u | xargs | tr " " ","`"
 	fi
