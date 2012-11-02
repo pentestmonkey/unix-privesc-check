@@ -33,18 +33,18 @@ privileged_tmp_init () {
 privileged_tmp_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
-		if [ "`binary_matches_string "${filename}" "/tmp"`" -eq 1 ]
+		if [ "`binary_matches_string \"${filename}\" \"/tmp\"`" -eq 1 ]
 		then
-			if [ "`binary_matches_function "${filename}" "mkstemp|tempnam|tmpfile"`" -eq 1 ]
+			if [ "`file_is_textual \"${filename}\"`" -eq 1 -a "`binary_matches_string \"${filename}\" \">\"`" -eq 1 ]
+			then
+				stdio_message_warn "privileged_tmp" "${filetype} ${filename} script (${usergroupid}) may create predictable files in /tmp unsafely"
+			elif [ "`binary_matches_function \"${filename}\" \"mkstemp|tempnam|tmpfile\"`" -eq 1 ]
 			then
 				# XXX is part of template filename that is replaced by mkstemp, etc. - without an XXX, we assume the filename is likely to be predictable
-				if [ "`binary_matches_string "${filename}" "XXX"`" -ne 1 ]
+				if [ "`binary_matches_string \"${filename}\" \"XXX\"`" -ne 1 ]
 				then
 					stdio_message_warn "privileged_tmp" "${filetype} ${filename} (${usergroupid}) may create predictable files in /tmp unsafely"
 				fi
-			elif [ "`file_is_textual \"${filename}\"`" -eq 1 ]
-				stdio_message_warn "privileged_tmp" "${filetype} ${filename} (${usergroupid}) may create predictable files in /tmp unsafely"
-			then
 			fi
 		fi
 	done
