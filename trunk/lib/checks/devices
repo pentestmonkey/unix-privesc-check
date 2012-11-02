@@ -35,6 +35,9 @@ devices_permissions () {
 	if [ -n "${mountpoint}" ]
 	then
 		message="mounted to ${mountpoint}"
+	elif [ "`device_is_swap \"${device}\"`" -eq 1 ]
+	then
+		message="swap"
 	else
 		message="not mounted"
 	fi

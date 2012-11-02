@@ -81,10 +81,27 @@ device_blkid_list () {
 	done | sort | uniq
 }
 
+device_swap_list () {
+	# TODO does uname return HP-UX or HPUX?
+	if [ "`uname`" = "HP-UX" ]
+	then
+		swapinfo | egrep -v "^dev" | egrep -- "^/" | while read _ _ _ _ _ _ _ _ device _
+		do
+			printf -- "${device}\n"
+		done | sort | uniq
+	else
+		swapon -s | egrep -- "^/" | while read device _ _ _ _
+		do
+			printf -- "${device}\n"
+		done | sort | uniq
+	fi
+}
+
 device_list () {
 	device_mounted_list
 	device_fstab_list
 	device_blkid_list
+	device_swap_list
 }
 
 device_get_mountpoint () {
@@ -97,6 +114,21 @@ device_get_mountpoint () {
 			printf -- "${mountpoint}\n"
 		fi
 	done
+}
+
+device_is_swap () {
+	pattern="${1}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
+	ret="0"
+	device_swap_list | while read device
+	do
+		if [ "${device}" = "${pattern}" ]
+		then
+			ret="1"
+			break
+		fi
+	done
+	printf -- "${ret}\n"
 }
 
 fi
