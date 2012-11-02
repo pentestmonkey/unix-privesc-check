@@ -77,7 +77,6 @@ privileged_writable_main () {
 		then
 			stdio_message_debug "privileged_writable" "${filetype} ${filename} does not exist"
 		fi
-
 		file_parent_traverse "${filename}" | while read filepath
 		do
 			file_show_non_symlink_perms " ${filepath}$" | while read filepath permissions userid groupid
