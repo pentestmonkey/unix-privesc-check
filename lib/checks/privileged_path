@@ -33,9 +33,9 @@ privileged_path_init () {
 privileged_path_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
-		if [ "`binary_matches_string "${filename}" "PATH="`" -eq 1 ]
+		if [ "`binary_matches_string \"${filename}\" \"PATH=\"`" -eq 1 ]
 		then
-			stdio_message_warn "privileged_path" "${filetype} ${filename} (${usergroupid}) and may set PATH unsafely"
+			stdio_message_warn "privileged_path" "${filetype} ${filename} (${usergroupid}) sets PATH environment variable, verify that it does not set it unsafely"
 		fi
 	done
 }
