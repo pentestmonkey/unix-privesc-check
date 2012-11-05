@@ -23,10 +23,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 [UPC002] WARNING: $O_MESSAGE_STACK The group $O_FILE_GROUP can write to $O_FILE
 [UPC003] WARNING: $O_MESSAGE_STACK World write is set for $O_FILE (but sticky bit set)
 [UPC004] WARNING: $O_MESSAGE_STACK World write is set for $O_FILE
-[UPC009] WARNING: NIS is used for authentication on this system
-[UPC010] WARNING: LDAP is used for authentication on this system
-[UPC011] WARNING: NIS is used for authentication on this system
-[UPC012] WARNING: LDAP is used for authentication on this system
 [UPC019] WARNING: Postgres trust configured in $DIR/pg_hba.conf: $LINE
 [UPC020] WARNING: Can connect to local postgres database as \
 [UPC021] WARNING: Can connect to local postgres database as \
