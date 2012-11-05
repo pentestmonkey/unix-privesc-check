@@ -23,10 +23,10 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC006 || credentials, homedirs_executable, homedirs_writable, jar, key_material, system_configuration || $O_MESSAGE_STACK The group $O_FILE_GROUP can read $O_FILE || ||
 || UPC007 || credentials, homedirs_executable, homedirs_writable, jar, key_material, system_configuration || $O_MESSAGE_STACK World read is set for $O_FILE || ||
 || UPC008 || passwd_hashes || /etc/passwd allows external authentcation || ||
-|| UPC009 || TODO || NIS is used for authentication on this system || ||
-|| UPC010 || TODO || LDAP is used for authentication on this system || ||
-|| UPC011 || TODO || NIS is used for authentication on this system || ||
-|| UPC012 || TODO || LDAP is used for authentication on this system || ||
+|| UPC009 || nis_authentication || NIS is used for authentication on this system || ||
+|| UPC010 || ldap_authentication || LDAP is used for authentication on this system || ||
+|| UPC011 || nis_authentication || NIS is used for authentication on this system || ||
+|| UPC012 || ldap_authentication || LDAP is used for authentication on this system || ||
 || UPC013 || passwd_hashes || There seem to be some password hashes in /etc/passwd || ||
 || UPC014 || passwd_hashes || The following accounts have no password || ||
 || UPC015 || shadow_hashes || User $USER doesn't have a password || ||
