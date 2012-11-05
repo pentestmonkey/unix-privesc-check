@@ -33,9 +33,9 @@ Version 1 contains some checks that have not been ported across.  It is more mat
 || UPC016 || shadow_hashes || User $USER doesn't have a password || ||
 || UPC017 || sudo || Sudo is configured.  Manually check nothing unsafe is allowed || ||
 || UPC018 || sudo || Some users can use sudo without a password || ||
-|| UPC019 || TODO || Postgres trust configured in $DIR/pg_hba.conf $LINE || ||
-|| UPC020 || TODO || Can connect to local postgres database as \"postgres\" without a password || ||
-|| UPC021 || TODO || Can connect to local postgres database as \"pgsql\" without a password || ||
+|| UPC019 || postgresql_trust || Postgres trust configured in $DIR/pg_hba.conf $LINE || ||
+|| UPC020 || postgresql_connection || Can connect to local postgres database as \"postgres\" without a password || ||
+|| UPC021 || postgresql_connection || Can connect to local postgres database as \"pgsql\" without a password || ||
 || UPC022 || devices_options || This system is an NFS client.  Check for nosuid and nodev options. || ||
 || UPC023 || setuid, setgid, privileged_* || SetUID/SetGID shell script, may be vulnerable to race attacks || ||
 || UPC024 || credentials || Cleartext subversion passsword file $FILE || ||
