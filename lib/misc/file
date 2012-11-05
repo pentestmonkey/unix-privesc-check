@@ -168,7 +168,6 @@ file_matches_string () {
 
 file_parent_traverse () {
 	filename="${1}"
-	[ "`validate_is_string \"${filename}\"`" ] || false
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
@@ -181,7 +180,6 @@ file_parent_traverse () {
 
 file_is_textual () {
 	filename="${1}"
-	[ "`validate_is_string \"${filename}\"`" ] || false
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
 	then
