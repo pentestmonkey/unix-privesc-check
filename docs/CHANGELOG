@@ -1,5 +1,7 @@
 2012-11-05 unix-privesc-check trunk
 
+* Added ldap library and ldap_authentication security check
+* Added nis library and nis_authentication security check
 * Added privileged_arguments security check to verify if textual
   privileged files (like bash scripts) accept arguments from command line
 * Added security check to verify device mount options: dev, suid, user
