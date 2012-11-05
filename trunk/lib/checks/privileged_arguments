@@ -37,7 +37,7 @@ privileged_arguments_main () {
 		if [ "`file_is_textual \"${filename}\"`" -ne 1 ]
 		then
 			continue
-		elif [ "`binary_matches_string_grep \"${filename}\" \"\$[{,},0-9]*\"`" -eq 1 ]
+		elif [ "`binary_matches_string_grep \"${filename}\" \"\$[\{]*[[:digit:]][\}]*\"`" -eq 1 ]
 		then
 			stdio_message_warn "privileged_arguments" "${filetype} ${filename} (${usergroupid}) accepts arguments, verify that it does not use them unsafely"
 		fi
