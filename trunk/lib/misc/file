@@ -184,6 +184,10 @@ file_is_textual () {
 	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
 	then
 		printf -- "1\n"
+	# consider empty files as textual files
+	elif [ -n "`file \"${filename}\" | grep -i \" empty\"`" ]
+	then
+		printf -- "1\n"
 	else
 		printf -- "0\n"
 	fi
