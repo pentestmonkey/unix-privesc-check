@@ -9,6 +9,7 @@
 * Added nis library and nis_authentication security check
 * Added privileged_arguments security check to verify if textual
   privileged files (like bash scripts) accept arguments from command line
+* Added init library and support in privileged library
 * Added security check to verify device mount options: dev, suid, user
 * Added function file_is_basename to file library
 * Renamed devices security check to devices_permission
