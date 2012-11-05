@@ -168,6 +168,7 @@ file_matches_string () {
 
 file_parent_traverse () {
 	filename="${1}"
+	[ "`validate_is_string \"${filename}\"`" ] || false
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	# start with the dependency itself and then use dirname to find the parent directory
 	while [ "${filename}" != "/" ]
@@ -180,6 +181,7 @@ file_parent_traverse () {
 
 file_is_textual () {
 	filename="${1}"
+	[ "`validate_is_string \"${filename}\"`" ] || false
 	[ "`file_is_regular_file \"${filename}\"`" ] || false
 	if [ -n "`file \"${filename}\" | grep -i \" text\"`" ]
 	then
@@ -191,6 +193,7 @@ file_is_textual () {
 
 file_exists_file () {
 	filename="${1}"
+	[ "`validate_is_string \"${filename}\"`" ] || false
 	if [ -e "${filename}" ]
 	then
 		printf -- "1\n"
@@ -202,6 +205,7 @@ file_exists_file () {
 
 file_is_regular_file () {
 	filename="${1}"
+	[ "`validate_is_string \"${filename}\"`" ] || false
 	if [ -f "${filename}" ]
 	then
 		printf -- "1\n"
@@ -213,6 +217,7 @@ file_is_regular_file () {
 
 file_is_readable_file () {
 	filename="${1}"
+	[ "`validate_is_string \"${filename}\"`" ] || false
 	if [ -e "${filename}" -a -r "${filename}" ]
 	then
 		printf -- "1\n"
@@ -224,7 +229,21 @@ file_is_readable_file () {
 
 file_is_directory () {
 	filename="${1}"
+	[ "`validate_is_string \"${filename}\"`" ] || false
 	if [ -e "${filename}" -a -d "${filename}" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
+}
+
+file_is_basename () {
+	filepath="${1}"
+	filename="${2}"
+	[ "`validate_is_string \"${filepath}\"`" ] || false
+	[ "`validate_is_string \"${filename}\"`" ] || false
+	if [ "`basename \"${filepath}\"`" = "${filename}" ]
 	then
 		printf -- "1\n"
 	else
