@@ -19,31 +19,31 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Check if textual privileged files (like bash scripts) use environment
-# variables
+# Check if textual privileged files (like bash scripts) accept user-provided
+# arguments
 
 . lib/misc/stdio
 . lib/misc/privileged
 . lib/misc/binary
 
-privileged_environment_variables_init () {
-	stdio_message_log "privileged_environment_variables" "Starting at: `date`"
+privileged_arguments_init () {
+	stdio_message_log "privileged_arguments" "Starting at: `date`"
 }
 
-privileged_environment_variables_main () {
+privileged_arguments_main () {
 	privileged_list | while read filetype filename usergroupid
 	do
 		# skip non textual files
 		if [ "`file_is_textual \"${filename}\"`" -ne 1 ]
 		then
 			continue
-		elif [ "`binary_matches_string_grep \"${filename}\" \"\$[{,},a-z,A-Z,_,-]*\"`" -eq 1 ]
+		elif [ "`binary_matches_string_grep \"${filename}\" \"\$[{,},0-9]*\"`" -eq 1 ]
 		then
-			stdio_message_warn "privileged_environment_variables" "${filetype} ${filename} (${usergroupid}) uses environment variables, verify that it does not use them unsafely"
+			stdio_message_warn "privileged_arguments" "${filetype} ${filename} (${usergroupid}) accepts arguments, verify that it does not use them unsafely"
 		fi
 	done
 }
 
-privileged_environment_variables_fini () {
-	stdio_message_log "privileged_environment_variables" "Ending at: `date`"
+privileged_arguments_fini () {
+	stdio_message_log "privileged_arguments" "Ending at: `date`"
 }
