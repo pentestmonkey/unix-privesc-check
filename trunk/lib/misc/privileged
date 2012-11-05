@@ -27,6 +27,7 @@ privilegedincluded=1
 . lib/misc/cron
 . lib/misc/file
 . lib/misc/inetd
+. lib/misc/init
 . lib/misc/inittab
 . lib/misc/process
 . lib/misc/stdio
@@ -72,6 +73,20 @@ privileged_check_or_generate_cache () {
 			file_show_real_filename "${filename}" | while read realfilename
 			do
 				printf -- "inittab ${realfilename} ${userid}\n"
+			done
+		done >>"${privilegedcachefilename}"
+		init_list | while read userid filename
+		do
+			printf -- "init.d ${filename} ${userid}\n"
+			init_file_extract_paths "${filename}" | while read userid filepath
+			do
+				# avoid duplicates' file paths
+				if [ -n "`egrep \"^init.d-path ${filepath} ${userid}$\" ${privilegedcachefilename}`" ]
+				then
+					continue
+				else
+					printf -- "init.d-path ${filepath} ${userid}\n"
+				fi
 			done
 		done >>"${privilegedcachefilename}"
 		sudo_list | while read privilegeduser passwd privilegedfilename
