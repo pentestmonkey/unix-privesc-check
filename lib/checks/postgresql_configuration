@@ -31,32 +31,29 @@ postgresql_configuration_init () {
 }
 
 postgresql_configuration_main () {
-	file_show_perms " /etc/postgresql/" | while read filename permissions userid groupid
+	file_show_perms "/pg_hba.conf$" | while read filename permissions userid groupid
 	do
-		if [ "`file_is_basename \"${filename}\" \"pg_hba.conf\"`" -eq 1 ]
-		then
-			case "${permissions}" in
-				???????r??)
-					stdio_message_warn "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
-					;;
-				????r?????)
-					if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
-					then
-						stdio_message_warn "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
-					else
-						stdio_message_log "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
-					fi
-					;;
-				?r????????)
-					if [ "`user_is_user_name \"${userid}\"`" -eq 1 ]
-					then
-						stdio_message_log "postgresql_configuration" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
-					else
-						stdio_message_debug "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
-					fi
-					;;
-			esac
-		fi
+		case "${permissions}" in
+			???????r??)
+				stdio_message_warn "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
+				;;
+			????r?????)
+				if [ "`group_is_in_group_name \"${groupid}\"`" -eq 1 ]
+				then
+					stdio_message_warn "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}: YOU) and is group-readable (${permissions})"
+				else
+					stdio_message_log "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}) and is group-readable (${permissions})"
+				fi
+				;;
+			?r????????)
+				if [ "`user_is_user_name \"${userid}\"`" -eq 1 ]
+				then
+					stdio_message_log "postgresql_configuration" "${filename} is owned by user ${userid} (YOU) (group ${groupid}) (${permissions})"
+				else
+					stdio_message_debug "postgresql_configuration" "${filename} is owned by user ${userid} (group ${groupid}) (${permissions})"
+				fi
+				;;
+		esac
 	done
 }
 
