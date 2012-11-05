@@ -41,7 +41,7 @@ device_fstab_check () {
 device_fstab_list () {
 	if [ "`device_fstab_check`" -eq 1 ]
 	then
-		cat "/etc/fstab" | egrep -v "^#|^$" | while read device mountpoint type options _ _
+		cat "/etc/fstab" | egrep -v "^#|^$" | while read device mountpoint filesystem options _ _
 		do
 			if [ -n "`printf -- \"${device}\" | egrep -- \"^/\"`" ]
 			then
@@ -104,14 +104,96 @@ device_list () {
 	device_swap_list
 }
 
-device_get_mountpoint () {
+device_list_options () {
+	if [ "`device_fstab_check`" -eq 1 ]
+	then
+		cat "/etc/fstab" | egrep -v "^#|^$" | while read device mountpoint filesystem options _ _
+		do
+			# retrieve device file path from UUID representation
+			if [ -n "`printf -- \"${device}\" | egrep -- \"^UUID=\"`" ]
+			then
+				uuid="`printf \"${device}\" | cut -c6-`"
+				device="`device_uuid_to_filename \"${uuid}\"`"
+			# ignore swap
+			elif [ "${filesystem}" = "swap" ]
+			then
+				continue
+			fi
+			printf -- "${device} ${options}\n"
+		done
+	fi
+}
+
+device_get_mountpoint_from_blkid () {
 	pattern="${1}"
 	[ "`validate_is_string \"${pattern}\"`" ] || false
-	mount | egrep -- "^${device}" | while read device _ mountpoint _ _ _
+	[ "`file_show_real_filename \"blkid\"`" ] || false
+	blkid="`file_show_real_filename \"blkid\"`"
+	#blkid -o list | while read device filesystem label mountpoint uuid
+	blkid -o list | while read device filesystem mountpoint uuid
 	do
 		if [ "${device}" = "${pattern}" ]
 		then
 			printf -- "${mountpoint}\n"
+		fi
+	done
+}
+
+device_get_mountpoint_from_fstab () {
+	pattern="${1}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
+	if [ "`device_fstab_check`" -eq 1 ]
+	then
+		cat "/etc/fstab" | egrep -v "^#|^$" | while read device mountpoint filesystem options _ _
+		do
+			if [ "${device}" = "${pattern}" ]
+			then
+				printf -- "${mountpoint}\n"
+			fi
+		done
+	fi
+}
+
+device_get_mountpoint_from_mount () {
+	pattern="${1}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
+	mount | egrep -- "^${pattern}" | while read device _ mountpoint _ _ _
+	do
+		if [ "${device}" = "${pattern}" ]
+		then
+			printf -- "${mountpoint}\n"
+		fi
+	done
+}
+
+device_get_mountpoint () {
+	pattern="${1}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
+	if [ -n "`device_get_mountpoint_from_mount \"${pattern}\" | egrep -- \"^/\"`" ]
+	then
+		printf -- "`device_get_mountpoint_from_mount \"${pattern}\" | egrep -- \"^/\"`\n"
+	elif [ -n "`device_get_mountpoint_from_fstab \"${pattern}\" | egrep -- \"^/\"`" ]
+	then
+		printf -- "`device_get_mountpoint_from_fstab \"${pattern}\" | egrep -- \"^/\"`\n"
+	elif [ -n "`device_get_mountpoint_from_blkid \"${pattern}\" | egrep -- \"^/\"`" ]
+	then
+		printf -- "`device_get_mountpoint_from_blkid \"${pattern}\" | egrep -- \"^/\"`\n"
+
+	fi
+}
+
+device_uuid_to_filename () {
+	pattern="${1}"
+	[ "`validate_is_string \"${pattern}\"`" ] || false
+	[ "`file_show_real_filename \"blkid\"`" ] || false
+	blkid="`file_show_real_filename \"blkid\"`"
+	#blkid -o list | while read device filesystem label mountpoint uuid
+	blkid -o list | while read device filesystem mountpoint uuid
+	do
+		if [ "${uuid}" = "${pattern}" ]
+		then
+			printf -- "${device}\n"
+			break
 		fi
 	done
 }
