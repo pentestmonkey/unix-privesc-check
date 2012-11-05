@@ -1,10 +1,16 @@
 2012-11-05 unix-privesc-check trunk
 
+* Add support for PostgreSQL
+  * Added postgresql_configuration security check
+  * Added postgresql_connection security check
+  * Added postgresql_trust security check
+  * Added postgresql library
 * Added ldap library and ldap_authentication security check
 * Added nis library and nis_authentication security check
 * Added privileged_arguments security check to verify if textual
   privileged files (like bash scripts) accept arguments from command line
 * Added security check to verify device mount options: dev, suid, user
+* Added function file_is_basename to file library
 * Renamed devices security check to devices_permission
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
