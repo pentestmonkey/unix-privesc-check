@@ -19,17 +19,17 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 #
-# Check for world-readable and world-writable permissions on block devices
+# Check for world-readable and world-writable permissions on devices files
 
 . lib/misc/device
 . lib/misc/file
 . lib/misc/stdio
 
-devices_init () {
-	stdio_message_log "devices" "Starting at: `date`"
+devices_permission_init () {
+	stdio_message_log "devices_permission" "Starting at: `date`"
 }
 
-devices_permissions () {
+devices_permission_permissions () {
 	device="${1}"
 	mountpoint="`device_get_mountpoint \"${device}\"`"
 	if [ -n "${mountpoint}" ]
@@ -45,19 +45,19 @@ devices_permissions () {
 	do
 		case "${permissions}" in
 			???????rw?)
-				stdio_message_warn "devices" "device file ${filename} (${message}) is owned by user ${userid} (group ${groupid}) and is world-readable and world-writable (${permissions})"
+				stdio_message_warn "devices_permission" "device file ${filename} (${message}) is owned by user ${userid} (group ${groupid}) and is world-readable and world-writable (${permissions})"
 				;;
 			????????w?)
-				stdio_message_warn "devices" "device file ${filename} (${message}) is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
+				stdio_message_warn "devices_permission" "device file ${filename} (${message}) is owned by user ${userid} (group ${groupid}) and is world-writable (${permissions})"
 				;;
 			???????r??)
-				stdio_message_warn "devices" "device file ${filename} (${message}) is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
+				stdio_message_warn "devices_permission" "device file ${filename} (${message}) is owned by user ${userid} (group ${groupid}) and is world-readable (${permissions})"
 				;;
 		esac
 	done
 }
 
-devices_main () {
+devices_permission_main () {
 	device_list | while read device
 	do
 		if [ -h "${device}" ]
@@ -67,14 +67,14 @@ devices_main () {
 			then
 				continue
 			fi
-			#stdio_message_debug "devices" "device file ${device} is a symbolic link to ${linkeddevice}"
-			devices_permissions "${linkeddevice}"
+			#stdio_message_debug "devices_permission" "device file ${device} is a symbolic link to ${linkeddevice}"
+			devices_permission_permissions "${linkeddevice}"
 		else
-			devices_permissions "${device}"
+			devices_permission_permissions "${device}"
 		fi
 	done
 }
 
-devices_fini () {
-	stdio_message_log "devices" "Ending at: `date`"
+devices_permission_fini () {
+	stdio_message_log "devices_permission" "Ending at: `date`"
 }
