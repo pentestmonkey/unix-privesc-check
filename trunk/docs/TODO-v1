@@ -30,6 +30,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 [UPC019] WARNING: Postgres trust configured in $DIR/pg_hba.conf: $LINE
 [UPC020] WARNING: Can connect to local postgres database as \
 [UPC021] WARNING: Can connect to local postgres database as \
-[UPC022] WARNING: This system is an NFS client.  Check for nosuid and nodev options.
-[UPC023] WARNING: SetUID shell script, may be vulnerable to race attacks
 [UPC043] WARNING: fscaps shell script, may be vulnerable to race attacks

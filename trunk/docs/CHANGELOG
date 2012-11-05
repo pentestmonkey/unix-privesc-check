@@ -1,3 +1,46 @@
+2012-11-05 unix-privesc-check trunk
+
+* Added privileged_arguments security check to verify if textual
+  privileged files (like bash scripts) accept arguments from command line
+* Added security check to verify device mount options: dev, suid, user
+* Renamed devices security check to devices_permission
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-11-02 unix-privesc-check trunk
+
+* Bug fix: uname on Solaris returns SunOS
+* Added device library and a security check to verify world-readable and
+  world-writable permission on all device files including swap device(s)
+* Improved cron library to correctly handle PATH variable from /etc/crontab
+  and to differentiate programs lauched by /etc/crontab with
+  /etc/cron.[hourly|daily|monthly]
+* Added privileged_environment_variables security check to verify if textual
+  privileged files (like bash scripts) use environment variables
+* Improved privileged_tmp security check to also process textual privileged
+  files (like bash scripts)
+* Added binary_matches_string_grep function to binary library to avoid
+  interpreting the pattern as an extended regular expression
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
+2012-11-01 unix-privesc-check trunk
+
+* Bug fix: return value in binary library
+* Bug fix: avoid recursing the linker_list_dependencies function
+* Added inittab library and support in privileged library
+* Improved system_configuration security check to display also sensitive
+  directories and their content
+* Improved system_configuration security check to notify about writable
+  configuration files by non-root users
+* More detailed stdout messages for file owner condition across relevant
+  security checks
+* Updated the shadow library and shadow_hash security check to display a
+  warning message when the password hashes file is readable
+* Cleaned the code of privileged_dependency check
+
+-- Bernardo Damele A. G. <bernardo.damele@gmail.com>
+
 2012-10-31 unix-privesc-check trunk
 
 * Added cron library to parse /etc/cron*, /var/spool/cron/crontabs/*,
