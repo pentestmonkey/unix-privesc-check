@@ -1,6 +1,7 @@
 2012-11-14 unix-privesc-check trunk
 
 * Tidied docs/CHANGELOG
+* Updated docs/HACKING
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
