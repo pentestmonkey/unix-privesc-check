@@ -21,7 +21,7 @@
 
 . lib/misc/stdio
 
-header() {
+header () {
 	VERSION="2.1"
 	SVNVERSION="$Revision$" # Don't change this line.  Auto-updated.
 	SVNVNUM="`echo $SVNVERSION | sed \"s/[^0-9]//g\"`"
@@ -31,7 +31,7 @@ header() {
 	printf "unix-privesc-check v${VERSION} ( http://code.google.com/p/unix-privesc-check )\n\n"
 }
 
-version() {
+version () {
 	header
 	preamble
 	printf "Brought to you by:\n"
@@ -39,11 +39,11 @@ version() {
 	exit 1
 }
 
-preamble() {
+preamble () {
 	printf "Shell script to check for simple privilege escalation vectors on Unix systems.\n\n"
 }
 
-usage() {
+usage () {
 	header
 	preamble
 	printf "Usage: ${0}\n"
@@ -68,6 +68,7 @@ usage() {
 	exit 1
 }
 
+# TODO make it use lib/misc/validate
 CHECKS=""
 CHECKTYPE="all"
 COLORING="0"
