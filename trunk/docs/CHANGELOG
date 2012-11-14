@@ -3,6 +3,8 @@
 * Tidied docs/CHANGELOG
 * Updated docs/HACKING
 * Tidied upc.sh
+* Added tools/generate_docs.sh to generate stub documentation for
+  lib/misc/* and lib/checks/*
 
 -- Tim Brown <timb@nth-dimension.org.uk>
 
