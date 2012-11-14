@@ -1,106 +1,112 @@
+2012-11-14 unix-privesc-check trunk
+
+* Tidied docs/CHANGELOG
+
+-- Tim Brown <timb@nth-dimension.org.uk>
+
 2012-11-05 unix-privesc-check trunk
 
 * Add support for PostgreSQL
-  * Added postgresql_configuration security check
-  * Added postgresql_connection security check
-  * Added postgresql_trust security check
-  * Added postgresql library
-* Added ldap library and ldap_authentication security check
-* Added nis library and nis_authentication security check
-* Added privileged_arguments security check to verify if textual
+  * Added lib/checks/postgresql_configuration
+  * Added lib/checks/postgresql_connection
+  * Added lib/checks/postgresql_trust
+  * Added lib/misc/postgresql
+* Added lib/misc/ldap and lib/checks/ldap_authentication
+* Added lib/misc/nis and lib/checks/nis_authentication
+* Added lib/checks/privileged_arguments to verify if textual
   privileged files (like bash scripts) accept arguments from command line
-* Added init library and support in privileged library
+* Added lib/misc/init and support in lib/misc/privileged
 * Added security check to verify device mount options: dev, suid, user
-* Added function file_is_basename to file library
-* Renamed devices security check to devices_permission
+* Added function file_is_basename to lib/misc/file
+* Renamed lib/checks/devices to lib/checks/devices_permission
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-11-02 unix-privesc-check trunk
 
 * Bug fix: uname on Solaris returns SunOS
-* Added device library and a security check to verify world-readable and
+* Added lib/misc/device and lib/checks/devices to verify world-readable and
   world-writable permission on all device files including swap device(s)
-* Improved cron library to correctly handle PATH variable from /etc/crontab
+* Improved lib/misc/cron to correctly handle PATH variable from /etc/crontab
   and to differentiate programs lauched by /etc/crontab with
   /etc/cron.[hourly|daily|monthly]
-* Added privileged_environment_variables security check to verify if textual
+* Added lib/checks/privileged_environment_variables to verify if textual
   privileged files (like bash scripts) use environment variables
-* Improved privileged_tmp security check to also process textual privileged
+* Improved lib/checks/privileged_tmp to also process textual privileged
   files (like bash scripts)
-* Added binary_matches_string_grep function to binary library to avoid
+* Added binary_matches_string_grep function to lib/misc/binary to avoid
   interpreting the pattern as an extended regular expression
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-11-01 unix-privesc-check trunk
 
-* Bug fix: return value in binary library
-* Bug fix: avoid recursing the linker_list_dependencies function
-* Added inittab library and support in privileged library
-* Improved system_configuration security check to display also sensitive
+* Bug fix: Return value in lib/misc/binary
+* Bug fix: Avoid recursing the linker_list_dependencies function
+* Added lib/misc/inittab and support in lib/misc/privileged
+* Improved lib/checks/system_configuration check to display also sensitive
   directories and their content
-* Improved system_configuration security check to notify about writable
+* Improved lic/checks/system_configuration to notify about writable
   configuration files by non-root users
-* More detailed stdout messages for file owner condition across relevant
-  security checks
-* Updated the shadow library and shadow_hash security check to display a
+* More detailed stdout messages for file owner condition across
+  lib/checks/*
+* Updated the lib/misc/shadow and lib/checks/shadow_hash to display a
   warning message when the password hashes file is readable
-* Cleaned the code of privileged_dependency check
+* Cleaned the code of libs/checks/privileged_dependency
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-10-31 unix-privesc-check trunk
 
-* Added cron library to parse /etc/cron*, /var/spool/cron/crontabs/*,
-  crontab -l and used it in privileged library
+* Added lib/misc/cron to parse /etc/cron*, /var/spool/cron/crontabs/*,
+  crontab -l and used it in lib/misc/privileged
 * Enhanced process_show_command function to process /proc/PID/environ and
   return script file path instead of ruby, perl, bash, etc
 * Added parse_environ_cwd function to parse /proc/PID/environ file and
   extract the process current working directory
 * Added a preliminary check to all functions that call objdump to ensure
   the file is not a textual file (like a bash script, etc)
-* Added other file paths to check for permissions in system_configuration
-  security check
-* Added file_is_directory function to file library
+* Added other file paths to check for permissions in
+  lib/checks/system_configuration
+* Added file_is_directory function to lib/misc/file
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-10-30 unix-privesc-check trunk
 
-* Added sudo security check to verify permissions on /etc/sudoers and its
+* Added lib/checks/sudo to verify permissions on /etc/sudoers and its
   entries
-  * Added functions to parse /etc/sudoers to sudo library
+  * Added functions to parse /etc/sudoers to lib/misc/sudo
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-10-28 unix-privesc-check trunk
 
-* Added history_readable security check to list all readable .*_history
+* Added lib/checks/history_readable to list all readable .*_history
   files
-* Added homedirs_executable and homedirs_writable security checks
-* Added system_configuration security check to list writable permissions on
+* Added lib/checks/homedirs_executable and lib/checks/homedirs_writable
+* Added lib/checks/system_configuration to list writable permissions on
   system configuration files and directories
 * Added support for --verbose switch
-* Added passwd_show_homedir function to passwd library
+* Added passwd_show_homedir function to lib/misc/passwd
 * Aligned test types (symlinks) to all recently developed security checks
-* Bug fix: in group_is_in_group_name function
+* Bug fix: group_is_in_group_name function
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
 2012-10-22 unix-privesc-check trunk
 
-* Added privileged_nx security check
-* Added privileged_relro security check
-* Added kernel library
-* Added system_aslr security check
-* Added system_mmap security check
-* Added system_nx security check
-* Added system_selinux security check
-* Added permission_is_world_writable_sticky_bit function to permission
-  library
+* Added lib/checks/privileged_nx
+* Added lib/checks/privileged_relro
+* Added lib/misc/kernel
+* Added lib/checks/system_aslr
+* Added lib/checks/system_mmap
+* Added lib/checks/system_nx
+* Added lib/checks/system_selinux
+* Added permission_is_world_writable_sticky_bit function to
+  lib/misc/permission
 * Added support to verify sticky bit against world-writable directories
-* Renamed banned_* security checks to privileged_*
+* Renamed lib/checks/banned_* to lib/checks/privileged_*
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
@@ -130,21 +136,22 @@
 
 * Added library to parse patterns, for now implements only one function to
   extract and return all absolute file paths, parse_extract_absolute_filepaths
-* Added sudo library
-* Added sudo support to privileged library
-* Added user library
-* Added group library
-* Added permission library
-* Added file_is_readable function to file library
-* Added two functions to file library: file_exists_file and
-  file_is_regular_file and 
-* Added validate_is_boolean function to validate library
+* Added lib/misc/sudo
+* Added sudo support to lib/misc/privileged
+* Added lib/misc/user
+* Added lib/misc/group
+* Added lib/misc/permission
+* Added file_is_readable function to lib/misc/file
+* Added two functions to lib/misc/file
+  * file_exists_file and file_is_regular_file
+* Added validate_is_boolean function to lib/misc/validate
 * Added support for --color switch to enable output coloring
-* Updated jar and key_material security checks: removed one cycle, minor
-  refactoring and use new user and group libraries
-* Ported all calls to id command throught the code to their relevant
+* Updated lib/checks/jar and lib/checks/key_material
+  * Removed one cycle, minor refactoring and use lib/misc/user and
+    lib/misc/group
+* Ported all calls to id command through the code to their relevant
   user/group libraries functions
-* Bug fix: missing import bug in binary_rpath security check
+* Bug fix: Missing import bug in lib/checks/binary_rpath
 
 -- Bernardo Damele A. G. <bernardo.damele@gmail.com>
 
@@ -160,22 +167,22 @@
 2012-10-20 unix-privesc-check trunk
 
 * Minor improvements to lib/misc/linker
-* Bug fix: avoid using file as variable name
-* Bug fix: use grep instead of egrep in one file function
+* Bug fix: Avoid using file as variable name
+* Bug fix: Use grep instead of egrep in one file function
 * Consolidated the stdout to clarify where the warning message throughout
-  binary_* checks
-* Improved key_material and jar checks to show more detailed stdout
-* Major speedup to group_writable and world_writable checks
-* Re-engineered binary_dependency check
-* Improved binary_rpath and binary_writable security checks to also verify
+  lib/checks/binary_*
+* Improved lib/checks/key_material and lib/checks/jar to show more detailed stdout
+* Major speedup to lib/checks/group_writable and lib/checks/world_writable
+* Re-engineered lib/checks/binary_dependency
+* Improved lib/checks/binary_rpath and lib/checks/binary_writable to also verify
   write access by non-root users
-* Refactored system_libraries check code
-* Added function to check for SSH key files permissions to ssh_agent
-  security check
-* Renamed ssh_key_unencrypted check to ssh_key
-* Consolidated ssh_agent and ssh_key checks to also show encrypted key files
-* Removed exclusions from credentials security check
-* Created file function file_is_textual
+* Refactored lib/checks/system_libraries code
+* Added function to check for SSH key files permissions to lib/checks/ssh_agent
+* Renamed lib/checks/ssh_key_unencrypted to lib/checks/ssh_key
+* Consolidated lib/checks/ssh_agent and lib/checks/ssh_key checks to also
+  show encrypted key files
+* Removed exclusions from lib/checks/credentials
+* Created lib/misc/file function file_is_textual
 * Improved file_show_symlinked_filename function to be recursive and always
   return the real linked filename
 
