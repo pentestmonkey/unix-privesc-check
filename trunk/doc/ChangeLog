@@ -7,6 +7,7 @@
 * Bug fix: Make flag processing match help order
 * Bug fix: Cleaned up file_is functions in lib/misc/file
 * Bug fix: Output erronous value where value is not a string
+* Bug fix: Make file cache filename less racey
 
 2012-11-14 unix-privesc-check trunk
 
