@@ -40,7 +40,7 @@ version () {
 }
 
 preamble () {
-	printf "Shell script to check for simple privilege escalation vectors on Unix systems.\n\n"
+	printf "Shell script to check for simple privilege escalation vectors on UNIX systems.\n\n"
 }
 
 usage () {
