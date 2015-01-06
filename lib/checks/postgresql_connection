@@ -33,7 +33,7 @@ postgresql_connection_init () {
 postgresql_connection_main () {
 	file_show_perms "/postgresql.conf$" | while read filename permissions userid groupid
 	do
-		if [ "`file_is_readable_file \"${filename}\"`" -eq 1 ]
+		if [ "`file_is_readable \"${filename}\"`" -eq 1 ]
 		then
 			egrep "^port = " "${filename}" | while read _ _ port _
 			do

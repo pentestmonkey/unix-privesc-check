@@ -118,11 +118,11 @@ cron_system_list () {
 
 cron_file_extract_paths () {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	parse_extract_absolute_filepaths "`cat -- \"${filename}\"`" | while read filepath
 	do
 		# do not return file paths that do not exist, are device files or are within /proc
-		if [ "`file_exists_file \"${filepath}\"`" -ne 1 -o -n "`printf -- \"${filepath}\" | egrep -- \"^/dev/\"`" -o -n "`printf -- \"${filepath}\" | egrep -- \"^/proc/\"`" ]
+		if [ "`file_exists \"${filepath}\"`" -ne 1 -o -n "`printf -- \"${filepath}\" | egrep -- \"^/dev/\"`" -o -n "`printf -- \"${filepath}\" | egrep -- \"^/proc/\"`" ]
 		then
 			continue
 		# follow symbolic links

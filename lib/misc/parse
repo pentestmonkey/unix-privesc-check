@@ -44,7 +44,7 @@ parse_extract_absolute_filepaths () {
 parse_environ_cwd () {
 	pid="${1}"
 	[ "`validate_is_number \"${pid}\"`" ] || false
-	if [ "`file_is_readable_file \"/proc/${pid}/environ\"`" -eq 1 ]
+	if [ "`file_is_readable \"/proc/${pid}/environ\"`" -eq 1 ]
 	then
 		# the tail is because /proc/PID/environ contains multiple PWD values, only the last is the current working directory
 		# the cut is to strip the 'PWD=' from the grepped pattern

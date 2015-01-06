@@ -126,7 +126,7 @@ privileged_check_or_generate_cache () {
 		done >>"${privilegedcachefilename}"
 		# crontab can set a different PATH for its process, hence we need to prepend the crontab PATH to ours
 		oldpath="${PATH}"
-		if [ "`file_is_readable_file \"/etc/crontab\"`" ]
+		if [ "`file_is_readable \"/etc/crontab\"`" ]
 		then
 			cronpath="`egrep -o \"^PATH=.*\n\" \"/etc/crontab\" | cut -c6-`"
 			PATH="${cronpath}:${PATH}"

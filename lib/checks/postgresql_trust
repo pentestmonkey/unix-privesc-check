@@ -31,7 +31,7 @@ postgresql_trust_init () {
 postgresql_trust_main () {
 	file_show_perms "/pg_hba.conf$" | while read filename permissions userid groupid
 	do
-		if [ "`file_is_readable_file \"${filename}\"`" -eq 1 ]
+		if [ "`file_is_readable \"${filename}\"`" -eq 1 ]
 		then
 			egrep -v "^#" "${filename}" | egrep -v "^[ \t]*$" | while read authtype database user address method
 			do

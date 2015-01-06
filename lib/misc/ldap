@@ -35,7 +35,7 @@ ldap_authentication_in_use () {
 	# ldap_nis4   Uses NIS LDAP services for resolving only IPv4 addresses
 	# ldap_nis6   Uses NIS LDAP services for resolving only IPv6 addresses
 	# ldap        Uses LDAP services for resolving names
-	if [ "`uname`" = "AIX" -a "`file_is_readable_file \"/etc/netsvc.conf\"`" -eq 1 ]
+	if [ "`uname`" = "AIX" -a "`file_is_readable \"/etc/netsvc.conf\"`" -eq 1 ]
 	then
 		if [ -n "`egrep -- \"^host\" \"/etc/netsvc.conf\" | egrep -- \"ldap\"`" ]
 		then
@@ -43,7 +43,7 @@ ldap_authentication_in_use () {
 		else
 			printf -- "0\n"
 		fi
-	elif [ "`file_is_readable_file \"/etc/nsswitch.conf\"`" -eq 1 ]
+	elif [ "`file_is_readable \"/etc/nsswitch.conf\"`" -eq 1 ]
 	then
 		if [ -n "`egrep -- \"^passwd\" \"/etc/nsswitch.conf\" | egrep -- \"ldap\"`" ]
 		then
