@@ -25,7 +25,7 @@ if [ -z "${fileincluded}" ]
 then
 
 fileincluded=1
-filecachefilename="files_cache.temp"
+filecachefilename="files_cache.$$"
 filecacherootpath="/"
 
 . lib/misc/stdio
