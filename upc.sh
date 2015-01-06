@@ -70,7 +70,7 @@ usage () {
 
 # TODO make it use lib/misc/validate
 CHECKS=""
-CHECKTYPE="all"
+TYPE="all"
 COLORING="0"
 VERBOSE="1"
 while [ -n "${1}" ]
@@ -84,7 +84,7 @@ do
 			;;
 		--type|-t)
 			shift
-			CHECKTYPE="${1}"
+			TYPE="${1}"
 			;;
 		--check|-c)
 			shift
@@ -121,11 +121,11 @@ then
 		fi
 	done
 else
-	if [ ! -d "lib/checks/enabled/${CHECKTYPE}" ]
+	if [ ! -d "lib/checks/enabled/${TYPE}" ]
 	then
-		stdio_message_error "upc" "the provided check type '${CHECKTYPE}' does not exist"
+		stdio_message_error "upc" "the provided check type '${TYPE}' does not exist"
 	else
-		for checkfilename in lib/checks/enabled/${CHECKTYPE}/*
+		for checkfilename in lib/checks/enabled/${TYPE}/*
 		do
 			. "${checkfilename}"
 			`basename "${checkfilename}"`_init

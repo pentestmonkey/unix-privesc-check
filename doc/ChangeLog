@@ -1,6 +1,7 @@
 2015-01-06 unix-privesc-check trunk
 
 * Cleaned up file structure
+* Bug fix: Renamed environment variable from CHECKTYPE to TYPE to match flag
 
 2012-11-14 unix-privesc-check trunk
 
