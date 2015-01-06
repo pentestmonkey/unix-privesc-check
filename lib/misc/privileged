@@ -33,7 +33,7 @@ privilegedincluded=1
 . lib/misc/stdio
 . lib/misc/sudo
 
-privilegedcachefilename="privileged_cache.temp"
+privilegedcachefilename="privileged_cache.$$"
 
 privileged_check_or_generate_cache () {
 	if [ ! -f "${privilegedcachefilename}" ]
