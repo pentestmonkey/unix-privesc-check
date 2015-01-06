@@ -82,6 +82,13 @@ do
 		--version|-v|-V)
 			version
 			;;
+		--color)
+			COLORING="1"
+			;;
+		--verbose)
+			shift
+			VERBOSE="${1}"
+			;;
 		--type|-t)
 			shift
 			TYPE="${1}"
@@ -89,13 +96,6 @@ do
 		--checks|-c)
 			shift
 			CHECKS="${1}"
-			;;
-		--color)
-			COLORING="1"
-			;;
-		--verbose)
-			shift
-			VERBOSE="${1}"
 			;;
 	esac
 	shift
