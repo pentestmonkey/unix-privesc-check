@@ -30,7 +30,7 @@ linkerincluded=1
 
 linker_list_dependencies () {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	[ "`file_is_textual \"${filename}\"`" -eq 0 ] || false
 	if [ "`uname`" = "AIX" ]
 	then

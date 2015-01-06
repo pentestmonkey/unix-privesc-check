@@ -5,6 +5,7 @@
 * Bug fix: Renamed flag from --check to --checks to match environment variable
 * Bug fix: UNIX not Unix
 * Bug fix: Make flag processing match help order
+* Bug fix: Cleaned up file_is functions in lib/misc/file
 
 2012-11-14 unix-privesc-check trunk
 

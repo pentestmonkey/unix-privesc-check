@@ -29,7 +29,7 @@ inittabincluded=1
 . lib/misc/file
 
 inittab_check () {
-	if [ "`file_is_readable_file \"/etc/inittab\"`" -eq 1 ]
+	if [ "`file_is_readable \"/etc/inittab\"`" -eq 1 ]
 	then
 		printf -- "1\n"
 	else
@@ -45,7 +45,7 @@ inittab_list () {
 		egrep -v "^#|^$" "/etc/inittab" | while read _ _ _ filename _
 		do
 			IFS="${oldifs}"
-			if [ "`file_is_regular_file \"${filename}\"`" -eq 1 ]
+			if [ "`file_is_regular \"${filename}\"`" -eq 1 ]
 			then
 				printf -- "root ${filename}\n"
 			fi

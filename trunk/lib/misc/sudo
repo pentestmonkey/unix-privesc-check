@@ -72,7 +72,7 @@ sudo_list () {
 }
 
 sudo_sudoers_check () {
-	if [ "`file_is_readable_file \"/etc/sudoers\"`" -eq 1 ]
+	if [ "`file_is_readable \"/etc/sudoers\"`" -eq 1 ]
 	then
 		printf -- "1\n"
 	else

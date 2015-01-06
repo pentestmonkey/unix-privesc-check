@@ -31,7 +31,7 @@ binaryincluded=1
 
 binary_list_rpath () {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
@@ -95,7 +95,7 @@ binary_list_rpath () {
 
 binary_pie() {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
@@ -115,7 +115,7 @@ binary_pie() {
 
 binary_relro_full() {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
@@ -135,7 +135,7 @@ binary_relro_full() {
 
 binary_relro() {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
@@ -155,7 +155,7 @@ binary_relro() {
 
 binary_nx() {
 	filename="${1}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
 	then
@@ -190,7 +190,7 @@ binary_nx() {
 binary_matches_string () {
 	filename="${1}"
 	pattern="${2}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`strings \"${filename}\" | egrep -- \"${pattern}\"`" ]
 	then
@@ -203,7 +203,7 @@ binary_matches_string () {
 binary_matches_string_grep () {
 	filename="${1}"
 	pattern="${2}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	if [ -n "`strings \"${filename}\" | grep -- \"${pattern}\"`" ]
 	then
@@ -216,7 +216,7 @@ binary_matches_string_grep () {
 binary_matches_function () {
 	filename="${1}"
 	pattern="${2}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]
@@ -233,7 +233,7 @@ binary_matches_function () {
 binary_banned_api () {
 	filename="${1}"
 	pattern="${2}"
-	[ "`file_is_regular_file \"${filename}\"`" ] || false
+	[ "`file_is_regular \"${filename}\"`" ] || false
 	[ "`validate_is_string \"${pattern}\"`" ] || false
 	# skip textual files (bash scripts, python scripts, etc)
 	if [ "`file_is_textual \"${filename}\"`" -eq 1 ]

@@ -30,7 +30,7 @@ deviceincluded=1
 . lib/misc/validate
 
 device_fstab_check () {
-	if [ "`file_is_readable_file \"/etc/fstab\"`" -eq 1 ]
+	if [ "`file_is_readable \"/etc/fstab\"`" -eq 1 ]
 	then
 		printf -- "1\n"
 	else
