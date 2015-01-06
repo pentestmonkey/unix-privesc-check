@@ -57,7 +57,7 @@ usage () {
 	do
 		printf "\t\t`basename ${checktype}`\n"
 	done
-	printf "\t--check\tprovide a comma separated list of checks to run, select from the following checks:\n"
+	printf "\t--checks\tprovide a comma separated list of checks to run, select from the following checks:\n"
 	for check in lib/checks/*
 	do
 		if [ "`basename \"${check}\"`" != "enabled" ]
@@ -86,7 +86,7 @@ do
 			shift
 			TYPE="${1}"
 			;;
-		--check|-c)
+		--checks|-c)
 			shift
 			CHECKS="${1}"
 			;;

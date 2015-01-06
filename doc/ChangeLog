@@ -2,6 +2,7 @@
 
 * Cleaned up file structure
 * Bug fix: Renamed environment variable from CHECKTYPE to TYPE to match flag
+* Bug fix: Renamed flag from --check to --checks to match environment variable
 
 2012-11-14 unix-privesc-check trunk
 
