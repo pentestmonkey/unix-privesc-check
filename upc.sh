@@ -35,7 +35,7 @@ version () {
 	header
 	preamble
 	printf "Brought to you by:\n"
-	cat docs/AUTHORS
+	cat doc/AUTHORS
 	exit 1
 }
 
