@@ -1162,7 +1162,7 @@ fi
 section "Checking fscaps programs"
 if [ "$OS" = "linux" -a -x /sbin/getcap ]; then
 	if [ "$MODE" = "detailed" ]; then
-		for FILE in `find / -type f -exec /sbin/getcap {} \; 2>/dev/null | grep "=" | awk '{print $1}'`; do
+		for FILE in `find / -type f -perm +0011 -exec /sbin/getcap {} \; 2>/dev/null | grep "=" | awk '{print $1}'`; do
 			/sbin/getcap $FILE
 			check_called_programs_fscaps $FILE
 			FSCAPSSCRIPT=`file $FILE | grep script`
