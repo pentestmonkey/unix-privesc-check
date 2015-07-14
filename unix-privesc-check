@@ -922,6 +922,12 @@ elif [ "$OS" = "solaris" ]; then
 			check_perms "$DEVICE is a mounted file system." $DEVICE root
 		fi
 	done
+
+	NFS=`mount -v | grep  -i ' nfs '`
+	if [ -n "$NFS" ]; then
+		echo "[UPC022] WARNING: This system is an NFS client.  Check for nosuid and nodev options."
+		mount -v | grep -i NFS
+	fi
 elif [ "$OS" = "hpux" ]; then
 	mount | while read LINE
 	do
