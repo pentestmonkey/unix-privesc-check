@@ -392,7 +392,7 @@ check_perms () {
 	CHECK_PERMS_USER=$3
 	CHECK_PERMS_PATH=$4 # optional
 
-	if [ ! -f "$CHECK_PERMS_FILE" ] && [ ! -d "$CHECK_PERMS_FILE" ] && [ ! -b "$CHECK_PERMS_FILE" ]; then
+	if [ ! -f "$CHECK_PERMS_FILE" ] && [ ! -d "$CHECK_PERMS_FILE" ] && [ ! -b "$CHECK_PERMS_FILE" ] && [ ! -c "$CHECK_PERMS_FILE" ]; then
 		CHECK_PERMS_FOUND=0
 		if [ ! -z "$CHECK_PERMS_PATH" ]; then 
 			# Look for it in the supplied path
@@ -431,7 +431,7 @@ check_read_perms () {
 	CHECK_PERMS_FILE=$2
 	CHECK_PERMS_USER=$3
 
-	if [ ! -f "$CHECK_PERMS_FILE" ] && [ ! -b "$CHECK_PERMS_FILE" ]; then
+	if [ ! -f "$CHECK_PERMS_FILE" ] && [ ! -b "$CHECK_PERMS_FILE" ] && [ ! -c "$CHECK_PERMS_FILE" ]; then
 		echo "ERROR: File $CHECK_PERMS_FILE doesn't exist"
 		return 0
 	fi
@@ -446,7 +446,7 @@ perms_secure_read () {
 	PERMS_SECURE_FILE=$2
 	PERMS_SECURE_USER=$3
 
-	if [ ! -b "$PERMS_SECURE_FILE" ] && [ ! -f "$PERMS_SECURE_FILE" ] && [ ! -d "$PERMS_SECURE_FILE" ]; then
+	if [ ! -b "$PERMS_SECURE_FILE" ] && [ ! -f "$PERMS_SECURE_FILE" ] && [ ! -d "$PERMS_SECURE_FILE" ] && [ ! -c "$PERMS_SECURE_FILE" ]; then
 		echo "ERROR: No such file or directory: $PERMS_SECURE_FILE.  Skipping."
 		return 0
 	fi
@@ -466,7 +466,7 @@ perms_secure () {
 	PERMS_SECURE_FILE=$2
 	PERMS_SECURE_USER=$3
 
-	if [ ! -d "$PERMS_SECURE_FILE" ] && [ ! -f "$PERMS_SECURE_FILE" ] && [ ! -b "$PERMS_SECURE_FILE" ]; then
+	if [ ! -d "$PERMS_SECURE_FILE" ] && [ ! -f "$PERMS_SECURE_FILE" ] && [ ! -b "$PERMS_SECURE_FILE" ] && [ ! -c "$PERMS_SECURE_FILE" ]; then
 		# echo "ERROR: No such file or directory: $PERMS_SECURE_FILE.  Skipping."
 		return 0
 	fi
