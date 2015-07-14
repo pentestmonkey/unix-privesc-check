@@ -685,7 +685,7 @@ section "Checking if external authentication is allowed in /etc/passwd"
 FLAG=`grep '^+:' /etc/passwd`
 if [ -n "$FLAG" ]; then
 	echo "[UPC008] WARNING: /etc/passwd allows external authentcation:"
-	grep '^+:' /etc/passwd
+	grep '^+' /etc/passwd
 	EXT_AUTH=1
 else
 	echo "No +:... line found in /etc/passwd"
