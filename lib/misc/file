@@ -110,7 +110,7 @@ file_show_real_filename () {
 		*)
 			# AIX errors to stdout, ideally we'd use $? but which on Solaris doesn't exit() differently depending on result :(
 			# TODO maybe we should break it out with uname checks?
-			realfilename="`which \"\`basename \\\"${pattern}\\\"\`\" 2>&1 | egrep -v \"There is no |^no \"`"
+			realfilename="`which \"\`basename \\\"${pattern}\\\"\`\" 2>&1 | egrep -v \"There is no |^no |which: no \"`"
 			if [ -n "${realfilename}" ]
 			then
 				printf -- "${realfilename}\n"
