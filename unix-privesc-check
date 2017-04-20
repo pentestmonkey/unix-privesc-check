@@ -875,14 +875,14 @@ for DIR in $PGDIRS; do
 	fi
 done
 
-PGVER1=`psql -U postgres template1 -c 'select version()' 2>/dev/null | grep version`
+PGVER1=`psql -w -U postgres template1 -c 'select version()' 2>/dev/null | grep version`
 
 if [ -n "$PGVER1" ]; then 
 	PGTRUST=1
 	echo "[UPC020] WARNING: Can connect to local postgres database as \"postgres\" without a password"
 fi
 
-PGVER2=`psql -U pgsql template1 -c 'select version()' 2>/dev/null | grep version`
+PGVER2=`psql -w -U pgsql template1 -c 'select version()' 2>/dev/null | grep version`
 
 if [ -n "$PGVER2" ]; then 
 	PGTRUST=1
