@@ -38,8 +38,13 @@ group_is_trusted () {
 group_is_root () {
 	group="${1}"
 	[ "`validate_is_string \"${group}\"`" ] || false
-	# TODO write this
-	false
+	root="`grep -E '[^:]+:[^:]+:0:' /etc/passwd | head -1 | cut -d: -f1`"
+	if [ "${group}" = "`id -g -n \"${root}\"`" ]
+	then
+		printf -- "1\n"
+	else
+		printf -- "0\n"
+	fi
 }
 
 group_is_group_id () {

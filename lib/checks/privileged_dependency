@@ -68,10 +68,10 @@ privileged_dependency_traverse () {
 					fi
 					;;
 				??w???????)
-					if [ "`user_is_user_root \"${userid}\"`" -ne 1 -a "`user_show_user_name`" = "${userid}" ]
+					if [ "`user_is_root \"${userid}\"`" -ne 1 -a "`user_show_user_name`" = "${userid}" ]
 					then
 						stdio_message_debug "privileged_dependency" "${filetype} ${privfilename} depends on ${library} - ${pathtype} ${filepath} is owned by user ${userid} (YOU) (group ${groupid}), non-root user (${permissions})"
-					elif [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
+					elif [ "`user_is_root \"${userid}\"`" -ne 1 ]
 					then
 						stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${library} - ${pathtype} ${filepath} is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 					fi
@@ -106,7 +106,7 @@ privileged_dependency_permissions () {
 				fi
 				;;
 			??w???????)
-				if [ "`user_is_user_root \"${userid}\"`" -ne 1 ]
+				if [ "`user_is_root \"${userid}\"`" -ne 1 ]
 				then
 					stdio_message_log "privileged_dependency" "${filetype} ${privfilename} depends on ${filename}, this is owned by user ${userid} (group ${groupid}), non-root user (${permissions})"
 				fi
