@@ -19,7 +19,7 @@
 # <mailto:timb@nth-dimension.org.uk>
 # <http://www.nth-dimension.org.uk/> / <http://www.machine.org.uk/>
 
-wget -O - -o /dev/null http://download.microsoft.com/download/2/e/b/2ebac853-63b7-49b4-b66f-9fd85f37c0f5/banned.h | grep "deprecated" | grep -v "\/\/" | sed "s/.*pragma deprecated //g" | tr -d "() \r" | tr "," "\n" | sort | uniq | while read functionname
+wget -O - -o /dev/null https://raw.githubusercontent.com/x509cert/banned/master/banned.h | grep -E "^#.+deprecated" | sed -e 's/^.*(\([^)]*\).*$/\1/' | tr ',' $'\n' | tr -d " " | sort | uniq | while read functionname
 do
 	whatis "${functionname}" >/dev/null 2>&1
 	if [ "${?}" -eq 0 ]
